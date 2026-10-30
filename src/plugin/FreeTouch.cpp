@@ -426,6 +426,14 @@ void FreeTouch::onLoad()
 	dash.dismissOnlineShot = [this](const std::string& delivery) {
 		game_->runOnGameThread([this, delivery] { shots_->dismiss(delivery, static_cast<int64_t>(std::time(nullptr))); });
 	};
+	dash.openSupport = [this] {
+		game_->runOnGameThread([this] {
+			const bool ok = game_->openWebPage(online::kSupportUrl);
+			eventLog_.write("support_opened", {{"ok", ok}});
+			if (!ok)
+				notice(std::string("Couldn't open the browser: the page is ") + online::kSupportUrl);
+		});
+	};
 #if FT_SELF_UPDATE
 	dash.checkUpdate = [this] { game_->runOnGameThread([this] { if (updater_) updater_->check(false); }); };
 	dash.installUpdate = [this] { game_->runOnGameThread([this] { if (updater_) updater_->install(); }); };

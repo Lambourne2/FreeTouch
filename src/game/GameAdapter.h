@@ -124,6 +124,8 @@ public:
 
 	// Puts a file on the Windows clipboard as a file (Explorer's Copy), so Ctrl+V in Discord attaches it. Any thread.
 	virtual bool copyFileToClipboard(const std::filesystem::path& file) { (void)file; return false; }
+	// Opens an https:// page in the player's browser (Settings > Support). False if it couldn't. Any thread.
+	virtual bool openWebPage(const std::string& url) { (void)url; return false; }
 	// The user's Downloads folder ("" if unknown): where a shot shared in Discord lands.
 	virtual std::filesystem::path downloadsFolder() { return {}; }
 	// Windows' Open dialog for a shared shot (.ftshot), starting in `startDir`, without blocking the caller. `done` gets

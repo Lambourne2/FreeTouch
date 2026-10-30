@@ -12,6 +12,7 @@
 #endif
 #include <Windows.h> // the clipboard (copyToClipboard)
 #include <ShlObj.h>  // DROPFILES, the Downloads folder
+#include <shellapi.h> // ShellExecuteW (openWebPage)
 #pragma comment(lib, "Shell32.lib")
 #pragma comment(lib, "Ole32.lib")
 #include <commdlg.h> // the Open dialog (pickFile)
@@ -829,6 +830,17 @@ bool BakkesGameAdapter::copyFileToClipboard(const std::filesystem::path& file)
 	}
 	CloseClipboard();
 	return ok;
+}
+
+bool BakkesGameAdapter::openWebPage(const std::string& url)
+{
+	// Web pages only: never a file or a program.
+	if (url.rfind("https://", 0) != 0)
+		return false;
+	const std::u16string wide = utf::utf8ToUtf16(url);
+	const auto result = reinterpret_cast<INT_PTR>(
+		ShellExecuteW(nullptr, L"open", reinterpret_cast<const wchar_t*>(wide.c_str()), nullptr, nullptr, SW_SHOWNORMAL));
+	return result > 32;
 }
 
 std::filesystem::path BakkesGameAdapter::downloadsFolder()

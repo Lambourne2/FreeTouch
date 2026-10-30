@@ -100,6 +100,11 @@ void icons::draw(ImDrawList* dl, Icon icon, ImVec2 c, float size, ImU32 col)
 		dl->AddRectFilled(at(c, s, -0.12f, 0.3f), at(c, s, 0.12f, 0.62f), col);
 		dl->AddRectFilled(at(c, s, -0.5f, 0.62f), at(c, s, 0.5f, 0.88f), col, 2.f);
 		break;
+	case Icon::Heart: // supporters: two lobes and a point
+		dl->AddCircleFilled(at(c, s, -0.42f, -0.3f), s * 0.48f, col, 20);
+		dl->AddCircleFilled(at(c, s, 0.42f, -0.3f), s * 0.48f, col, 20);
+		dl->AddTriangleFilled(at(c, s, -0.88f, -0.12f), at(c, s, 0.88f, -0.12f), at(c, s, 0.f, 0.9f), col);
+		break;
 	case Icon::Record: // a record button (Create): a ring round a dot
 		dl->AddCircle(c, s * 0.85f, col, 24, t);
 		dl->AddCircleFilled(c, s * 0.45f, col, 20);

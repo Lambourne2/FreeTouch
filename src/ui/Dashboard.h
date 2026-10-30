@@ -72,6 +72,8 @@ public:
 		std::function<void(const std::string& sort)> refreshShotBoard;
 		std::function<void(const std::string& day, const std::string& scope)> refreshDailyBoard; // friends | all
 		std::function<void()> refreshRaceLeaders;
+		// Support (Settings > Support, Home): opens the Ko-fi page in the browser.
+		std::function<void()> openSupport;
 		// Updates (Settings > Updates).
 		std::function<void()> checkUpdate;
 		std::function<void()> installUpdate;
@@ -346,7 +348,12 @@ private:
 	bool showRecovery_ = false;
 	bool confirmNewCode_ = false;
 	void renderAccountCard(const DashboardStatus& s);
+	void renderSupportCard(const DashboardStatus& s);
+	void renderSupportLine(const DashboardStatus& s); // Home's last line
 	void renderUpdatesCard(const DashboardStatus& s);
+	// A supporter's heart just after a name drawn at `at` with `shown` (its text) at font size `size`.
+	void supporterHeart(ImDrawList* dl, const DashboardStatus& s, const std::string& name, ImVec2 at, const std::string& shown,
+		float size);
 	void renderFriends(const DashboardStatus& s);
 	void renderBoard(const DashboardStatus& s);
 	// Play on a saved / shared / Shot Board shot: its setup first (difficulty, defender, net), then it plays.
@@ -376,6 +383,7 @@ private:
 	std::string shotsMessage_, shotsError_; // the last ones shown as a toast
 	char friendInput_[40] = {};
 	int friendRequests_ = 0; // the side menu's count on Friends
+	bool supporterMe_ = false; // this player has the supporter heart (the side menu's Support row says thank you)
 	std::string confirmRemoveFriend_;
 	Page lastPage_ = Page::Home; // the Friends page asks for a fresh list when it opens
 	ImVec2 flashMin_, flashMax_;

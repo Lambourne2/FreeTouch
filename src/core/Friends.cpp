@@ -97,7 +97,7 @@ void Friends::refresh(int64_t now)
 	view_.busy = true;
 	if (changed_)
 		changed_();
-	rpc("friends_list", json::object(), now, [this](int status, const std::string& body) {
+	rpc("friends_list", json::object(), now, [this, now](int status, const std::string& body) {
 		view_.busy = false;
 		if (status < 200 || status >= 300)
 			return failed(status, body, "list");
@@ -108,7 +108,85 @@ void Friends::refresh(int64_t now)
 			[](const Entry& e) { return e.state == "incoming"; }));
 		if (changed_)
 			changed_();
+		refreshSupporters(now);
 	});
+}
+
+void Friends::refreshSupporters(int64_t now)
+{
+	// Who has the heart: a short list of names, fetched after the friends list at most every 10 minutes (failures keep
+	// the last one).
+	if (supportersAt_ != 0 && now - supportersAt_ < 600)
+		return;
+	supportersAt_ = now;
+	online::HttpRequest r;
+	r.url = "/rest/v1/profiles?supporter=is.true&select=name&order=supporter_since.desc.nullslast,name&limit=1000";
+	account_.send(r, now, [this](int status, const std::string& body) {
+		if (status < 200 || status >= 300)
+			return;
+		auto names = parseSupporterNames(body);
+		if (names != view_.supporterNames)
+		{
+			log_("supporters", {{"count", names.size()}});
+			view_.supporters = parseSupporters(body);
+			view_.supporterNames = std::move(names);
+			if (changed_)
+				changed_();
+		}
+	});
+}
+
+std::vector<std::string> Friends::parseSupporterNames(const std::string& body)
+{
+	std::vector<std::string> out;
+	const json j = parse(body);
+	if (!j.is_array())
+		return out;
+	for (const auto& row : j)
+	{
+		if (!row.is_object())
+			continue;
+		std::string name = text(row, "name");
+		if (!name.empty())
+			out.push_back(std::move(name));
+	}
+	return out;
+}
+
+std::vector<std::string> Friends::parseSupporters(const std::string& body)
+{
+	std::vector<std::string> out = parseSupporterNames(body);
+	for (auto& name : out)
+		std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+	std::sort(out.begin(), out.end());
+	return out;
+}
+
+std::string Friends::nameList(const std::vector<std::string>& names, size_t shown)
+{
+	if (names.empty())
+		return "";
+	const size_t n = std::min(std::max<size_t>(shown, 1), names.size());
+	const size_t more = names.size() - n;
+	std::string out;
+	for (size_t i = 0; i < n; ++i)
+	{
+		if (i > 0)
+			out += (i + 1 == n && more == 0) ? " and " : ", ";
+		out += names[i];
+	}
+	if (more > 0)
+		out += " and " + std::to_string(more) + " more";
+	return out;
+}
+
+bool Friends::isSupporter(const View& view, const std::string& name)
+{
+	if (name.empty() || view.supporters.empty())
+		return false;
+	std::string key = name;
+	std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+	return std::binary_search(view.supporters.begin(), view.supporters.end(), key);
 }
 
 void Friends::add(const std::string& who, int64_t now)
@@ -211,6 +289,7 @@ void Friends::stopSharing(int64_t now)
 void Friends::clear()
 {
 	view_ = View{};
+	supportersAt_ = 0;
 	if (changed_)
 		changed_();
 }

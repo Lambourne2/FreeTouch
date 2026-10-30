@@ -34,6 +34,45 @@ namespace
 			g_nav->itemFeedback(clicked || selected, fx);
 		return selected || clicked;
 	}
+	// The Ko-fi button (Support): a coral pill with a heart, the one warm colour in the menu, so it reads as "give"
+	// rather than as another setting. `height` sets it; the width follows the label.
+	constexpr ImU32 kSupportCoral = IM_COL32(255, 94, 122, 255);
+	float supportButtonWidth(const char* label, float height)
+	{
+		const ImVec2 ts = ImGui::CalcTextSize(label, nullptr, true);
+		return height * 0.5f + ts.y * 0.8f + height * 0.28f + ts.x + height * 0.55f;
+	}
+	bool supportButton(const char* label, float height, Fx fx = Fx::Confirm)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+		const ImGuiID id = window->GetID(label);
+		const char* textEnd = ImGui::FindRenderedTextEnd(label);
+		const ImVec2 ts = ImGui::CalcTextSize(label, textEnd, true);
+		const ImVec2 pos = window->DC.CursorPos;
+		const ImVec2 sz(supportButtonWidth(label, height), height);
+		const ImRect bb(pos, ImVec2(pos.x + sz.x, pos.y + sz.y));
+		ImGui::ItemSize(sz, 0.f);
+		if (!ImGui::ItemAdd(bb, id))
+			return navAfterItem(1, false, fx);
+		bool hovered = false, held = false;
+		const bool clicked = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+		ImDrawList* dl = window->DrawList;
+		const float dip = held ? 1.f : 0.f;
+		const ImVec2 a(bb.Min.x + dip, bb.Min.y + dip), b(bb.Max.x - dip, bb.Max.y - dip);
+		const float r = height * 0.5f;
+		if (hovered)
+			dl->AddRectFilled(ImVec2(a.x - 3.f, a.y - 3.f), ImVec2(b.x + 3.f, b.y + 3.f), IM_COL32(255, 94, 122, 50), r + 3.f);
+		dl->AddRectFilled(a, b, held ? IM_COL32(226, 70, 100, 255) : hovered ? IM_COL32(255, 118, 142, 255) : kSupportCoral, r);
+		dl->AddRect(a, b, IM_COL32(255, 255, 255, hovered ? 90 : 45), r, ImDrawCornerFlags_All, 1.f);
+		const float heart = ts.y * 0.8f;
+		const float midY = (a.y + b.y) * 0.5f;
+		icons::draw(dl, Icon::Heart, ImVec2(a.x + height * 0.5f + heart * 0.5f, midY), heart, IM_COL32(255, 255, 255, 255));
+		dl->AddText(ImVec2(a.x + height * 0.5f + heart + height * 0.28f, midY - ts.y * 0.5f - 0.5f), IM_COL32(255, 255, 255, 255),
+			label, textEnd);
+		return navAfterItem(1, clicked, fx);
+	}
 	// A text button in the dashboard's own style (it was ImGui's flat grey block): laid out exactly like ImGui::Button
 	// (its size, padding and text baseline), drawn like bigButton's dark glass one, rounded, with a faint frame that
 	// turns accent on hover. A colour pushed for ImGuiCol_Button (the red Stop, an accent Play) fills it instead.
@@ -775,6 +814,7 @@ void Dashboard::render(bool* open)
 	}
 	devTools_ = status.devTools;
 	friendRequests_ = status.friends.incoming;
+	supporterMe_ = status.account.state == Account::State::SignedIn && Friends::isSupporter(status.friends, status.account.name);
 	hubLast_[static_cast<int>(hubOf(page_))] = page_;
 	dailyWaiting_ = status.daily && status.daily->available && !status.daily->done && !status.daily->running;
 	sharedWaiting_ = 0;
@@ -1114,6 +1154,32 @@ void Dashboard::renderRail()
 				dl->AddCircleFilled(ImVec2(bx + 4.f * u, by), 4.f * u, theme::u32(pal.accent), 12);
 		}
 	}
+	// Support, pinned to the bottom of the side menu on every page (2026-10-30): one quiet row, never in the way.
+	{
+		const float h = captions ? std::max(44.f * u, fs + cs + 14.f * u) : std::max(30.f * u, fs + 12.f * u);
+		const float y = ws.y - h - 12.f * u;
+		if (y > ImGui::GetCursorPosY() + 6.f * u)
+		{
+			ImGui::SetCursorPos(ImVec2(sideGap, y));
+			const ImVec2 pos = ImGui::GetCursorScreenPos();
+			const ImVec2 size(railW - 2.f * sideGap, h);
+			if (navInvisible("support", size, 0, Fx::Confirm) && cb_.openSupport)
+			{
+				cb_.openSupport();
+				toast("Opening Ko-fi in your browser");
+			}
+			const bool hovered = ImGui::IsItemHovered();
+			dl->AddRectFilled(pos, add(pos, size), hovered ? IM_COL32(255, 94, 122, 40) : IM_COL32(255, 94, 122, 18), 10.f);
+			icons::draw(dl, Icon::Heart, ImVec2(pos.x + 24.f * u, pos.y + size.y * 0.5f), 15.f * u, kSupportCoral);
+			const float tx = pos.x + 48.f * u;
+			const char* label = supporterMe_ ? "Supporter" : "Support";
+			const char* caption = supporterMe_ ? "Thank you!" : "Free Touch on Ko-fi";
+			const float textTop = captions ? pos.y + (size.y - fs - cs - 2.f * u) * 0.5f : pos.y + (size.y - fs) * 0.5f;
+			dl->AddText(ImVec2(tx, textTop), theme::u32(pal.text), label);
+			if (captions)
+				dl->AddText(theme::fontAt(cs), cs, ImVec2(tx, textTop + fs + 2.f * u), theme::u32(pal.textDim, 0.8f), caption);
+		}
+	}
 	ImGui::PopStyleVar();
 	ImGui::EndChild();
 }
@@ -1269,6 +1335,7 @@ void Dashboard::renderHome(const DashboardModel& m, const DashboardStatus& s)
 	renderToday(m, s);
 	renderHomeTiles(m);
 	renderRecent(m, s);
+	renderSupportLine(s);
 }
 
 void Dashboard::renderHero(const DashboardModel& m, const DashboardStatus& s)
@@ -6474,6 +6541,7 @@ void Dashboard::renderFriends(const DashboardStatus& s)
 		const float tx = pos.x + 38.f * u;
 		const float buttonsW = e.state == "incoming" ? 200.f * u : 120.f * u;
 		dl->AddText(ImVec2(tx, pos.y + 10.f * u), theme::u32(pal.text), e.name.c_str());
+		supporterHeart(dl, s, e.name, ImVec2(tx, pos.y + 10.f * u), e.name, ImGui::GetFontSize());
 		const float statsW = std::max(0.f, size.x - (tx - pos.x) - buttonsW - 40.f * u);
 		dl->AddText(ImVec2(tx, pos.y + 12.f * u + ImGui::GetFontSize()), theme::u32(e.online ? green : pal.textDim),
 			fitText(line + (stats.empty() ? "" : "   |   " + stats), statsW).c_str());
@@ -6554,6 +6622,146 @@ void Dashboard::renderFriends(const DashboardStatus& s)
 		}
 		row(e, "waiting for them to accept (" + e.friendCode + ")", "");
 	}
+}
+
+void Dashboard::supporterHeart(ImDrawList* dl, const DashboardStatus& s, const std::string& name, ImVec2 at,
+	const std::string& shown, float size)
+{
+	if (!Friends::isSupporter(s.friends, name))
+		return;
+	const float w = theme::fontAt(size)->CalcTextSizeA(size, FLT_MAX, 0.f, shown.c_str()).x;
+	const float h = size * 0.62f;
+	const ImVec2 c(at.x + w + size * 0.3f + h * 0.5f, at.y + size * 0.55f);
+	icons::draw(dl, Icon::Heart, c, h, kSupportCoral);
+	if (ImGui::IsMouseHoveringRect(ImVec2(c.x - h, c.y - h), ImVec2(c.x + h, c.y + h)))
+		ImGui::SetTooltip("Supports Free Touch");
+}
+
+void Dashboard::renderSupportCard(const DashboardStatus& s)
+{
+	// Support (2026-10-30): Free Touch stays free; a Ko-fi page for anyone who wants to help, a heart by the names of
+	// players who did (they put their friend code in the Ko-fi message), and every supporter thanked by name.
+	const theme::Palette& pal = theme::palette();
+	const float u = uiScale();
+	const float fs = ImGui::GetFontSize();
+	settingsCardBegin("support", "SUPPORT FREE TOUCH");
+	settingRow("Free Touch is free", "No ads and nothing locked, ever. If it helps your training, a coffee on Ko-fi keeps "
+		"it going.");
+	if (supportButton("Support on Ko-fi##settings", std::round(fs * 2.1f)) && cb_.openSupport)
+	{
+		cb_.openSupport();
+		toast("Opening Ko-fi in your browser");
+	}
+	settingRowEnd();
+	const bool signedIn = s.account.state == Account::State::SignedIn;
+	if (signedIn && Friends::isSupporter(s.friends, s.account.name))
+	{
+		settingRow("Supporter", "You're a supporter: your name has a heart for friends and on the boards. Thank you!");
+		const ImVec2 p = ImGui::GetCursorScreenPos();
+		const float hs = fs * 1.3f;
+		icons::draw(ImGui::GetWindowDrawList(), Icon::Heart, ImVec2(p.x + hs * 0.6f, p.y + hs * 0.55f), hs, kSupportCoral);
+		ImGui::Dummy(ImVec2(hs * 1.4f, hs));
+		settingRowEnd();
+	}
+	else if (signedIn)
+	{
+		const std::string help = "Put your friend code " + s.account.friendCode + " in the Ko-fi message, and a heart shows "
+			"by your name for friends and on the boards (usually within a day).";
+		settingRow("Supporter heart", help.c_str());
+		if (navButton("Copy code##support", ImVec2(130.f * u, 0.f)) && cb_.copyText)
+			toast(cb_.copyText(s.account.friendCode) ? "Friend code copied" : "Couldn't use the clipboard");
+		settingRowEnd();
+	}
+	else
+	{
+		settingRow("Supporter heart", "Pick a name in Account first; then put your friend code in the Ko-fi message, and a "
+			"heart shows by your name for friends and on the boards.");
+		ImGui::Dummy(ImVec2(0, 0));
+		settingRowEnd();
+	}
+	// Everyone who supported, newest first: a heart and a name each, wrapping across the card.
+	const auto& names = s.friends.supporterNames;
+	if (!names.empty())
+	{
+		const std::string help = names.size() == 1 ? "The first supporter. Thank you!"
+			: "All " + std::to_string(names.size()) + " supporters, newest first. Thank you!";
+		settingRow("Thank you", help.c_str());
+		ImGui::Dummy(ImVec2(0, 0));
+		settingRowEnd();
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		const ImVec2 start = ImGui::GetCursorScreenPos();
+		const float chipH = std::round(fs * 1.75f), gap = 8.f * u, heart = fs * 0.7f;
+		const size_t shown = std::min<size_t>(names.size(), 60);
+		float x = start.x, y = start.y + 4.f * u;
+		for (size_t i = 0; i <= shown; ++i)
+		{
+			const bool last = i == shown;
+			if (last && names.size() == shown)
+				break;
+			const std::string text = last ? "and " + std::to_string(names.size() - shown) + " more" : names[i];
+			const float tw = ImGui::CalcTextSize(text.c_str()).x;
+			const float w = (last ? 0.f : heart + 8.f * u) + tw + 24.f * u;
+			if (x > start.x && x + w > start.x + cardInner_)
+			{
+				x = start.x;
+				y += chipH + gap;
+			}
+			dl->AddRectFilled(ImVec2(x, y), ImVec2(x + w, y + chipH), IM_COL32(255, 94, 122, 26), chipH * 0.5f);
+			float tx = x + 12.f * u;
+			if (!last)
+			{
+				icons::draw(dl, Icon::Heart, ImVec2(tx + heart * 0.5f, y + chipH * 0.5f), heart, kSupportCoral);
+				tx += heart + 8.f * u;
+			}
+			dl->AddText(ImVec2(tx, y + (chipH - fs) * 0.5f), theme::u32(last ? pal.textDim : pal.text), text.c_str());
+			x += w + gap;
+		}
+		ImGui::SetCursorScreenPos(ImVec2(start.x, y + chipH + 6.f * u));
+		ImGui::Dummy(ImVec2(0, 0));
+	}
+	settingsCardEnd();
+}
+
+void Dashboard::renderSupportLine(const DashboardStatus& s)
+{
+	// Home's last row: Free Touch is free, its supporters thanked by name, and the Ko-fi button. Quiet; never in the
+	// way of training.
+	const theme::Palette& pal = theme::palette();
+	const float u = uiScale();
+	const float fs = ImGui::GetFontSize();
+	const bool me = s.account.state == Account::State::SignedIn && Friends::isSupporter(s.friends, s.account.name);
+	const auto& names = s.friends.supporterNames;
+	const std::string title = me ? "Thank you for supporting Free Touch!" : "Free Touch is free, and it stays free.";
+	const std::string line = !names.empty() ? "Thanks to " + Friends::nameList(names, 3) + " for supporting it."
+		: "Support it on Ko-fi, and put your friend code in the message for a heart by your name.";
+
+	ImGui::Dummy(ImVec2(0.f, 10.f * u));
+	ImDrawList* dl = ImGui::GetWindowDrawList();
+	const ImVec2 pos = ImGui::GetCursorScreenPos();
+	const float width = ImGui::GetContentRegionAvail().x;
+	const float btnH = std::round(fs * 2.1f);
+	const float h = std::round(std::max(btnH, fs * 2.5f) + 26.f * u);
+	const float midY = pos.y + h * 0.5f;
+	dl->AddRectFilled(pos, ImVec2(pos.x + width, pos.y + h), theme::u32(theme::mix(pal.card, ImVec4(1.f, 0.37f, 0.48f, 1.f), 0.06f)), 12.f);
+	dl->AddRectFilled(ImVec2(pos.x, pos.y + 10.f * u), ImVec2(pos.x + 3.f * u, pos.y + h - 10.f * u), kSupportCoral, 2.f);
+	icons::draw(dl, Icon::Heart, ImVec2(pos.x + 30.f * u, midY), fs * 1.15f, kSupportCoral);
+	const char* label = "Support on Ko-fi##home";
+	const float bw = me ? 0.f : supportButtonWidth(label, btnH);
+	const float tx = pos.x + 56.f * u;
+	const float textW = std::max(60.f, width - (tx - pos.x) - bw - 36.f * u);
+	dl->AddText(ImVec2(tx, midY - fs - 1.f * u), theme::u32(pal.text), fitText(title, textW).c_str());
+	dl->AddText(theme::fontAt(fs * 0.9f), fs * 0.9f, ImVec2(tx, midY + 2.f * u), theme::u32(pal.textDim), fitText(line, textW).c_str());
+	if (!me)
+	{
+		ImGui::SetCursorScreenPos(ImVec2(pos.x + width - 18.f * u - bw, midY - btnH * 0.5f));
+		if (supportButton(label, btnH) && cb_.openSupport)
+		{
+			cb_.openSupport();
+			toast("Opening Ko-fi in your browser");
+		}
+	}
+	ImGui::SetCursorScreenPos(ImVec2(pos.x, pos.y + h));
+	ImGui::Dummy(ImVec2(width, 8.f * u));
 }
 
 void Dashboard::renderUpdatesCard(const DashboardStatus& s)
@@ -6771,6 +6979,7 @@ void Dashboard::renderSettings(const DashboardModel& m, const DashboardStatus& s
 	pageTitle("Settings", "How Free Touch plays, sounds and looks.");
 
 	renderAccountCard(s);
+	renderSupportCard(s);
 	renderUpdatesCard(s);
 	settingsCardBegin("controls", "CONTROLS");
 	if (bindings_)
@@ -9060,8 +9269,9 @@ void Dashboard::renderRaceBoard(const DashboardStatus& s)
 				snprintf(rank, sizeof(rank), "#%d", r.rank);
 				dl->AddText(ImVec2(a.x + 14.f * u, a.y + (rowH - fs) * 0.5f),
 					r.rank == 1 ? IM_COL32(255, 205, 60, 255) : theme::u32(r.me ? pal.accent : pal.textDim), rank);
-				dl->AddText(ImVec2(a.x + 64.f * u, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text),
-					fitText(r.name + (r.me ? "  (you)" : ""), inner * 0.4f).c_str());
+				const std::string shown = fitText(r.name + (r.me ? "  (you)" : ""), inner * 0.4f);
+				dl->AddText(ImVec2(a.x + 64.f * u, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text), shown.c_str());
+				supporterHeart(dl, s, r.name, ImVec2(a.x + 64.f * u, a.y + (rowH - fs) * 0.5f), shown, fs);
 				char t[48];
 				if (mine > 0.0 && !r.me)
 					snprintf(t, sizeof(t), "%.2f s  (%+.2f)", r.seconds, r.seconds - mine);
@@ -9416,8 +9626,9 @@ void Dashboard::renderDailyBoard(const DashboardStatus& s, const DailyView& d, f
 		snprintf(rank, sizeof(rank), "#%d", r.rank);
 		const ImU32 rankCol = r.rank == 1 ? IM_COL32(255, 205, 60, 255) : theme::u32(r.me ? pal.accent : pal.textDim);
 		dl->AddText(ImVec2(a.x + 16.f * u, a.y + (rowH - fs) * 0.5f), rankCol, rank);
-		const std::string name = r.name + (r.me ? "  (you)" : "");
-		dl->AddText(ImVec2(a.x + 70.f * u, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text), fitText(name, width * 0.42f - 80.f * u).c_str());
+		const std::string name = fitText(r.name + (r.me ? "  (you)" : ""), width * 0.42f - 100.f * u);
+		dl->AddText(ImVec2(a.x + 70.f * u, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text), name.c_str());
+		supporterHeart(dl, s, r.name, ImVec2(a.x + 70.f * u, a.y + (rowH - fs) * 0.5f), name, fs);
 		std::vector<int> marks;
 		for (const char c : r.marks)
 			marks.push_back(c - '0');

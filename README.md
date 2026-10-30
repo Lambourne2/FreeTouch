@@ -12,6 +12,10 @@ This is the source of the version on BakkesPlugins, which installs it and keeps 
 how it builds, its data files and what it sends online, for BakkesPlugins' moderators and anyone else reading the code.
 Credits for the bots, fonts and libraries are in `THIRD_PARTY.md`.
 
+**Install:** https://bakkesplugins.com/plugin/908. **Support:** Free Touch is free, and nothing is ever locked. If it
+helps your training, you can support it on [Ko-fi](https://ko-fi.com/peytonlambourne). Put your friend code (Settings
+> Account) in the message to get a supporter heart by your name.
+
 ## Building
 
 - Release | x64, from `FreeTouch.sln`, made from Martinii89's BakkesmodPluginTemplate. The SDK comes from
@@ -53,6 +57,11 @@ Players who pick a name in Settings > Account send:
 The plugin reads leaderboards and friends' shares back. Sign-in is Supabase's anonymous auth (`/auth/v1/signup`,
 `/auth/v1/token`). The plugin downloads no files and runs no downloaded code: replies are JSON, parsed with
 nlohmann-json.
+
+The plugin also reads the names of supporters (`profiles?supporter=is.true`). Only the publisher sets that flag, with
+`set_supporter`. When the player clicks Support (Settings > Support, or Home's last line), the plugin opens
+`https://ko-fi.com/peytonlambourne` in their browser (`BakkesGameAdapter::openWebPage`, `ShellExecuteW`). It opens
+`https://` pages only and runs nothing else.
 
 This build has no self-updater: BakkesMod installs new versions from BakkesPlugins. Copies shared outside BakkesPlugins
 have one; this build leaves it out with `#define FT_SELF_UPDATE 0` in `src/flavor.h`, and the updater's source files

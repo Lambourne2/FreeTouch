@@ -12,6 +12,9 @@ namespace online
 	// row-level security, supabase/migrations/).
 	constexpr const char* kServiceUrl = "https://jkpkhwyzvquuwtzuozfh.supabase.co";
 	constexpr const char* kPublishableKey = "sb_publishable_MF75UYGnwpnjQaUm_m3VKw_SQAOToT2";
+	// Lambourne's Ko-fi page (2026-10-30): Settings > Support and Home open it in the browser. Donors who put their
+	// friend code in the message get a heart by their name (tools/supporter.py, migrations/0012_supporters.sql).
+	constexpr const char* kSupportUrl = "https://ko-fi.com/peytonlambourne";
 
 	struct HttpRequest
 	{

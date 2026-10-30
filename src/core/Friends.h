@@ -37,6 +37,8 @@ public:
 		int incoming = 0;
 		std::string message; // the last action's result ("Request sent")
 		std::string error;
+		std::vector<std::string> supporters;     // lower-case names of players with the supporter heart (sorted)
+		std::vector<std::string> supporterNames; // the same players as they write their names, newest supporter first
 	};
 
 	// What this player shares (from the training history).
@@ -65,15 +67,25 @@ public:
 	View view() const { return view_; }
 
 	static std::vector<Entry> parseList(const std::string& body);
+	// The supporters list (profiles?supporter=is.true, newest first): lower-case names, sorted.
+	static std::vector<std::string> parseSupporters(const std::string& body);
+	// The same list as the names are written, in the service's order (newest supporter first).
+	static std::vector<std::string> parseSupporterNames(const std::string& body);
+	// "Amy", "Amy and bob", "Amy, bob and Cid", "Amy, bob, Cid and 4 more".
+	static std::string nameList(const std::vector<std::string>& names, size_t shown);
+	// Whether this name has the supporter heart (any case).
+	static bool isSupporter(const View& view, const std::string& name);
 	// "just now", "12 min ago", "3 h ago", "2 days ago".
 	static std::string ago(int seconds);
 
 private:
 	void rpc(const std::string& name, const nlohmann::json& args, int64_t now, std::function<void(int, const std::string&)> done);
+	void refreshSupporters(int64_t now);
 	void failed(int status, const std::string& body, const std::string& what);
 
 	Account& account_;
 	Log log_;
 	std::function<void()> changed_;
 	View view_;
+	int64_t supportersAt_ = 0; // when the supporters list was last asked for (0 = never)
 };

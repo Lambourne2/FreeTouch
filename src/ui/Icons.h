@@ -5,7 +5,7 @@
 // Small vector icons drawn with ImDrawList (no image files needed). Render thread.
 namespace icons
 {
-	enum class Icon { Home, Sessions, Exercises, QuickPlay, Races, Replays, Stats, Settings, Play, Stop, Star, Packs, Bookmark, Calendar, Friends, Trophy, Record };
+	enum class Icon { Home, Sessions, Exercises, QuickPlay, Races, Replays, Stats, Settings, Play, Stop, Star, Packs, Bookmark, Calendar, Friends, Trophy, Record, Heart };
 
 	// A five-pointed star of outer radius `r`: filled, or as an outline.
 	void star(ImDrawList* dl, ImVec2 center, float r, ImU32 color, bool filled, float thickness = 1.6f);

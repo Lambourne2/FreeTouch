@@ -41,6 +41,7 @@ public:
 	bool copyToClipboard(const std::string& utf8) override;
 	bool copyFileToClipboard(const std::filesystem::path& file) override;
 	std::filesystem::path downloadsFolder() override;
+	bool openWebPage(const std::string& url) override;
 	void pickFile(const std::filesystem::path& startDir, std::function<void(const std::filesystem::path&)> done) override;
 	void closeFilePicker() override;
 	void http(const online::HttpRequest& request, online::HttpDone done) override;
