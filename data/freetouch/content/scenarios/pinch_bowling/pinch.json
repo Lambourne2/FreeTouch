@@ -1,0 +1,69 @@
+{
+  "id": "pinch_bowling.pinch",
+  "name": "Pinch bowling",
+  "category": "pinch_bowling",
+  "description": "Pinch the ball and knock down the ten pins standing in front of the net (the net is closed: only the pins count). Kuxir pinches on every difficulty, a full-map ground pinch from medium, ceiling pinches on hard. Each shot waits for your first press, with the ball's path drawn. Two throws per frame on the same setup: all ten on the first is a STRIKE, the rest on the second a SPARE.",
+  "tags": ["pinch", "kuxir", "bowling"],
+  "allowMirror": true,
+  "readFirst": true,
+  "notes": "Lambourne 2026-10-20: the old nine blind setups were bad; these come from his imported packs (Kuxir Pinch Practice 0e99-5226-5f68-4804, Full map ground pinch 2bd0-ba09-6ab2-cc3a, Ceiling Pinches cf8f-d8d8-c825-3b3e), as captured: ball and car exact, the ball's speed varied about 5% (not on the ceiling ones, where the ball sits on the car), mirrored at random. Kuxir on all difficulties, full map from medium, ceiling only on hard. The pins stand right in front of the orange net and the net is closed by a grey panel, so a ball can't score: it has to hit the pins.",
+  "timeLimitSeconds": 10,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.6,
+  "bowling": {
+    "throws": 2,
+    "settleSeconds": 2.5
+  },
+  "ball": { "location": [2383.8, -2984.8, 100.5], "velocity": [1339, 400, -84.5] },
+  "player": { "location": [1824.2, -3161.8, 17], "rotation": [0, 2904, 0], "boost": 100, "boostLock": true },
+  "objects": [
+    {
+      "type": "one_of",
+      "choices": [
+        {
+          "label": "Kuxir pinch: off the side wall",
+          "tag": "KUXIR PINCH",
+          "ball": { "location": [ 2383.8, -2984.8, 100.5 ], "velocity": [ [1272, 1406], [380, 420], -84.5 ] },
+          "player": { "location": [ 1824.2, -3161.8, 17 ], "rotation": [-88, 2904, 0], "boost": 100, "boostLock": true },
+          "objects": []
+        },
+        {
+          "label": "Kuxir pinch: off the side wall, further up",
+          "tag": "KUXIR PINCH",
+          "ball": { "location": [ -2314.7, -2374.7, 100.5 ], "velocity": [ [-1496, -1354], [246, 272], -66.9 ] },
+          "player": { "location": [ -1935.9, -2531.8, 17.1 ], "rotation": [-43, 30288, 0], "boost": 100, "boostLock": true },
+          "objects": []
+        },
+        {
+          "label": "Full-map ground pinch: out of your corner",
+          "tag": "FULL MAP PINCH",
+          "difficulties": ["medium", "hard"],
+          "ball": { "location": [ 2801.2, -4150.8, 100.5 ], "velocity": [ [869, 960], [-955, -864], -163.7 ] },
+          "player": { "location": [ 2508.5, -3906.3, 17 ], "rotation": [-83, -8248, 0], "boost": 100, "boostLock": true },
+          "objects": []
+        },
+        {
+          "label": "Ceiling pinch: carry it up the wall",
+          "tag": "CEILING PINCH",
+          "difficulties": ["hard"],
+          "ball": { "location": [ 324.2, -3268.3, 170.9 ], "velocity": [ 918.5, 230.1, -77.3 ] },
+          "player": { "location": [ 357.7, -3262.2, 17 ], "rotation": [-86, 2596, 0], "boost": 100, "boostLock": true },
+          "objects": []
+        },
+        {
+          "label": "Ceiling pinch: from midfield",
+          "tag": "CEILING PINCH",
+          "difficulties": ["hard"],
+          "ball": { "location": [ -125.8, -626.4, 165.1 ], "velocity": [ -794.1, 81.9, -51.8 ] },
+          "player": { "location": [ -148.4, -630.3, 17 ], "rotation": [0, 31564, 0], "boost": 100, "boostLock": true },
+          "objects": []
+        }
+      ]
+    },
+    { "type": "pin_rack", "id": "pin", "location": [0, 4150, 0], "normal": [0, 1, 0] },
+    { "type": "blocker", "id": "closed_net", "location": [0, 5100, 321.5], "normal": [0, -1, 0], "size": [1786, 643, 40], "color": "grey" }
+  ],
+  "success": { "type": "all_objects_hit" },
+  "fail": [ { "type": "timeout", "seconds": 10 } ]
+}

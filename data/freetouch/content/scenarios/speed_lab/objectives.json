@@ -1,0 +1,209 @@
+{
+  "id": "speed_lab.objectives",
+  "name": "Freeplay+",
+  "category": "speed_lab",
+  "description": "Freeplay with intent: live play with one objective at a time, picked from the objectives you switched on (Freeplay+ page). Shooting, ball control, aerials and movement. No clock unless the objective has one; the ball and your car never reset. D-pad right skips to a new objective.",
+  "tags": ["freeplay", "shooting", "ball_control", "aerial", "movement"],
+  "allowMirror": true,
+  "notes": "Freeplay+ (was Speed Lab; category id speed_lab kept). one_of choices have ids for the picker; difficulty overrides address them by index (objects.0.choices.N), so keep the order when editing. Easy turns on the guide line.",
+  "onSuccess": "chain",
+  "onFail": "chain",
+  "chainKeepsBall": true,
+  "chainMinDistance": 2500,
+  "ball": { "location": [ [-1500, 1500], [-800, 800], [300, 700] ], "velocity": [ [-300, 300], [-300, 300], [0, 200] ] },
+  "player": { "location": [ [-1000, 1000], -2600, 17 ], "rotation": [0, 16384, 0], "boost": [33, 100], "faceBall": true },
+  "objects": [
+    {
+      "type": "one_of",
+      "choices": [
+        {
+          "id": "target",
+          "group": "Shooting",
+          "beginner": true,
+          "label": "hit the target",
+          "tag": "TARGET",
+          "about": "A target on a side wall, the back wall above a goal or the ceiling: hit it with the ball.",
+          "objects": [
+            { "type": "target", "id": "objective", "radius": 300, "triggeredBy": "ball", "color": "accent", "placeOn": ["wall", "wall", "back_wall", "ceiling"] }
+          ]
+        },
+        {
+          "id": "pocket",
+          "group": "Shooting",
+          "beginner": true,
+          "label": "score into the highlighted pocket",
+          "tag": "POCKET",
+          "about": "The goal is split into pockets: score into the bright one; the blue ones block the ball.",
+          "objects": [
+            { "type": "target", "id": "objective", "surface": "orange_goal", "grid": [3, 2] }
+          ]
+        },
+        {
+          "id": "score_timer",
+          "group": "Shooting",
+          "beginner": true,
+          "label": "score before the clock runs out",
+          "tag": "SCORE",
+          "about": "Score a goal in the orange net before the timer ends (35 s easy, 20 s medium, 12 s hard).",
+          "objects": [],
+          "success": { "type": "goal" },
+          "timeLimitSeconds": 20
+        },
+        {
+          "id": "power_shot",
+          "group": "Shooting",
+          "beginner": false,
+          "label": "power shot: hit it over 100 km/h",
+          "tag": "POWER",
+          "about": "Hit the ball hard: it has to leave your touch faster than the target speed.",
+          "objects": [],
+          "success": { "type": "touch", "minSpeedKmh": 100 }
+        },
+        {
+          "id": "carry",
+          "group": "Ball control",
+          "beginner": false,
+          "label": "carry the ball through the ring",
+          "tag": "CARRY THROUGH",
+          "about": "Drive through the ring with the ball close to your car (a dribble or a carry).",
+          "objects": [
+            { "type": "ring", "id": "objective", "location": [ [-2800, 2800], [-3500, 3500], 145 ], "normal": [ [-1, 1], [-1, 1], 0 ], "radius": 360, "triggeredBy": "car_with_ball", "withinUu": 260, "color": "green" }
+          ]
+        },
+        {
+          "id": "ball_circle",
+          "group": "Ball control",
+          "beginner": true,
+          "label": "ball into the circle",
+          "tag": "BALL HERE",
+          "about": "Get the ball into the circle on the floor or a wall.",
+          "objects": [
+            { "type": "circle", "id": "objective", "radius": 350, "triggeredBy": "ball", "color": "green", "placeOn": ["floor", "floor", "wall"] }
+          ]
+        },
+        {
+          "id": "keep_up",
+          "group": "Ball control",
+          "beginner": true,
+          "label": "keep it up: 4 touches before it lands",
+          "tag": "KEEP IT UP",
+          "about": "Touch the ball again and again before it hits the floor.",
+          "objects": [],
+          "success": { "type": "touch_streak", "count": 4 }
+        },
+        {
+          "id": "dribble",
+          "group": "Ball control",
+          "beginner": false,
+          "label": "dribble for 3 seconds",
+          "tag": "DRIBBLE",
+          "about": "Keep the ball on top of your car.",
+          "objects": [],
+          "success": { "type": "dribble", "seconds": 3 }
+        },
+        {
+          "id": "ball_ring",
+          "group": "Aerials",
+          "beginner": false,
+          "label": "ball through the ring",
+          "tag": "BALL THROUGH",
+          "about": "Put the ball through the ring in the air.",
+          "objects": [
+            { "type": "ring", "id": "objective", "location": [ [-2800, 2800], [-3500, 3500], [500, 1400] ], "normal": [ [-1, 1], [-1, 1], 0 ], "radius": 320, "triggeredBy": "ball", "color": "orange" }
+          ]
+        },
+        {
+          "id": "high_touch",
+          "group": "Aerials",
+          "beginner": false,
+          "label": "touch the ball high in the air",
+          "tag": "HIGH TOUCH",
+          "about": "Touch the ball while it is high up (350 easy, 600 medium, 900 hard).",
+          "objects": [],
+          "success": { "type": "touch", "minBallHeight": 600 }
+        },
+        {
+          "id": "wall_touch",
+          "group": "Aerials",
+          "beginner": false,
+          "label": "touch the ball from the wall",
+          "tag": "WALL TOUCH",
+          "about": "Touch the ball while your car is on a wall.",
+          "objects": [],
+          "success": { "type": "touch", "onWall": true }
+        },
+        {
+          "id": "car_ring",
+          "group": "Movement",
+          "beginner": true,
+          "label": "drive through the ring",
+          "tag": "GO THROUGH",
+          "about": "Get your car through the ring: on the floor, or fly through it.",
+          "objects": [
+            { "type": "ring", "id": "objective", "location": [ [-3000, 3000], [-3800, 3800], [200, 1100] ], "normal": [ [-1, 1], [-1, 1], 0 ], "radius": 340, "triggeredBy": "car", "color": "accent" }
+          ]
+        },
+        {
+          "id": "reach_circle",
+          "group": "Movement",
+          "beginner": true,
+          "label": "reach the circle",
+          "tag": "GO HERE",
+          "about": "Drive into the circle: on the floor, a wall or the ceiling.",
+          "objects": [
+            { "type": "circle", "id": "objective", "radius": 300, "triggeredBy": "car", "color": "accent", "placeOn": ["floor", "wall", "ceiling"] }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "object_hit",
+    "objectId": "objective"
+  },
+  "fail": [],
+  "difficulty": {
+    "easy": {
+      "guide": true,
+      "objects.0.choices.0.objects.0.radius": 420,
+      "objects.0.choices.0.objects.0.placeOn": ["wall", "back_wall"],
+      "objects.0.choices.1.objects.0.grid": [2, 1],
+      "objects.0.choices.2.timeLimitSeconds": 35,
+      "objects.0.choices.3.success.minSpeedKmh": 75,
+      "objects.0.choices.3.label": "power shot: hit it over 75 km/h",
+      "objects.0.choices.4.objects.0.radius": 460,
+      "objects.0.choices.4.objects.0.withinUu": 330,
+      "objects.0.choices.5.objects.0.radius": 480,
+      "objects.0.choices.5.objects.0.placeOn": ["floor"],
+      "objects.0.choices.6.success.count": 2,
+      "objects.0.choices.6.label": "keep it up: 2 touches before it lands",
+      "objects.0.choices.7.success.seconds": 1.5,
+      "objects.0.choices.7.label": "dribble for 1.5 seconds",
+      "objects.0.choices.8.objects.0.radius": 420,
+      "objects.0.choices.8.objects.0.location.2": [350, 800],
+      "objects.0.choices.9.success.minBallHeight": 350,
+      "objects.0.choices.11.objects.0.radius": 420,
+      "objects.0.choices.11.objects.0.location.2": [150, 300],
+      "objects.0.choices.12.objects.0.radius": 400,
+      "objects.0.choices.12.objects.0.placeOn": ["floor", "wall"]
+    },
+    "hard": {
+      "objects.0.choices.0.objects.0.radius": 220,
+      "objects.0.choices.1.objects.0.grid": [4, 2],
+      "objects.0.choices.2.timeLimitSeconds": 12,
+      "objects.0.choices.3.success.minSpeedKmh": 125,
+      "objects.0.choices.3.label": "power shot: hit it over 125 km/h",
+      "objects.0.choices.4.objects.0.radius": 300,
+      "objects.0.choices.5.objects.0.radius": 260,
+      "objects.0.choices.6.success.count": 6,
+      "objects.0.choices.6.label": "keep it up: 6 touches before it lands",
+      "objects.0.choices.7.success.seconds": 5,
+      "objects.0.choices.7.label": "dribble for 5 seconds",
+      "objects.0.choices.8.objects.0.radius": 250,
+      "objects.0.choices.9.success.minBallHeight": 900,
+      "objects.0.choices.11.objects.0.radius": 270,
+      "objects.0.choices.11.objects.0.location.2": [400, 1300],
+      "objects.0.choices.12.objects.0.radius": 230
+    }
+  }
+}

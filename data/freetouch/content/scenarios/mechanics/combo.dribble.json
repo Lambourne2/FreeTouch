@@ -1,0 +1,267 @@
+{
+  "id": "mechanics.combo.dribble",
+  "name": "Build Your Combo: dribble ladder",
+  "category": "mechanics",
+  "description": "Off the roof and into the air: flick goal, flick then hit it again in the air, flick into an air dribble, then a musty flick goal.",
+  "tags": [
+    "combo",
+    "flick",
+    "dribble"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      0,
+      -1800,
+      172
+    ],
+    "velocity": [
+      0,
+      700,
+      0
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1800,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      700,
+      0
+    ],
+    "boost": 100
+  },
+  "timeLimitSeconds": 10,
+  "progression": "combo",
+  "readFirst": true,
+  "dropOnMiss": false,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "steps",
+      "choices": [
+        {
+          "id": "flick",
+          "label": "Flick goal",
+          "tag": "FLICK GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "flick_aerial",
+          "label": "Flick, then hit it again in the air",
+          "tag": "FLICK, THEN HIT IT AGAIN IN THE AIR",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick",
+              "aerial_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "flick_ad",
+          "label": "Flick into an air dribble",
+          "tag": "FLICK INTO AN AIR DRIBBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick",
+              "air_dribble"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "musty",
+          "label": "Musty flick goal",
+          "tag": "MUSTY FLICK GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick:musty"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "flick"
+    ],
+    "requireGoal": true
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2
+}

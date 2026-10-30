@@ -1,0 +1,6 @@
+{
+  "name": "freetouch",
+  "version": "1.0.259",
+  "dependencies": [ "nlohmann-json" ],
+  "builtin-baseline": "acd65983f2e668c0bc44a117575e6073681fa8e3"
+}

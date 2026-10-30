@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{396e4dda-4fe2-4588-9756-a364a57aa8c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{65407bae-1075-4bdd-9dfd-acc5a636ec02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="plugin">
+      <UniqueIdentifier>{a1b543a5-c4b7-4cf1-8adf-c2f26cf59952}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{33ae5c6a-718c-410e-bdb8-9c032f65c710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{8f3d2a61-5c1e-4b7a-9d42-1e6f0c3b7a15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{7d3a1c55-2b9e-4f0a-9c61-5a7e2f8b4d10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{5e9b0c27-a4d3-4f81-b6e2-0d7c19f3a842}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="content">
+      <UniqueIdentifier>{7b4e2d90-1c6a-4f38-9e57-a3d8c0f2b614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{2f8c6a14-9d3b-4e71-a0c5-6b1e7d4f9a28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scenario">
+      <UniqueIdentifier>{d1a9e5c3-47b2-4086-9f1d-3c5a8e0b7d62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bots">
+      <UniqueIdentifier>{9a4c1e72-3d58-4b0f-a6e9-2c7d8f1b5e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{5e2b7c90-8a14-4f3d-b6c1-7d9e0a2f4b18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third_party">
+      <UniqueIdentifier>{c2a7e9d4-3b18-4f60-8e25-7d9b1a4c6e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\IMGUI\imgui.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imguivariouscontrols.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_additions.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_demo.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_draw.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_impl_dx11.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_impl_win32.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_rangeslider.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_searchablecombo.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_stdlib.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_timeline.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\IMGUI\imgui_widgets.cpp"><Filter>imgui</Filter></ClCompile>
+    <ClCompile Include="src\pch.cpp"><Filter>PCH</Filter></ClCompile>
+    <ClCompile Include="src\plugin\FreeTouch.cpp"><Filter>plugin</Filter></ClCompile>
+    <ClCompile Include="src\ui\GuiBase.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\BindingsScreen.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\Dashboard.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\Theme.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\Icons.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\Hud.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\TutorialScenes.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\core\Controls.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\SessionRunner.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\DailyRunner.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\Account.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\Friends.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\OnlineShots.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\Leaderboards.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\bots\PuppetKeeper.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\bots\BotManager.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\bots\PolicyBot.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\detectors\MechanicDetector.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\scenario\ScenarioModes.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\plugin\FreeTouchProgress.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\plugin\FreeTouchPacks.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\bots\policy\EarlPolicy.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\plugin\ExerciseControls.cpp"><Filter>plugin</Filter></ClCompile>
+    <ClCompile Include="src\data\EventLog.cpp"><Filter>data</Filter></ClCompile>
+    <ClCompile Include="src\game\BakkesGameAdapter.cpp"><Filter>game</Filter></ClCompile>
+    <ClCompile Include="src\game\SettingSwapper.cpp"><Filter>game</Filter></ClCompile>
+    <ClCompile Include="src\content\JsonSchema.cpp"><Filter>content</Filter></ClCompile>
+    <ClCompile Include="src\content\ContentLibrary.cpp"><Filter>content</Filter></ClCompile>
+    <ClCompile Include="src\scenario\ScenarioLoader.cpp"><Filter>scenario</Filter></ClCompile>
+    <ClCompile Include="src\scenario\ScenarioPlayer.cpp"><Filter>scenario</Filter></ClCompile>
+    <ClCompile Include="src\objects\ObjectSystem.cpp"><Filter>objects</Filter></ClCompile>
+    <ClCompile Include="src\audio\SoundPlayer.cpp"><Filter>audio</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\IMGUI\imconfig.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imguivariouscontrols.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_additions.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_impl_dx11.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_impl_win32.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_internal.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_rangeslider.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_searchablecombo.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_stdlib.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imgui_timeline.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imstb_rectpack.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imstb_textedit.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\IMGUI\imstb_truetype.h"><Filter>imgui</Filter></ClInclude>
+    <ClInclude Include="src\logging.h"><Filter>PCH</Filter></ClInclude>
+    <ClInclude Include="src\pch.h"><Filter>PCH</Filter></ClInclude>
+    <ClInclude Include="src\resource.h"><Filter>Resource Files</Filter></ClInclude>
+    <ClInclude Include="src\version.h"><Filter>Resource Files</Filter></ClInclude>
+    <ClInclude Include="src\plugin\FreeTouch.h"><Filter>plugin</Filter></ClInclude>
+    <ClInclude Include="src\ui\GuiBase.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\BindingsScreen.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\Dashboard.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\DashboardModel.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\Theme.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\Icons.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\ui\Hud.h"><Filter>ui</Filter></ClInclude>
+    <ClInclude Include="src\core\Canvas.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\Controls.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\SessionRunner.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\DailyRunner.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\DailyChallenge.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\bots\PuppetKeeper.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\bots\BotManager.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\bots\PolicyBot.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\bots\policy\EarlPolicy.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\bots\policy\NectoObs.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\bots\policy\NextoObs.h"><Filter>bots</Filter></ClInclude>
+    <ClInclude Include="src\core\BoostPads.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\scenario\BallPredict.h"><Filter>scenario</Filter></ClInclude>
+    <ClInclude Include="src\objects\WorldObject.h"><Filter>objects</Filter></ClInclude>
+    <ClInclude Include="src\objects\ObjectSystem.h"><Filter>objects</Filter></ClInclude>
+    <ClInclude Include="src\plugin\ExerciseControls.h"><Filter>plugin</Filter></ClInclude>
+    <ClInclude Include="src\data\EventLog.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\game\GameState.h"><Filter>game</Filter></ClInclude>
+    <ClInclude Include="src\game\GameAdapter.h"><Filter>game</Filter></ClInclude>
+    <ClInclude Include="src\game\BakkesGameAdapter.h"><Filter>game</Filter></ClInclude>
+    <ClInclude Include="src\game\SettingSwapper.h"><Filter>game</Filter></ClInclude>
+    <ClInclude Include="src\data\StateJson.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\data\Capture.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\data\BestTimes.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\data\LeadIn.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\data\TrainingHistory.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\audio\SoundPlayer.h"><Filter>audio</Filter></ClInclude>
+    <ClInclude Include="src\data\TouchLogger.h"><Filter>data</Filter></ClInclude>
+    <ClInclude Include="src\content\JsonSchema.h"><Filter>content</Filter></ClInclude>
+    <ClInclude Include="src\content\ContentLibrary.h"><Filter>content</Filter></ClInclude>
+    <ClInclude Include="src\core\Rng.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\PracticeSpeed.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\QuickPlay.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\core\Routine.h"><Filter>core</Filter></ClInclude>
+    <ClInclude Include="src\scenario\ScenarioLoader.h"><Filter>scenario</Filter></ClInclude>
+    <ClInclude Include="src\scenario\ScenarioPlayer.h"><Filter>scenario</Filter></ClInclude>
+    <ClInclude Include="src\scenario\GoalGuard.h"><Filter>scenario</Filter></ClInclude>
+    <ClInclude Include="src\third_party\nlohmann\json.hpp"><Filter>third_party</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\FreeTouch.rc"><Filter>Resource Files</Filter></ResourceCompile>
+  </ItemGroup>
+</Project>

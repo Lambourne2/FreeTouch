@@ -1,0 +1,293 @@
+{
+  "id": "vs_bot.necto_defends",
+  "name": "1v1: score past the defender",
+  "category": "vs_bot",
+  "description": "A 1v1 against the defender: you come in at a steady speed behind a moving ball with room to set up your touch. Mostly rolling or small bounces, now and then a big bounce, a ball dropping in front of you or one up the side wall. The defender shadows back facing its own net. More time on easy and medium.",
+  "tags": [
+    "shooting",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: attack): you are already driving at a ball rolling toward the net; the defender shadows goal-side, facing its net and backing up, and reacts after holdSeconds. Lambourne 2026-10-20: it was unnecessarily hard (the car came in at 1450-1850 uu/s and touched the ball almost at once) and nearly every shot ended as an air dribble (four of five setups bounced); now a steady approach with more room, mostly ground balls, the ball's path in the countdown, and 16 / 13 / 11 s by difficulty.",
+  "timeLimitSeconds": 13,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      40,
+      80
+    ]
+  },
+  "situation": {
+    "type": "attack",
+    "playerSpeed": [
+      950,
+      1200
+    ],
+    "defenderGap": [
+      2000,
+      2600
+    ],
+    "defenderLateral": [
+      -350,
+      350
+    ],
+    "defenderSpeed": [
+      700,
+      1000
+    ],
+    "variants": [
+      {
+        "name": "rolling ahead of you",
+        "weight": 3,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -2400,
+          -600
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          900,
+          1300
+        ],
+        "ballSpeed": [
+          400,
+          600
+        ],
+        "ballHop": 0,
+        "defenderGapExtra": [
+          600,
+          1000
+        ]
+      },
+      {
+        "name": "a small bounce",
+        "weight": 2,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -2600,
+          -800
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          900,
+          1300
+        ],
+        "ballSpeed": [
+          500,
+          700
+        ],
+        "ballHop": [
+          250,
+          400
+        ],
+        "defenderGapExtra": [
+          800,
+          1200
+        ]
+      },
+      {
+        "name": "own half, big bounce",
+        "weight": 1,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -3300,
+          -1800
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          900,
+          1300
+        ],
+        "ballSpeed": [
+          600,
+          800
+        ],
+        "ballHop": [
+          550,
+          800
+        ],
+        "playerSpeed": [
+          1050,
+          1300
+        ],
+        "defenderGapExtra": [
+          1400,
+          2000
+        ]
+      },
+      {
+        "name": "drop in front of you",
+        "weight": 1,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -2600,
+          -1000
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          900,
+          1300
+        ],
+        "ballSpeed": [
+          550,
+          750
+        ],
+        "ballHop": [
+          550,
+          750
+        ],
+        "playerSpeed": [
+          1000,
+          1250
+        ],
+        "defenderGapExtra": [
+          1100,
+          1600
+        ]
+      },
+      {
+        "name": "up the side wall from your corner",
+        "weight": 1,
+        "onWall": 1,
+        "x": 1,
+        "y": [
+          -3500,
+          -2500
+        ],
+        "ballHeight": [
+          200,
+          420
+        ],
+        "ballSpeed": [
+          900,
+          1050
+        ],
+        "ballHop": [
+          150,
+          350
+        ],
+        "playerSpeed": [
+          1300,
+          1550
+        ],
+        "ballLead": [
+          700,
+          1000
+        ],
+        "wallOffset": [
+          500,
+          800
+        ],
+        "defenderGapExtra": [
+          2300,
+          2800
+        ]
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4000,
+        17
+      ],
+      "rotation": [
+        0,
+        16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "beta": 1,
+        "holdSeconds": 0.35
+      }
+    }
+  ],
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 13
+    },
+    {
+      "type": "save"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.holdSeconds": 0.6,
+      "situation.defenderGap": [
+        2500,
+        3100
+      ],
+      "bots.0.params.beta": 0.6,
+      "bots.0.params.skill": 0.0,
+      "timeLimitSeconds": 16,
+      "fail.0.seconds": 16
+    },
+    "hard": {
+      "bots.0.params.holdSeconds": 0.15,
+      "situation.defenderGap": [
+        1500,
+        2000
+      ],
+      "situation.defenderSpeed": [
+        450,
+        750
+      ],
+      "bots.0.params.skill": 1.0,
+      "timeLimitSeconds": 11,
+      "fail.0.seconds": 11
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "showTrajectory": true
+}

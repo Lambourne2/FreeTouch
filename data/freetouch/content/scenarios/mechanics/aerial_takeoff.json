@@ -1,0 +1,124 @@
+{
+  "id": "mechanics.aerial_takeoff",
+  "name": "Aerial take-offs",
+  "category": "mechanics",
+  "description": "A ball hangs high in front of you: get up to it as fast as you can (fast aerial: jump, boost, second jump). Touch it above 700 uu; the time is your score and your best is kept per difficulty. Harder levels put it higher and further away. Unlimited boost.",
+  "tags": [
+    "aerial",
+    "fast aerial",
+    "take-off",
+    "timed"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "recordVersion": 1,
+  "ball": {
+    "location": [
+      [
+        -600,
+        600
+      ],
+      [
+        -200,
+        200
+      ],
+      [
+        950,
+        1050
+      ]
+    ],
+    "velocity": [
+      0,
+      0,
+      [
+        550,
+        650
+      ]
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1900,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      600,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "timeLimitSeconds": 4,
+  "success": {
+    "type": "touch",
+    "minBallHeight": 700
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 4
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "ball.location": [
+        [
+          -400,
+          400
+        ],
+        [
+          -500,
+          -300
+        ],
+        [
+          800,
+          880
+        ]
+      ],
+      "ball.velocity": [
+        0,
+        0,
+        [
+          600,
+          700
+        ]
+      ]
+    },
+    "hard": {
+      "ball.location": [
+        [
+          -900,
+          900
+        ],
+        [
+          200,
+          500
+        ],
+        [
+          1250,
+          1400
+        ]
+      ],
+      "ball.velocity": [
+        0,
+        0,
+        [
+          500,
+          600
+        ]
+      ],
+      "success.minBallHeight": 1000
+    }
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "notes": "The ball is launched up so it hangs near its top for the take-off. timed: best times per difficulty."
+}

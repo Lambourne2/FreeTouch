@@ -1,0 +1,71 @@
+{
+  "id": "races.wave_dash",
+  "name": "Race: wave dash",
+  "category": "races",
+  "description": "You drop in from a little jump, no boost: wave dash as you land (dodge forward just as the wheels touch) and keep chaining speed to the finish.",
+  "tags": [
+    "race",
+    "wave dash",
+    "movement"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 7,
+  "ball": {
+    "location": [
+      0,
+      0,
+      5
+    ],
+    "hidden": true,
+    "markObjective": true
+  },
+  "player": {
+    "location": [
+      0,
+      -3600,
+      160
+    ],
+    "rotation": [
+      -1200,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      900,
+      -250
+    ],
+    "boost": 0
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "id": "finish",
+      "radius": 260,
+      "triggeredBy": "car",
+      "color": "accent",
+      "location": [
+        0,
+        -300,
+        15
+      ]
+    }
+  ],
+  "success": {
+    "type": "reach_object",
+    "objectId": "finish"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 7
+    }
+  ],
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "A race against your own best run: beat it and your run becomes the ghost."
+}

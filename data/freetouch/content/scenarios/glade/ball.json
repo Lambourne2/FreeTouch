@@ -1,0 +1,138 @@
+{
+  "id": "glade.ball",
+  "name": "The Glade: with the ball",
+  "category": "glade",
+  "description": "Take the ball along the lane, through the gates, and put it in the circle at the end, without leaving the lane. Eight levels, wide to thin.",
+  "tags": ["movement", "stick_control", "glade", "ball_control"],
+  "allowMirror": true,
+  "notes": "Levels in order (progression): a success moves on, a fail repeats, D-pad right skips. glade_path smooths the control points into lanes, gates and a finish; the car starts on the path. Leaving the lanes counts only with the wheels down (gaps are jumps).",
+  "progression": "levels",
+  "timed": true,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.2,
+  "timeLimitSeconds": 25,
+  "ball": { "location": [0, 0, 93] },
+  "player": { "location": [0, -4200, 17], "rotation": [0, 16384, 0], "boost": 50 },
+  "objects": [
+    {
+      "type": "one_of",
+      "choices": [
+        {
+          "id": "level_1",
+          "label": "1. wide lane",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 35,
+          "objects": [
+            { "type": "glade_path", "points": [[0, -4000], [0, -2500], [700, -1000], [-700, 500], [0, 2200], [0, 3400]], "width": 900, "gates": 2, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_2",
+          "label": "2. S-curve",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 40,
+          "objects": [
+            { "type": "glade_path", "points": [[-500, -4000], [-500, -2800], [1100, -1600], [-1100, 0], [1000, 1600], [0, 3200]], "width": 700, "gates": 3, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_3",
+          "label": "3. thin",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 45,
+          "objects": [
+            { "type": "glade_path", "points": [[0, -4000], [0, -2800], [1300, -1500], [-1300, 0], [1200, 1500], [0, 3000]], "width": 550, "gates": 3, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_4",
+          "label": "4. zigzag",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 50,
+          "objects": [
+            { "type": "glade_path", "points": [[0, -4000], [0, -3200], [1600, -2200], [-1600, -900], [1600, 400], [-1400, 1700], [0, 3100]], "width": 520, "gates": 4, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_5",
+          "label": "5. thin S",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 50,
+          "objects": [
+            { "type": "glade_path", "points": [[-800, -4000], [-800, -2800], [1500, -1600], [-1500, 0], [1500, 1600], [0, 3200]], "width": 450, "gates": 4, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_6",
+          "label": "6. long loop",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 60,
+          "objects": [
+            { "type": "glade_path", "points": [[2400, -4000], [2400, -2200], [0, -1300], [-2400, -2000], [-2400, 0], [0, 900], [2200, 1800], [1200, 3300]], "width": 480, "gates": 5, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_7",
+          "label": "7. slalom",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 60,
+          "objects": [
+            { "type": "glade_path", "points": [[0, -4000], [0, -3200], [1100, -2400], [-1100, -1500], [1100, -600], [-1100, 300], [1100, 1200], [-1100, 2100], [0, 3100]], "width": 420, "gates": 5, "finish": "ball" }
+          ]
+        },
+        {
+          "id": "level_8",
+          "label": "8. thread the needle",
+          "tag": "NEXT GATE",
+          "timeLimitSeconds": 60,
+          "objects": [
+            { "type": "glade_path", "points": [[0, -4000], [0, -2800], [1400, -1600], [1400, 0], [-1400, 1000], [-1400, 2400], [0, 3300]], "width": 360, "gates": 4, "finish": "ball" }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": { "type": "objects_in_order" },
+  "fail": [
+    { "type": "car_leaves_lane" }
+  ],
+  "difficulty": {
+    "easy": {
+      "objects.0.choices.0.objects.0.width": 1170,
+      "objects.0.choices.0.timeLimitSeconds": 43,
+      "objects.0.choices.1.objects.0.width": 910,
+      "objects.0.choices.1.timeLimitSeconds": 48,
+      "objects.0.choices.2.objects.0.width": 715,
+      "objects.0.choices.2.timeLimitSeconds": 53,
+      "objects.0.choices.3.objects.0.width": 676,
+      "objects.0.choices.3.timeLimitSeconds": 58,
+      "objects.0.choices.4.objects.0.width": 585,
+      "objects.0.choices.4.timeLimitSeconds": 58,
+      "objects.0.choices.5.objects.0.width": 624,
+      "objects.0.choices.5.timeLimitSeconds": 68,
+      "objects.0.choices.6.objects.0.width": 546,
+      "objects.0.choices.6.timeLimitSeconds": 68,
+      "objects.0.choices.7.objects.0.width": 468,
+      "objects.0.choices.7.timeLimitSeconds": 68
+    },
+    "hard": {
+      "objects.0.choices.0.objects.0.width": 720,
+      "objects.0.choices.0.timeLimitSeconds": 31,
+      "objects.0.choices.1.objects.0.width": 560,
+      "objects.0.choices.1.timeLimitSeconds": 36,
+      "objects.0.choices.2.objects.0.width": 440,
+      "objects.0.choices.2.timeLimitSeconds": 41,
+      "objects.0.choices.3.objects.0.width": 416,
+      "objects.0.choices.3.timeLimitSeconds": 46,
+      "objects.0.choices.4.objects.0.width": 360,
+      "objects.0.choices.4.timeLimitSeconds": 46,
+      "objects.0.choices.5.objects.0.width": 384,
+      "objects.0.choices.5.timeLimitSeconds": 56,
+      "objects.0.choices.6.objects.0.width": 336,
+      "objects.0.choices.6.timeLimitSeconds": 56,
+      "objects.0.choices.7.objects.0.width": 288,
+      "objects.0.choices.7.timeLimitSeconds": 56
+    }
+  }
+}

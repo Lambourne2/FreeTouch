@@ -1,0 +1,32 @@
+{
+  "id": "backboard_breakout.board",
+  "name": "Backboard Breakout",
+  "category": "backboard_breakout",
+  "description": "Smash every panel on the orange backboard with the ball: read the rebounds, follow up, keep the ball alive. Clear the board and a fresh one appears. No clock; the ball and your car never reset.",
+  "tags": ["backboard", "shooting", "freeplay"],
+  "allowMirror": true,
+  "notes": "Panels from a surface grid on orange_backboard (easy 3x2, medium 4x2, hard 5x3). Live play: chain keeping car and ball, also after goals.",
+  "onSuccess": "chain",
+  "onFail": "chain",
+  "chainKeepsBall": true,
+  "chainMinDistance": 0,
+  "ball": {
+    "location": [[-1500, 1500], [1800, 2800], [93, 400]],
+    "velocity": [[-300, 300], [-300, 300], [0, 300]]
+  },
+  "player": {
+    "location": [[-800, 800], [0, 800], 17],
+    "rotation": [0, 16384, 0],
+    "boost": 100,
+    "faceBall": true
+  },
+  "objects": [
+    { "type": "panel", "id": "panel", "surface": "orange_backboard", "grid": [4, 2], "triggeredBy": "ball", "color": "orange" }
+  ],
+  "success": { "type": "all_objects_hit" },
+  "fail": [],
+  "difficulty": {
+    "easy": { "objects.0.grid": [3, 2] },
+    "hard": { "objects.0.grid": [5, 3] }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "quick_play.default",
+  "name": "Default warm-up",
+  "description": "The warm-up Quick Play starts with until you save your own (yours is kept in settings/quick_play.json).",
+  "category": "quick_play",
+  "durationMinutes": 15,
+  "difficulty": "adaptive",
+  "airRoll": "free",
+  "order": "sequential",
+  "repsPerExercise": 6,
+  "exercises": [
+    { "ref": "first_touch.high_lob" },
+    { "ref": "first_touch.side_wall_pass" },
+    { "ref": "basics.shoot_on_defender.rolling" },
+    { "ref": "first_touch.bounce_air_dribble" },
+    { "ref": "basics.shoot_on_defender.popped" },
+    { "ref": "saves.basic.mixed" }
+  ]
+}

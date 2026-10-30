@@ -1,0 +1,111 @@
+{
+  "id": "one_tank.loop",
+  "name": "One Tank: loop",
+  "category": "movement",
+  "description": "Get there, save it, hit the target, fly through, finish it, round and round with a fresh layout every time. You get one tank at the start and only pads refill it, so manage your boost for as long as you keep going.",
+  "tags": ["boost_management", "movement", "shooting", "defense"],
+  "allowMirror": true,
+  "notes": "progression 'loop': the five situations in order forever; only the first rep of the exercise sets the boost.",
+  "progression": "loop",
+  "showTank": true,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 0.8,
+  "timeLimitSeconds": 8,
+  "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true },
+  "player": { "location": [0, -4600, 17], "rotation": [0, 16384, 0], "boost": 100 },
+  "objects": [
+    {
+      "type": "one_of",
+      "choices": [
+        {
+          "id": "situation_1",
+          "label": "1/5 get there",
+          "tag": "GO HERE",
+          "timeLimitSeconds": 7,
+          "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true },
+          "player": { "location": [ [-1000, 1000], -4600, 17 ], "rotation": [0, 16384, 0], "boost": 100 },
+          "objects": [
+            { "type": "circle", "id": "objective", "location": [ [-2500, 2500], [2800, 3800], 15 ], "radius": 350, "triggeredBy": "car", "color": "accent" }
+          ],
+          "success": { "type": "reach_object", "objectId": "objective" }
+        },
+        {
+          "id": "situation_2",
+          "label": "2/5 save it",
+          "tag": "SAVE",
+          "timeLimitSeconds": 6,
+          "ball": {
+            "location": [
+              [-2500, 2500],
+              [-1200, 300],
+              [93, 500]
+            ],
+            "aimAt": { "point": [ [-700, 700], -5120, [100, 500] ], "speed": [1700, 2300] }
+          },
+          "player": { "location": [0, -4900, 17], "rotation": [0, 16384, 0], "faceBall": true },
+          "objects": [],
+          "success": { "type": "save" },
+          "fail": [
+            { "type": "conceded" }
+          ]
+        },
+        {
+          "id": "situation_3",
+          "label": "3/5 hit the target",
+          "tag": "TARGET",
+          "timeLimitSeconds": 9,
+          "ball": { "location": [ [-800, 800], [-600, 200], 93 ], "velocity": [ [-200, 200], [300, 600], 0 ] },
+          "player": { "location": [ [-800, 800], -2000, 17 ], "rotation": [0, 16384, 0], "faceBall": true },
+          "objects": [
+            { "type": "target", "id": "objective", "radius": 320, "triggeredBy": "ball", "color": "accent", "placeOn": ["wall", "back_wall"] }
+          ],
+          "success": { "type": "object_hit", "objectId": "objective" }
+        },
+        {
+          "id": "situation_4",
+          "label": "4/5 fly through",
+          "tag": "FLY THROUGH",
+          "timeLimitSeconds": 7,
+          "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true },
+          "player": { "location": [ [-1000, 1000], -1500, 17 ], "rotation": [0, 16384, 0] },
+          "objects": [
+            { "type": "ring", "id": "objective", "location": [ [-1500, 1500], [200, 1200], [700, 1100] ], "normal": [0, 1, 0], "radius": 380, "triggeredBy": "car", "color": "orange" }
+          ],
+          "success": { "type": "object_hit", "objectId": "objective" }
+        },
+        {
+          "id": "situation_5",
+          "label": "5/5 finish it",
+          "tag": "POCKET",
+          "timeLimitSeconds": 9,
+          "ball": { "location": [ [-700, 700], [400, 1400], 93 ], "velocity": [ [-200, 200], [-400, -200], 0 ] },
+          "player": { "location": [ [-600, 600], -1800, 17 ], "rotation": [0, 16384, 0], "faceBall": true },
+          "objects": [
+            { "type": "target", "id": "objective", "surface": "orange_goal", "grid": [3, 2] }
+          ],
+          "success": { "type": "object_hit", "objectId": "objective" }
+        }
+      ]
+    }
+  ],
+  "success": { "type": "object_hit", "objectId": "objective" },
+  "fail": [],
+  "difficulty": {
+    "easy": {
+      "objects.0.choices.0.timeLimitSeconds": 10,
+      "objects.0.choices.1.timeLimitSeconds": 9,
+      "objects.0.choices.2.timeLimitSeconds": 12,
+      "objects.0.choices.3.timeLimitSeconds": 10,
+      "objects.0.choices.4.timeLimitSeconds": 12
+    },
+    "hard": {
+      "objects.0.choices.0.timeLimitSeconds": 6,
+      "objects.0.choices.1.timeLimitSeconds": 5,
+      "objects.0.choices.2.timeLimitSeconds": 8,
+      "objects.0.choices.3.timeLimitSeconds": 6,
+      "objects.0.choices.4.timeLimitSeconds": 8,
+      "objects.0.choices.0.player.boost": 70
+    }
+  }
+}

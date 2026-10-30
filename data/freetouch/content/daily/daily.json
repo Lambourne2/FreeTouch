@@ -1,0 +1,18 @@
+{
+  "_about": "The Daily Challenge: each day the date picks one drill per slot (and each shot's seed), the same for every Free Touch player with this file. Only solo drills that play the same from a seed: no bots, ghosts, chained reps or progression. Changing the slots changes everyone's days: bump version when you do.",
+  "version": 1,
+  "epoch": "2026-10-19",
+  "difficulty": "medium",
+  "slots": [
+    {"name": "Shooting", "drills": ["basics.target.popped", "basics.target.rolling"]},
+    {"name": "First touch", "drills": ["first_touch.high_lob", "first_touch.bounce_cross", "first_touch.backboard_rebound"]},
+    {"name": "Save", "drills": ["saves.basic.mixed", "saves.wall.bounce"]},
+    {"name": "Movement", "drills": ["movement.boost_circle.random", "movement.boost_circle.recovery"]},
+    {"name": "First touch", "drills": ["first_touch.side_wall_pass", "first_touch.ceiling_target", "first_touch.bounce_air_dribble"]},
+    {"name": "Save", "drills": ["saves.basic.mixed", "saves.wall.bounce"]},
+    {"name": "Shooting", "drills": ["basics.target.rolling", "basics.target.popped", "pinch_bowling.pinch"]},
+    {"name": "Wall and air", "drills": ["mechanics.air_dribble.wall_pop", "mechanics.aerial_reads", "mechanics.lab.wall"]},
+    {"name": "Mechanic", "drills": ["mechanics.double_touch", "mechanics.ceiling_shot", "mechanics.flick.dribble_zone"]},
+    {"name": "Finale", "drills": ["mechanics.lab.air_dribble", "mechanics.lab.double_tap", "mechanics.lab.flip_reset", "first_touch.bounce_air_dribble"]}
+  ]
+}

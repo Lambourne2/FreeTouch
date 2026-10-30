@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "freetouch/scenario.schema.json",
+  "title": "Free Touch scenario",
+  "description": "One rep setup. Any 'num' may be a number or a [min, max] range resolved with the rep's seed. Units: Unreal units (uu), uu/s, rotations in Unreal rotation units (65536 = 360 deg). Soccar: blue goal at y = -5120, orange goal at y = +5120.",
+  "type": "object",
+  "required": ["id", "name", "category", "ball", "player", "success"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+    "name": { "type": "string" },
+    "category": {
+      "enum": ["basics", "saves", "pro_saves", "mechanics", "horse", "pinch_bowling", "combo", "backboard_breakout",
+               "movement", "first_touch", "speed_lab", "glade", "defense", "fifties", "races", "speed_flip", "replay", "packs", "captured", "dev", "vs_bot"]
+    },
+    "description": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "favorite": { "type": "boolean", "description": "Starred on the Saved Shots page." },
+    "extras": {
+      "type": "object",
+      "description": "Saved Shots: what the player added to a shot, as on the Training packs page. defender: a bot in the orange net (stronger on hard). target: pick (openTiles open, the rest closed), random (one tile a rep) or moving; none = the whole net. tileSize: easy (2 x 2), medium (3 x 2), hard (4 x 2) or impossible (a hole just bigger than the ball at one of the 4 x 2 cells). openTiles: cell = row * cols + column, column 0 at x = -893.",
+      "properties": {
+        "defender": { "enum": ["psyonix", "necto", "nexto"] },
+        "target": { "enum": ["pick", "random", "moving"] },
+        "tileSize": { "enum": ["easy", "medium", "hard", "impossible"] },
+        "openTiles": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 7 } }
+      },
+      "additionalProperties": false
+    },
+    "shared": {
+      "type": "object",
+      "description": "A Saved Shot imported from a friend's .ftshot file: who shared it, when, and the shot's fingerprint.",
+      "properties": {
+        "by": { "type": "string" },
+        "on": { "type": "string" },
+        "key": { "type": "string" },
+        "id": { "type": "string", "description": "Its id on the Free Touch service (Shot Board or sent by a friend): plays are counted there." }
+      },
+      "additionalProperties": false
+    },
+    "notes": { "type": "string", "description": "Authoring notes, for example 'approximate; replace with ft_capture'." },
+    "allowMirror": { "type": "boolean", "default": false, "description": "Flip x on a random half of reps." },
+    "timeLimitSeconds": { "$ref": "#/$defs/num" },
+    "onSuccess": { "enum": ["stay", "next", "chain"], "default": "stay", "description": "After a success: stay on the result (default), start the next rep ('next'), or start the next rep keeping the car exactly as it is ('chain': position, speed and boost carry on)." },
+    "onFail": { "enum": ["stay", "next", "chain"], "default": "stay", "description": "After a fail or a neutral result (time up, a goal): like onSuccess. Labs that never stop use 'chain'." },
+    "bowling": {
+      "type": "object",
+      "description": "Pin bowling: frames of 'throws' throws on the same setup; pins knocked down stay down within a frame. A throw is judged when every pin is down (STRIKE / SPARE), when the pins settle or the ball stops, or at the time limit (N PINS / MISS).",
+      "properties": {
+        "throws": { "type": "integer", "minimum": 1, "maximum": 3, "default": 2 },
+        "settleSeconds": { "type": "number", "default": 2.5 }
+      },
+      "additionalProperties": false
+    },
+    "guide": { "type": "boolean", "default": false, "description": "Draw a dashed guide from the ball to the objective (a beginner aid)." },
+    "progression": { "enum": ["levels", "run", "loop", "trial", "horse", "combo"], "description": "horse: each one_of choice is a called shot in rising difficulty; a make moves to the next call, a miss earns the next letter of 'word'; spelling it ends the game (best: shots made). combo: the choices are a ladder of chains; landing one unlocks the next step, a miss repeats it (or drops a step with dropOnMiss). levels: the one_of choices are levels played in order; a success moves on to the next, a fail repeats it, D-pad right skips ahead. run: the choices are played in order whatever happens, and the last one shows the run's score. loop: in order, round and round; only the very first rep sets the boost. trial: in order against one clock; a success moves on, a fail repeats, and finishing the last gives the attempt's time (personal best)." },
+    "showTank": { "type": "boolean", "default": false, "description": "Show the car's boost (TANK) on the HUD." },
+    "advanceDelaySeconds": { "type": "number", "minimum": 0, "description": "With onSuccess/onFail: wait this long after the result before the next rep (default 0)." },
+    "word": { "type": "string", "description": "horse: the word spelled by misses (HORSE)." },
+    "dropOnMiss": { "type": "boolean", "description": "combo: a miss drops back a step." },
+    "showMechanics": { "type": "boolean", "description": "Always show the mechanics feed in this scenario (the mechanics modes)." },
+    "rush": {
+      "type": "object",
+      "description": "Style Rush: a timed run of fed balls; mechanics fill a pot, each different one raises the multiplier, a goal cashes it at double, a dead ball banks it plain. Bonus call-outs make one mechanic worth triple for a while.",
+      "properties": {
+        "minutes": { "type": "number" },
+        "firstBonusSeconds": { "type": "number" },
+        "bonusEverySeconds": { "type": "number" },
+        "bonusSeconds": { "type": "number" },
+        "idleSeconds": { "type": "number", "description": "A fed ball nobody touches is dead after this long." }
+      },
+      "additionalProperties": false
+    },
+    "chainKeepsBall": { "type": "boolean", "default": false, "description": "chain: also leave the ball as it is (live play carries on), unless it was exploded or held in a goal." },
+    "chainMinDistance": { "type": "number", "description": "chain: the next rep's first objective spawns at least this far (uu, floor distance) from the car." },
+    "timed": { "type": "boolean", "default": false, "description": "A race against the clock: the result shows the time and a personal best is kept per difficulty." },
+    "match": {
+      "type": "object",
+      "description": "A match lab: every rep is a kickoff, goals keep score, the clock runs while the ball is live; a tie at 0:00 goes to overtime (next goal wins).",
+      "properties": {
+        "minutes": { "type": "number", "description": "Match length (3)." },
+        "firstTo": { "type": "integer", "description": "Optional: the match also ends when someone reaches this many goals." }
+      },
+      "additionalProperties": false
+    },
+    "waitForInput": { "type": "boolean", "description": "Start frozen on the setup until the player's first input (any button or stick), like the game's training packs; the clock starts then." },
+    "readFirst": { "type": "boolean", "description": "Like waitForInput, with the objective kept on screen to read: frozen on the setup until a fresh press (let go of everything first, so a held throttle does not start it); the clock starts then. The Daily Challenge plays every shot like this." },
+    "coach": { "enum": ["speed_flip"], "description": "speed_flip: the run is watched from its start (jump, the flip's angle, the cancel, the landing, boost) and one tip is added to the result line (speed_flip_coach in the log)." },
+    "showTrajectory": { "type": "boolean", "description": "Draw the ball's path (trajectorySeconds ahead) while the shot waits for input (waitForInput) or during the start countdown." },
+    "trajectorySeconds": { "type": "number", "minimum": 0.2, "maximum": 4, "description": "showTrajectory: how far ahead the path goes (1.6 s)." },
+    "clockCountsDown": { "type": "boolean", "description": "The HUD shows the time left instead of the time taken." },
+    "timeUpWaitsForGround": { "type": "boolean", "description": "When the time limit runs out, the rep plays on until the ball touches the ground (up to 4 s more), like the game's training." },
+    "recordVersion": { "type": "integer", "minimum": 1, "default": 1, "description": "Bump when a timed drill's layout changes: best times and ghosts from older versions no longer count." },
+    "ghost": { "type": "boolean", "description": "Races: record each run; a new best is saved and drawn as a ghost car on later runs (with timed)." },
+    "arena": { "type": "string", "description": "The arena the moment came from (replay takeover); informational." },
+    "showPlayMap": { "type": "boolean", "description": "Shows a top-down map of the play (you, the bot, the ball, a teammate's circle) during the start countdown." },
+    "startCountdownSeconds": { "type": "number", "minimum": 0, "description": "Each rep starts frozen (ball, car, bots at their start, no speed) with a countdown, then everything goes." },
+    "situation": {
+      "type": "object",
+      "description": "A whole play generated at once, after ranges and difficulty. attack: you already driving at a ball rolling toward the orange net, the first bot shadowing goal-side (facing its net, backing up).",
+      "properties": {
+        "type": { "enum": ["attack", "defend", "kickoff", "fifty", "control"], "description": "control (Ball Control): an awkward ball reaches you at (x, y) after meetSeconds while the first bot comes at it to arrive botLate seconds after you. kickoff: you on a kickoff spot (x, y, yaw), the first bot on the opposite spot, the ball still at the centre. fifty: you and the bot meet a loose ball at (x, y) at the same moment." },
+        "aim": { "enum": ["corner", "safe", "mate"], "description": "fifty: what the 50 is for: forward into their corner, safely to the side / corner, back to a teammate (a circle)." },
+        "meetSeconds": { "$ref": "#/$defs/num", "description": "fifty: seconds until you and the bot reach the ball." },
+        "botAngle": { "$ref": "#/$defs/num", "description": "fifty: the bot's approach in degrees off straight down-field." },
+        "botSpeed": { "$ref": "#/$defs/num", "description": "fifty: the bot's speed at the start (uu/s)." },
+        "ballDriftY": { "$ref": "#/$defs/num", "description": "fifty: the loose ball's speed along y (uu/s); it rolls across at ballSpeed." },
+        "mateBack": { "$ref": "#/$defs/num", "description": "fifty, mate: how far behind the 50 your teammate's circle is." },
+        "mateSide": { "$ref": "#/$defs/num", "description": "fifty, mate: how far toward the middle of the field the circle is." },
+        "mateRadius": { "$ref": "#/$defs/num", "description": "fifty, mate: the circle's radius." },
+        "contact": { "type": "array", "description": "Written by the generator: where the 50 happens." },
+        "mate": { "type": "array", "description": "Written by the generator: the teammate's spot." },
+        "yaw": { "$ref": "#/$defs/num", "description": "kickoff: your car's facing in degrees from +x (90 faces the orange net); mirrored reps flip it." },
+        "variantLabel": { "type": "string", "description": "The exercise page shows a picker with this title for variants that have an \"id\" (e.g. \"Kickoff spot\")." },
+        "bounceChance": { "$ref": "#/$defs/num", "description": "attack / defend: share of reps where the ball bounces instead of rolling." },
+        "bounceHop": { "$ref": "#/$defs/num", "description": "Upward speed of a bouncing ball (uu/s)." },
+        "bounceLeadExtra": { "$ref": "#/$defs/num", "description": "attack: how much further ahead a bouncing ball starts." },
+        "dribbleChance": { "$ref": "#/$defs/num", "description": "defend: share of reps where the attacker has the ball on its roof." },
+        "wallChance": { "$ref": "#/$defs/num", "description": "defend: share of reps where the ball runs down the side wall ahead of the attacker." },
+        "wallHeight": { "$ref": "#/$defs/num", "description": "defend, wall: how high up the wall the ball starts." },
+        "wallHop": { "$ref": "#/$defs/num", "description": "defend, wall: the ball's upward speed on the wall." },
+        "bounceLead": { "$ref": "#/$defs/num", "description": "defend: how far ahead of the attacker a bouncing ball is." },
+        "rollLead": { "$ref": "#/$defs/num", "description": "defend: how far ahead of the attacker a rolling ball is." },
+        "attackerSpeed": { "$ref": "#/$defs/num", "description": "defend: the attacker's speed at the start." },
+        "playerAngle": { "$ref": "#/$defs/num", "description": "defend: degrees your car is angled down from the goal line toward your net." },
+        "carry": { "type": "string", "description": "Written by the generator (dribble / bounce / roll), for the event log." },
+        "variant": { "type": "string", "description": "Written by the generator: the variant this rep used." },
+        "variants": { "type": "array", "items": { "type": "object" }, "description": "attack / kickoff: alternatives, one picked per rep by \"weight\"; their values replace the base ones (\"name\" names it; with an \"id\" the exercise page can pick one)." },
+        "heading": { "$ref": "#/$defs/num", "description": "attack: the play's direction in degrees from +x (toward +y is 90), instead of toward the net; mirrored reps flip it." },
+        "onWall": { "$ref": "#/$defs/num", "description": "attack: 1 = the ball runs along the side wall on x's side (ballHeight up the wall)." },
+        "wallOffset": { "$ref": "#/$defs/num", "description": "attack, onWall: your distance from the wall (on the floor)." },
+        "defenderGapExtra": { "$ref": "#/$defs/num", "description": "Added to defenderGap (so a variant keeps the difficulty's gap and adds to it)." },
+        "x": { "$ref": "#/$defs/num", "description": "Ball x." },
+        "y": { "$ref": "#/$defs/num", "description": "Ball y (the net is at 5120)." },
+        "approachAngle": { "$ref": "#/$defs/num", "description": "Degrees off the straight line from the ball to the net." },
+        "ballLead": { "$ref": "#/$defs/num", "description": "How far the ball is ahead of you (uu)." },
+        "ballSpeed": { "$ref": "#/$defs/num", "description": "The ball's speed along your line (uu/s)." },
+        "ballHop": { "$ref": "#/$defs/num", "description": "The ball's upward speed (uu/s); 0 rolls." },
+        "ballHeight": { "$ref": "#/$defs/num" },
+        "playerSpeed": { "$ref": "#/$defs/num", "description": "Your speed at the start (uu/s)." },
+        "defenderGap": { "$ref": "#/$defs/num", "description": "How far the defender is goal-side of the ball (uu)." },
+        "defenderLateral": { "$ref": "#/$defs/num", "description": "The defender's offset to the side of the ball-to-net line." },
+        "kind": { "enum": ["lob", "bounce", "spin", "wall", "over"], "description": "control: the reception. lob: dropping in from their side to land on you; bounce: coming at you off a big bounce; spin: a spinning, skipping roller; wall: coming down the side wall; over: a pass from behind over your head." },
+        "ballAngle": { "$ref": "#/$defs/num", "description": "control: degrees the ball comes in off straight down-field." },
+        "lobHeight": { "$ref": "#/$defs/num", "description": "control: the start height of a lob / pass (uu)." },
+        "spin": { "$ref": "#/$defs/num", "description": "control, spin: the ball's spin (rad/s; the game caps it at 6)." },
+        "botLate": { "$ref": "#/$defs/num", "description": "control: the bot reaches the ball this many seconds after you." },
+        "botLateral": { "$ref": "#/$defs/num", "description": "control: the bot's offset to the side of the play." },
+        "defenderSpeed": { "$ref": "#/$defs/num", "description": "How fast the defender is backing up (uu/s)." }
+      },
+      "additionalProperties": false
+    },
+    "leadIn": {
+      "type": "object",
+      "description": "Saved Shots: the seconds before a capture, replayed before the shot; then it freezes until the player presses something. Written by ft_capture.",
+      "properties": {
+        "hz": { "type": "number", "description": "Frames per second (60)." },
+        "frames": { "type": "array", "description": "Rows of 21 numbers: ball location, velocity, spin; car location, rotation, velocity, spin." }
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "description": "Where a scenario came from (pro replay, VODRL moment, capture).",
+      "properties": {
+        "kind": { "enum": ["authored", "captured", "pro_replay", "vodrl", "replay_takeover"] },
+        "replayId": { "type": "string" },
+        "time": { "type": "number" },
+        "players": { "type": "array", "items": { "type": "string" } },
+        "label": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ball": { "$ref": "#/$defs/ball" },
+    "player": { "$ref": "#/$defs/car" },
+    "bots": { "type": "array", "items": { "$ref": "#/$defs/bot" } },
+    "objects": { "type": "array", "items": { "$ref": "#/$defs/object" } },
+    "success": { "$ref": "#/$defs/condition" },
+    "fail": { "type": "array", "items": { "$ref": "#/$defs/condition" } },
+    "difficulty": {
+      "type": "object",
+      "description": "Overrides applied after ranges are resolved. Keys are dotted paths, e.g. 'ball.velocity.1' or 'bots.0.params.reaction'.",
+      "properties": {
+        "easy": { "type": "object" },
+        "medium": { "type": "object" },
+        "hard": { "type": "object" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "num": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }
+      ]
+    },
+    "vec3": { "type": "array", "items": { "$ref": "#/$defs/num" }, "minItems": 3, "maxItems": 3 },
+    "aimAt": {
+      "type": "object",
+      "description": "Instead of a raw velocity: aim the ball so its ballistic path (gravity -650 uu/s^2) passes through 'point' at 'speed'.",
+      "required": ["point", "speed"],
+      "properties": {
+        "point": { "$ref": "#/$defs/vec3" },
+        "speed": { "$ref": "#/$defs/num" },
+        "via": { "enum": ["direct", "sideWall"], "default": "direct", "description": "sideWall: bank the shot off the side wall on the ball's side (x sign of its start; restitution 0.6) so it then passes through 'point'." }
+      },
+      "additionalProperties": false
+    },
+    "ball": {
+      "type": "object",
+      "required": ["location"],
+      "properties": {
+        "location": { "$ref": "#/$defs/vec3" },
+        "velocity": { "$ref": "#/$defs/vec3" },
+        "aimAt": { "$ref": "#/$defs/aimAt" },
+        "angularVelocity": { "$ref": "#/$defs/vec3" },
+        "freezeSeconds": { "$ref": "#/$defs/num", "description": "Hold the ball still before releasing it." },
+        "nearCar": {
+          "type": "object",
+          "description": "The ball fed in front of the car (where it is now on a chained rep): ahead / side of it, at height, coming back toward it at 'toward' and rising at 'up' (uu, uu/s).",
+          "properties": { "ahead": { "$ref": "#/$defs/num" }, "side": { "$ref": "#/$defs/num" }, "height": { "$ref": "#/$defs/num" },
+            "toward": { "$ref": "#/$defs/num" }, "up": { "$ref": "#/$defs/num" } },
+          "additionalProperties": false
+        },
+        "hidden": { "type": "boolean", "description": "Ballless drill: shrink the ball to 1% (it cannot be seen or touched) and hold it at 'location' for the whole rep (velocity is ignored). Ball cam still follows it, so park it somewhere sensible, e.g. on the floor at centre." },
+        "markAhead": { "type": "integer", "minimum": 0, "default": 0, "description": "With markObjective in an ordered course: mark this many objectives past the next one (1 = the ring after the one you are heading for)." },
+        "markObjective": { "type": "boolean", "default": false, "description": "With 'hidden': keep the hidden ball on the current objective (the next ring in order, just above its top; the middle of a circle) so ball cam points the way." }
+      },
+      "additionalProperties": false
+    },
+    "car": {
+      "type": "object",
+      "required": ["location", "rotation"],
+      "properties": {
+        "location": { "$ref": "#/$defs/vec3" },
+        "rotation": { "$ref": "#/$defs/vec3", "description": "[pitch, yaw, roll] in Unreal rotation units." },
+        "velocity": { "$ref": "#/$defs/vec3" },
+        "angularVelocity": { "$ref": "#/$defs/vec3", "description": "rad/s (captures keep the car's spin)." },
+        "boost": { "$ref": "#/$defs/num" },
+        "faceBall": { "type": "boolean", "description": "Override yaw so the car faces the ball." },
+        "boostLock": { "type": "boolean", "default": false, "description": "Keep the car's boost at 100 for the whole rep." },
+        "noPads": { "type": "boolean", "default": false, "description": "Boost pads give the car nothing: a pickup is taken straight back, so only the starting boost can be spent." },
+        "tossAt": {
+          "type": "object",
+          "description": "Throw the car at one of these points (walls, corners): it starts 'distance' back from a random target toward the middle of the field and flies at it at 'speed'. location.z sets the start height.",
+          "required": ["targets"],
+          "properties": {
+            "targets": { "type": "array", "items": { "$ref": "#/$defs/vec3" }, "minItems": 1 },
+            "distance": { "$ref": "#/$defs/num" },
+            "speed": { "$ref": "#/$defs/num" }
+          },
+          "additionalProperties": false
+        },
+        "faceBallOffset": { "$ref": "#/$defs/num", "description": "Yaw (rotation units) added after faceBall, for cars that start at an angle to the ball." },
+        "relativeTo": { "enum": ["world", "ball", "landingToGoal"], "default": "world", "description": "ball: location x and y are an offset from the ball's location (z stays absolute). landingToGoal: an offset from where the ball first lands (gravity only), in a frame whose +y points from there at the orange goal and +x to its right." },
+        "forwardSpeed": { "$ref": "#/$defs/num", "description": "Starting speed (uu/s) along the car's final yaw; replaces velocity." }
+      },
+      "additionalProperties": false
+    },
+    "bot": {
+      "type": "object",
+      "required": ["type", "team"],
+      "properties": {
+        "type": { "enum": ["puppet", "psyonix", "necto", "nexto", "playback"], "description": "necto / nexto: that network (content/bots/<type>/) driving a spawned bot car. psyonix: the game's bot, or whichever the Opponent setting picks." },
+        "behavior": { "enum": ["keeper", "whiffer", "backboard_sitter", "bumper", "fifty", "shadow", "none"] },
+        "team": { "enum": [0, 1] },
+        "location": { "$ref": "#/$defs/vec3" },
+        "rotation": { "$ref": "#/$defs/vec3" },
+        "velocity": { "$ref": "#/$defs/vec3", "description": "Starting momentum (uu/s), set when the bot is placed for a rep." },
+        "boost": { "type": "number", "description": "The bot's boost (0..100) when it is placed for a rep." },
+        "randomSide": { "type": "boolean", "default": false, "description": "Flip this bot to the other side (x, velocity x, yaw) on a random half of reps, independently of the scenario's allowMirror." },
+        "recording": { "type": "string", "description": "Playback file for type 'playback'." },
+        "label": { "type": "string", "description": "Who it stands in for (replay takeover: the player's name)." },
+        "keepType": { "type": "boolean", "description": "psyonix stays the game's bot whatever the Opponent setting says (training pack defenders)." },
+        "track": { "type": "object", "description": "Its lead-up, played while the scenario's leadIn plays: hz and frames of [x, y, z, pitch, yaw, roll, vx, vy, vz], ending on its start." },
+        "params": {
+          "type": "object",
+          "properties": {
+            "reaction": { "$ref": "#/$defs/num", "description": "Seconds of delay before reacting." },
+            "maxSpeed": { "$ref": "#/$defs/num", "description": "uu/s cap for puppet movement." },
+            "error": { "$ref": "#/$defs/num", "description": "Positional error in uu." },
+            "touchChance": { "$ref": "#/$defs/num", "description": "0..1, for whiffer." },
+            "beta": { "$ref": "#/$defs/num", "description": "Network bots: 1 always plays the best action; lower plays looser (0.5 samples by the network's odds)." },
+            "holdSeconds": { "$ref": "#/$defs/num", "description": "Reaction time: the bot coasts (no inputs) this long after it is placed, then plays." },
+            "scriptedKickoff": { "type": "boolean", "description": "Network bots with a scripted kickoff (Nexto's speedflip): false lets the network play the kickoff instead (easier)." }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "object": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["target", "blocker", "ring", "pin", "checkpoint", "lane", "panel", "circle", "zone_cycle", "ring_course", "one_of", "pin_rack", "glade_path"] },
+        "gates": { "type": "integer", "minimum": 0, "description": "glade_path: checkpoint gates along the path (in order)." },
+        "gaps": { "type": "array", "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 }, "description": "glade_path: [from, to] fractions of the path with no lane (jump them)." },
+        "finish": { "enum": ["car", "ball"], "description": "glade_path: drive into the finish circle, or put the ball in it." },
+        "rows": { "type": "integer", "minimum": 1, "maximum": 6, "description": "pin_rack: rows of pins (4 = the 10-pin triangle). 'location' is the head pin, 'normal' the way the rack extends." },
+        "spacing": { "$ref": "#/$defs/num", "description": "pin_rack: distance between neighbouring pins (uu)." },
+        "choices": {
+          "type": "array",
+          "minItems": 1,
+          "description": "one_of: each rep uses one of these at random; its 'label' is added to the exercise name for that rep.",
+          "items": {
+            "type": "object",
+            "required": ["objects"],
+            "properties": {
+              "id": { "type": "string", "description": "Lets a player switch this choice on or off (Freeplay+ picker)." },
+              "group": { "type": "string", "description": "Picker group, e.g. Shooting, Ball control, Aerials, Movement." },
+              "beginner": { "type": "boolean", "description": "Part of the Beginner preset." },
+              "about": { "type": "string", "description": "One line for the picker's tooltip." },
+              "difficulties": { "type": "array", "items": { "enum": ["easy", "medium", "hard"] }, "description": "Only on these difficulties (none = every difficulty), e.g. ceiling pinches only on hard." },
+              "success": { "$ref": "#/$defs/condition" },
+              "fail": { "type": "array", "items": { "$ref": "#/$defs/condition" } },
+              "timeLimitSeconds": { "$ref": "#/$defs/num" },
+              "guide": { "type": "boolean" },
+              "label": { "type": "string" },
+              "tag": { "type": "string", "description": "Short tag drawn above the objective in the world (default: the label)." },
+              "ball": { "$ref": "#/$defs/ball" },
+              "player": { "$ref": "#/$defs/car" },
+              "objects": { "type": "array", "items": { "$ref": "#/$defs/object" } }
+            },
+            "additionalProperties": false
+          }
+        },
+        "count": { "$ref": "#/$defs/num", "description": "ring_course: how many rings (generated from the player's start: floor arches, wall rings, ceiling rings, air rings)." },
+        "placeOn": { "type": "array", "items": { "enum": ["floor", "wall", "ceiling", "back_wall"] }, "description": "circle: put it flat on one of these surfaces at random each rep (location and normal are set)." },
+        "id": { "type": "string" },
+        "location": { "$ref": "#/$defs/vec3" },
+        "normal": { "$ref": "#/$defs/vec3", "description": "Facing direction for flat objects (target, ring, panel)." },
+        "size": { "$ref": "#/$defs/vec3", "description": "Box size for blocker/panel, [w, h, depth]." },
+        "radius": { "$ref": "#/$defs/num" },
+        "points": { "type": "array", "items": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 }, "description": "Lane polyline [x, y, z], or glade_path control points [x, y]." },
+        "width": { "$ref": "#/$defs/num", "description": "Lane width." },
+        "triggeredBy": { "enum": ["ball", "car", "car_with_ball"], "default": "ball" },
+        "withinUu": { "$ref": "#/$defs/num", "description": "For car_with_ball: max car-ball distance when passing." },
+        "order": { "type": "integer", "description": "Ring/checkpoint order." },
+        "surface": { "enum": ["orange_goal", "blue_goal", "orange_backboard", "blue_backboard", "ceiling"] },
+        "grid": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2, "description": "With 'surface': [columns, rows]. A target becomes a pocket in one random cell (blue blockers on the others); a panel becomes one panel per cell." },
+        "cell": { "type": "integer", "description": "With 'surface' + 'grid': force the target's cell (0 = bottom-left as seen from the field)." },
+        "blockRest": { "type": "boolean", "default": true, "description": "With a surface-grid target: put blue blockers on the other cells." },
+        "cycleSeconds": { "type": "number" },
+        "color": { "enum": ["accent", "blue", "orange", "green", "red", "white", "grey"] }
+      },
+      "additionalProperties": false
+    },
+    "condition": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": ["goal", "goal_in_zone", "object_hit", "all_objects_hit", "objects_in_order", "detector",
+                   "detector_chain", "reach_object", "timeout", "ball_touched_by_bot", "ball_hits_ground",
+                   "car_leaves_lane", "conceded", "save", "touch", "touch_streak", "dribble", "kickoff", "fifty", "match", "mechanic", "possession", "shadow"]
+        },
+        "mateRadius": { "type": "number", "description": "fifty: the ball this close (uu, along the floor) to the teammate's spot reaches them (750)." },
+        "mateSeconds": { "type": "number", "description": "fifty, mate: seconds after the first touch to get it there (3)." },
+        "keepSeconds": { "type": "number", "description": "possession: keep the ball this long after your first touch (4)." },
+        "lostSeconds": { "type": "number", "description": "possession: the bot getting to it first this long in a row is losing it (0.5)." },
+        "controlSeconds": { "type": "number", "description": "possession: the ball is yours for this long after each of your touches (0.75), unless the bot touches it; a ball you sent on target is yours until it goes in or is saved." },
+        "pastMargin": { "type": "number", "description": "possession: the ball this far past the bot toward their net, you past it too, is getting past it (600)." },
+        "judgeSeconds": { "type": "number", "description": "kickoff: seconds after the first touch when the kickoff is judged (2.5)." },
+        "lookAheadSeconds": { "type": "number", "description": "kickoff: the ball's position is projected this far ahead along its velocity (0.7)." },
+        "winMargin": { "type": "number", "description": "kickoff: the projected ball this far (uu) into a half wins / loses it (1100); in between, the nearer car has it." },
+        "possessionMargin": { "type": "number", "description": "kickoff: one car must be this much nearer the ball (uu) to have it (350)." },
+        "objectId": { "type": "string", "description": "An object id; for fail conditions a trailing '*' matches every id with that prefix (e.g. 'target_block_*')." },
+        "detector": { "$ref": "#/$defs/detectorName" },
+        "chain": { "type": "array", "items": { "type": "string" }, "description": "mechanic: detector ids in order; 'id:word' also needs the word in the mechanic's label (flick:musty, pinch:wall, air_dribble:x3)." },
+        "requireGoal": { "type": "boolean", "description": "mechanic: finish with a goal (default true)." },
+        "zone": { "type": "boolean", "description": "mechanic: the goal must go into the lit zone (a zone_cycle object)." },
+        "label": { "type": "string", "description": "mechanic: the result shown when it is landed." },
+        "minBallSpeed": { "type": "number", "description": "uu/s" },
+        "minBallHeight": { "$ref": "#/$defs/num", "description": "touch: the ball at least this high (uu) when you touch it." },
+        "minSpeedKmh": { "$ref": "#/$defs/num", "description": "touch: the ball leaves your touch at least this fast." },
+        "onWall": { "type": "boolean", "description": "touch: your car is on a wall when you touch it." },
+        "count": { "$ref": "#/$defs/num", "description": "touch_streak: touches in a row before the ball touches the floor." },
+        "seconds": { "$ref": "#/$defs/num" }
+      },
+      "additionalProperties": false
+    },
+    "detectorName": {
+      "enum": ["touch", "aerial_touch", "wall_touch", "ceiling_touch", "backboard_touch", "double_touch",
+               "air_dribble", "flip_reset", "double_reset", "flick", "musty", "ceiling_shot", "pinch", "kuxir",
+               "redirect", "backboard_read", "power_shot", "goal", "half_flip", "wave_dash", "zap_dash", "wall_dash", "speed_flip"]
+    }
+  }
+}

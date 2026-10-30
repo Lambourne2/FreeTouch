@@ -1,0 +1,12 @@
+{
+  "name": "My routine",
+  "description": "Empty Warm-up, Play and After sections: build it your way.",
+  "order": 9,
+  "focus": true,
+  "sections": [
+    { "id": "w1", "title": "Warm-up", "warmup": true },
+    { "id": "w2", "title": "Play" },
+    { "id": "w3", "title": "After" }
+  ],
+  "steps": []
+}

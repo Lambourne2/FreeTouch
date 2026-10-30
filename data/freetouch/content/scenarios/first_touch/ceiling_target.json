@@ -1,0 +1,25 @@
+{
+  "id": "first_touch.ceiling_target",
+  "name": "First touch lab: touch it to the ceiling target",
+  "category": "first_touch",
+  "description": "A pass comes off the side wall; send your first touch into the ceiling target, then play it however you want.",
+  "tags": ["first_touch", "aerial"],
+  "allowMirror": true,
+  "notes": "Approximate setup; tune it, or replace it with ft_capture from freeplay.",
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [3500, [-500, 500], [700, 1100]],
+    "velocity": [[-1100, -800], [300, 700], [200, 500]]
+  },
+  "player": {
+    "location": [[-600, 600], -2200, 17],
+    "rotation": [0, 16384, 0],
+    "boost": 100,
+    "faceBall": true
+  },
+  "objects": [
+    { "type": "target", "id": "ceiling", "location": [[-600, 600], [1500, 2800], 2040], "normal": [0, 0, -1], "radius": 350, "triggeredBy": "ball", "color": "accent" }
+  ],
+  "success": { "type": "object_hit", "objectId": "ceiling" },
+  "fail": [{ "type": "timeout", "seconds": 10 }, { "type": "ball_hits_ground" }]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "mechanics.ground_air_dribble",
+  "name": "Ground to air dribble",
+  "category": "mechanics",
+  "description": "The ball starts balanced on your roof. Drive, double jump and carry it up into the air with you, then score. Closer to the net on easy, from your own half on hard.",
+  "tags": ["air dribble", "ground to air", "mechanics"],
+  "allowMirror": true,
+  "readFirst": true,
+  "showMechanics": true,
+  "notes": "Lambourne 2026-10-20: a ground-to-air dribble exercise. The ball is placed on the car's roof wherever the car starts (ball.nearCar), and the rep waits frozen for the first press so it does not roll off. Success is any goal: the ball riding the roof is one long contact, so the air dribble detector (separate touches) may not see it.",
+  "ball": { "location": [0, -1500, 145], "nearCar": { "ahead": 12, "side": 0, "height": 145, "toward": 0, "up": 0 } },
+  "player": { "location": [ [-1200, 1200], [-2200, -1200], 17 ], "rotation": [0, 16384, 0], "boost": 100 },
+  "timeLimitSeconds": 10,
+  "success": { "type": "goal", "label": "AIR DRIBBLE GOAL" },
+  "fail": [ { "type": "timeout", "seconds": 10 } ],
+  "difficulty": {
+    "easy": { "player.location": [ [-700, 700], [-1200, -700], 17 ] },
+    "hard": { "player.location": [ [-1800, 1800], [-3300, -2300], 17 ], "player.boost": 60, "timeLimitSeconds": 12, "fail.0.seconds": 12 }
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

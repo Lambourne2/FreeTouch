@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "freetouch/combo.schema.json",
+  "title": "Free Touch combo ladder (Build Your Combo)",
+  "description": "Each step is a chain of detectors that must happen in order within one rep. Landing a step cleanly advances to the next; a miss repeats the step (or drops one step if dropOnMiss).",
+  "type": "object",
+  "required": ["id", "name", "steps"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_.-]+$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "dropOnMiss": { "type": "boolean", "default": false },
+    "requireGoal": { "type": "boolean", "default": true },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["chain", "setup"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string" },
+          "chain": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "setup": { "type": "string", "description": "Scenario id (or prefix ending in '*') used for this step." }
+        }
+      }
+    }
+  }
+}

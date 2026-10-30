@@ -1,0 +1,96 @@
+{
+  "id": "mechanics.lab.air_dribble",
+  "name": "Mechanics lab: air dribble into the lit zone",
+  "category": "mechanics",
+  "description": "Take the ball up the side wall, pop it and carry it in the air (two or more touches), then finish into the lit zone.",
+  "tags": [
+    "lab",
+    "zone",
+    "air_dribble"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      2500,
+      [
+        -2500,
+        -2300
+      ],
+      93
+    ],
+    "velocity": [
+      [
+        900,
+        1100
+      ],
+      [
+        300,
+        450
+      ],
+      0
+    ]
+  },
+  "player": {
+    "location": [
+      1900,
+      [
+        -2950,
+        -2750
+      ],
+      17
+    ],
+    "rotation": [
+      0,
+      4000,
+      0
+    ],
+    "velocity": [
+      927,
+      375,
+      0
+    ],
+    "boost": 100
+  },
+  "timeLimitSeconds": 12,
+  "objects": [
+    {
+      "type": "zone_cycle",
+      "id": "zones",
+      "surface": "orange_goal",
+      "grid": [
+        3,
+        2
+      ],
+      "cycleSeconds": 1.6,
+      "color": "accent"
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "air_dribble"
+    ],
+    "requireGoal": true,
+    "zone": true,
+    "label": "IN THE ZONE"
+  },
+  "difficulty": {
+    "easy": {
+      "objects.0.cycleSeconds": 2.2
+    },
+    "hard": {
+      "objects.0.cycleSeconds": 1.1
+    }
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "notes": "The zone moves every 1.6 s (2.2 s easy, 1.1 s hard). Judged at the goal: the mechanic must have happened first.",
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 12
+    }
+  ]
+}

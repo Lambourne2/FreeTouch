@@ -1,0 +1,222 @@
+{
+  "id": "mechanics.rush",
+  "name": "Style Rush",
+  "category": "mechanics",
+  "description": "Two minutes of fed balls and unlimited boost. Every mechanic scores points into the play's pot (harder ones score more), and every DIFFERENT mechanic in the same play raises the multiplier. Finish the play with a goal to cash the pot in at multiplier x2; let the ball die on the floor and you only bank the plain points. Bonus call-outs make one mechanic worth triple for 15 seconds. Your best score is kept.",
+  "tags": [
+    "points",
+    "game",
+    "combo",
+    "freestyle"
+  ],
+  "allowMirror": false,
+  "showMechanics": true,
+  "rush": {
+    "minutes": 2,
+    "firstBonusSeconds": 15,
+    "bonusEverySeconds": 25,
+    "bonusSeconds": 15,
+    "idleSeconds": 7
+  },
+  "ball": {
+    "location": [
+      0,
+      -1200,
+      700
+    ],
+    "velocity": [
+      0,
+      -200,
+      300
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -2600,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      900,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "feeds",
+      "choices": [
+        {
+          "id": "lob",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              0,
+              600
+            ],
+            "nearCar": {
+              "ahead": [
+                1300,
+                1900
+              ],
+              "side": [
+                -500,
+                500
+              ],
+              "height": [
+                700,
+                1100
+              ],
+              "toward": [
+                150,
+                400
+              ],
+              "up": [
+                250,
+                500
+              ]
+            }
+          }
+        },
+        {
+          "id": "high",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              0,
+              600
+            ],
+            "nearCar": {
+              "ahead": [
+                1700,
+                2300
+              ],
+              "side": [
+                -600,
+                600
+              ],
+              "height": [
+                1100,
+                1500
+              ],
+              "toward": [
+                100,
+                300
+              ],
+              "up": [
+                350,
+                600
+              ]
+            }
+          }
+        },
+        {
+          "id": "roll",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              0,
+              600
+            ],
+            "nearCar": {
+              "ahead": [
+                1100,
+                1500
+              ],
+              "side": [
+                -300,
+                300
+              ],
+              "height": 93,
+              "toward": [
+                500,
+                800
+              ],
+              "up": 0
+            }
+          }
+        },
+        {
+          "id": "drop",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              0,
+              600
+            ],
+            "nearCar": {
+              "ahead": [
+                600,
+                900
+              ],
+              "side": [
+                -200,
+                200
+              ],
+              "height": [
+                900,
+                1300
+              ],
+              "toward": [
+                0,
+                150
+              ],
+              "up": 0
+            }
+          }
+        },
+        {
+          "id": "pop",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              0,
+              600
+            ],
+            "nearCar": {
+              "ahead": [
+                900,
+                1300
+              ],
+              "side": [
+                -400,
+                400
+              ],
+              "height": 200,
+              "toward": [
+                200,
+                400
+              ],
+              "up": [
+                900,
+                1200
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "goal"
+  },
+  "fail": [],
+  "onSuccess": "chain",
+  "onFail": "chain",
+  "advanceDelaySeconds": 0.8,
+  "startCountdownSeconds": 3,
+  "notes": "Every play is a rep: the next ball is fed in front of wherever your car is (ball.nearCar)."
+}

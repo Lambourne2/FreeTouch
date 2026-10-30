@@ -1,0 +1,23 @@
+{
+  "name": "Necto",
+  "heads": 4,
+  "tickSkip": 8,
+  "source": "Necto by Rolv-Arild and the RLGym community, https://github.com/Rolv-Arild/Necto (src/necto-model.pt), exported with tools/export_policy.py.",
+  "license": "CC BY-NC-SA 4.0 (the Necto repository's LICENSE): attribution, non-commercial, share-alike. Personal use only; not for a paid product without the authors' permission.",
+  "conventions": {
+    "_about": "Free Touch's game values to RLBot's. If Necto drives oddly (e.g. as if upside down, or spins), try rollSign -1 or flip an angularVelocitySign, then ft_reload_content.",
+    "rollSign": 1,
+    "angularVelocitySign": [
+      1,
+      1,
+      1
+    ]
+  },
+  "obs": "necto",
+  "difficulty": {
+    "_about": "Per level: beta (1 = its best action, lower plays looser), reactionSeconds (it sees the ball and the other cars this late), maxSpeed (no boost on the ground above this, uu/s; 0 = no cap). A scenario's own beta can only lower it.",
+    "easy": {"beta": 0.5, "reactionSeconds": 0.2, "maxSpeed": 1700},
+    "medium": {"beta": 0.85, "reactionSeconds": 0.1, "maxSpeed": 2100},
+    "hard": {"beta": 1, "reactionSeconds": 0, "maxSpeed": 0}
+  }
+}

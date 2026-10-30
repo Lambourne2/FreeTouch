@@ -1,0 +1,23 @@
+{
+  "id": "movement.rings.course",
+  "name": "Rings: flow course",
+  "category": "movement",
+  "description": "A fresh ring course every run, flowing around the arena: floor arches, rings along a side wall, rings on the ceiling and air rings off the wall or ceiling, with U-turns at the ends. Pass them in order; ball cam looks one ring ahead. Finish it and the next course starts. Unlimited boost. Timed: beat your best.",
+  "tags": ["movement", "wall", "ceiling", "aerial", "rings"],
+  "allowMirror": true,
+  "notes": "Generated from the seed (ring_course): every retry flies the same course, every next a new one. Teal rings are on a surface, orange rings are in the air.",
+  "timeLimitSeconds": 45,
+  "timed": true,
+  "onSuccess": "next",
+  "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true, "markAhead": 1 },
+  "player": { "location": [[-1500, 1500], -4300, 17], "rotation": [0, 16384, 0], "boost": 100, "boostLock": true },
+  "objects": [
+    { "type": "ring_course", "id": "ring", "count": [6, 8], "radius": 340 }
+  ],
+  "success": { "type": "objects_in_order" },
+  "fail": [{ "type": "timeout", "seconds": 45 }],
+  "difficulty": {
+    "easy": { "objects.0.count": [5, 6], "objects.0.radius": 420 },
+    "hard": { "objects.0.count": [8, 10], "objects.0.radius": 280 }
+  }
+}

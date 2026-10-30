@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{4B1B04CC-AE2E-4E62-B724-1FFD639634EA}</ProjectGuid>
+    <RootNamespace>FreeTouch</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <!-- nlohmann-json from vcpkg (vcpkg.json), static. -->
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="BakkesMod.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)plugins\</OutDir>
+    <IntDir>$(SolutionDir)build\.intermediates\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\IMGUI\imgui.cpp" />
+    <ClCompile Include="src\IMGUI\imguivariouscontrols.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_additions.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_impl_dx11.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_impl_win32.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_rangeslider.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_searchablecombo.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_stdlib.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_timeline.cpp" />
+    <ClCompile Include="src\IMGUI\imgui_widgets.cpp" />
+    <ClCompile Include="src\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\plugin\FreeTouch.cpp" />
+    <ClCompile Include="src\ui\GuiBase.cpp" />
+    <ClCompile Include="src\ui\BindingsScreen.cpp" />
+    <ClCompile Include="src\ui\Dashboard.cpp" />
+    <ClCompile Include="src\ui\Theme.cpp" />
+    <ClCompile Include="src\ui\Icons.cpp" />
+    <ClCompile Include="src\ui\Hud.cpp" />
+    <ClCompile Include="src\ui\TutorialScenes.cpp" />
+    <ClCompile Include="src\core\Controls.cpp" />
+    <ClCompile Include="src\core\SessionRunner.cpp" />
+    <ClCompile Include="src\core\DailyRunner.cpp" />
+    <ClCompile Include="src\core\Account.cpp" />
+    <ClCompile Include="src\core\Friends.cpp" />
+    <ClCompile Include="src\core\OnlineShots.cpp" />
+    <ClCompile Include="src\core\Leaderboards.cpp" />
+    <ClCompile Include="src\bots\PuppetKeeper.cpp" />
+    <ClCompile Include="src\bots\BotManager.cpp" />
+    <ClCompile Include="src\bots\PolicyBot.cpp" />
+    <ClCompile Include="src\detectors\MechanicDetector.cpp" />
+    <ClCompile Include="src\scenario\ScenarioModes.cpp" />
+    <ClCompile Include="src\plugin\FreeTouchProgress.cpp" />
+    <ClCompile Include="src\plugin\FreeTouchPacks.cpp" />
+    <ClCompile Include="src\bots\policy\EarlPolicy.cpp" />
+    <ClCompile Include="src\plugin\ExerciseControls.cpp" />
+    <ClCompile Include="src\data\EventLog.cpp" />
+    <ClCompile Include="src\game\BakkesGameAdapter.cpp" />
+    <ClCompile Include="src\game\SettingSwapper.cpp" />
+    <ClCompile Include="src\content\JsonSchema.cpp" />
+    <ClCompile Include="src\content\ContentLibrary.cpp" />
+    <ClCompile Include="src\scenario\ScenarioLoader.cpp" />
+    <ClCompile Include="src\scenario\ScenarioPlayer.cpp" />
+    <ClCompile Include="src\objects\ObjectSystem.cpp" />
+    <ClCompile Include="src\audio\SoundPlayer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\IMGUI\imconfig.h" />
+    <ClInclude Include="src\IMGUI\imgui.h" />
+    <ClInclude Include="src\IMGUI\imguivariouscontrols.h" />
+    <ClInclude Include="src\IMGUI\imgui_additions.h" />
+    <ClInclude Include="src\IMGUI\imgui_impl_dx11.h" />
+    <ClInclude Include="src\IMGUI\imgui_impl_win32.h" />
+    <ClInclude Include="src\IMGUI\imgui_internal.h" />
+    <ClInclude Include="src\IMGUI\imgui_rangeslider.h" />
+    <ClInclude Include="src\IMGUI\imgui_searchablecombo.h" />
+    <ClInclude Include="src\IMGUI\imgui_stdlib.h" />
+    <ClInclude Include="src\IMGUI\imgui_timeline.h" />
+    <ClInclude Include="src\IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="src\IMGUI\imstb_textedit.h" />
+    <ClInclude Include="src\IMGUI\imstb_truetype.h" />
+    <ClInclude Include="src\logging.h" />
+    <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\ui\GuiBase.h" />
+    <ClInclude Include="src\ui\BindingsScreen.h" />
+    <ClInclude Include="src\ui\Dashboard.h" />
+    <ClInclude Include="src\ui\DashboardModel.h" />
+    <ClInclude Include="src\ui\Theme.h" />
+    <ClInclude Include="src\ui\Icons.h" />
+    <ClInclude Include="src\ui\Hud.h" />
+    <ClInclude Include="src\core\Canvas.h" />
+    <ClInclude Include="src\core\Controls.h" />
+    <ClInclude Include="src\core\SessionRunner.h" />
+    <ClInclude Include="src\core\DailyRunner.h" />
+    <ClInclude Include="src\core\DailyChallenge.h" />
+    <ClInclude Include="src\bots\PuppetKeeper.h" />
+    <ClInclude Include="src\bots\BotManager.h" />
+    <ClInclude Include="src\bots\PolicyBot.h" />
+    <ClInclude Include="src\detectors\MechanicDetector.h" />
+    <ClInclude Include="src\bots\policy\EarlPolicy.h" />
+    <ClInclude Include="src\bots\policy\NectoObs.h" />
+    <ClInclude Include="src\bots\policy\NextoObs.h" />
+    <ClInclude Include="src\core\BoostPads.h" />
+    <ClInclude Include="src\scenario\BallPredict.h" />
+    <ClInclude Include="src\objects\WorldObject.h" />
+    <ClInclude Include="src\objects\ObjectSystem.h" />
+    <ClInclude Include="src\plugin\ExerciseControls.h" />
+    <ClInclude Include="src\plugin\FreeTouch.h" />
+    <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\data\EventLog.h" />
+    <ClInclude Include="src\game\GameState.h" />
+    <ClInclude Include="src\game\GameAdapter.h" />
+    <ClInclude Include="src\game\BakkesGameAdapter.h" />
+    <ClInclude Include="src\game\SettingSwapper.h" />
+    <ClInclude Include="src\data\StateJson.h" />
+    <ClInclude Include="src\data\Capture.h" />
+    <ClInclude Include="src\data\BestTimes.h" />
+    <ClInclude Include="src\data\LeadIn.h" />
+    <ClInclude Include="src\data\TrainingHistory.h" />
+    <ClInclude Include="src\audio\SoundPlayer.h" />
+    <ClInclude Include="src\data\TouchLogger.h" />
+    <ClInclude Include="src\content\JsonSchema.h" />
+    <ClInclude Include="src\content\ContentLibrary.h" />
+    <ClInclude Include="src\core\Rng.h" />
+    <ClInclude Include="src\core\PracticeSpeed.h" />
+    <ClInclude Include="src\core\QuickPlay.h" />
+    <ClInclude Include="src\core\Routine.h" />
+    <ClInclude Include="src\scenario\ScenarioLoader.h" />
+    <ClInclude Include="src\scenario\ScenarioPlayer.h" />
+    <ClInclude Include="src\scenario\GoalGuard.h" />
+    <ClInclude Include="src\third_party\nlohmann\json.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\FreeTouch.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

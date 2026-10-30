@@ -1,0 +1,158 @@
+{
+  "id": "vs_bot.necto_attacks",
+  "name": "1v1: stop its attack",
+  "category": "vs_bot",
+  "description": "The bot has the ball and drives at your net: bouncing it ahead, running it down the side wall, dribbling it on its roof (it can flick) or rolling it. You start shadowing goal-side, out from the goal line and angled toward your net. Stay in front, then challenge or cut across to clear.",
+  "tags": [
+    "defense",
+    "shadow",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: defend). The attacker plays at once; the player is placed shadowing.",
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -3000,
+      17
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "boost": [
+      33,
+      66
+    ]
+  },
+  "situation": {
+    "type": "defend",
+    "x": [
+      -1800,
+      1800
+    ],
+    "y": [
+      -700,
+      900
+    ],
+    "approachAngle": [
+      -15,
+      15
+    ],
+    "attackerSpeed": [
+      1100,
+      1500
+    ],
+    "dribbleChance": 0.2,
+    "bounceChance": 0.45,
+    "bounceHop": [
+      380,
+      600
+    ],
+    "bounceLead": [
+      500,
+      750
+    ],
+    "rollLead": [
+      280,
+      420
+    ],
+    "defenderGap": [
+      1700,
+      2400
+    ],
+    "defenderLateral": [
+      350,
+      750
+    ],
+    "playerAngle": [
+      20,
+      40
+    ],
+    "playerSpeed": [
+      500,
+      900
+    ],
+    "wallChance": 0.2,
+    "wallHeight": [
+      250,
+      450
+    ],
+    "wallHop": [
+      100,
+      250
+    ],
+    "wallOffset": [
+      350,
+      600
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        1000,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "beta": 1
+      }
+    }
+  ],
+  "success": {
+    "type": "save"
+  },
+  "fail": [
+    {
+      "type": "conceded"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.beta": 0.6,
+      "situation.defenderGap": [
+        2200,
+        2800
+      ],
+      "situation.attackerSpeed": [
+        900,
+        1200
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "situation.defenderGap": [
+        1400,
+        1900
+      ],
+      "situation.attackerSpeed": [
+        1400,
+        1750
+      ],
+      "situation.dribbleChance": 0.3
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "showTrajectory": true
+}

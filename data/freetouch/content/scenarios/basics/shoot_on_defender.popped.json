@@ -1,0 +1,237 @@
+{
+  "id": "basics.shoot_on_defender.popped",
+  "name": "Shoot on a defender: bouncing ball",
+  "category": "basics",
+  "description": "The ball bounces ahead of you toward the net: close in, from midfield with a high bounce, from your half with a huge one, or a low skip. Volley it, bounce-dribble or take it down; the defender shadows back.",
+  "tags": [
+    "shooting",
+    "aerial",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: attack): you are already driving at a ball rolling toward the net; the defender shadows goal-side, facing its net and backing up, and reacts after holdSeconds.",
+  "timeLimitSeconds": 11,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      40,
+      80
+    ]
+  },
+  "situation": {
+    "type": "attack",
+    "playerSpeed": [
+      1400,
+      1700
+    ],
+    "defenderGap": [
+      2000,
+      2600
+    ],
+    "defenderLateral": [
+      -350,
+      350
+    ],
+    "defenderSpeed": [
+      700,
+      1000
+    ],
+    "variants": [
+      {
+        "name": "close bounce",
+        "weight": 1,
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          0,
+          1300
+        ],
+        "approachAngle": [
+          -18,
+          18
+        ],
+        "ballLead": [
+          350,
+          600
+        ],
+        "ballSpeed": [
+          650,
+          900
+        ],
+        "ballHop": [
+          350,
+          550
+        ]
+      },
+      {
+        "name": "from midfield, high",
+        "weight": 1.5,
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          -1600,
+          -300
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          600,
+          900
+        ],
+        "ballSpeed": [
+          800,
+          1050
+        ],
+        "ballHop": [
+          550,
+          800
+        ],
+        "defenderGapExtra": [
+          600,
+          1000
+        ]
+      },
+      {
+        "name": "own half, huge",
+        "weight": 1.5,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -3200,
+          -1800
+        ],
+        "approachAngle": [
+          -12,
+          12
+        ],
+        "ballLead": [
+          650,
+          900
+        ],
+        "ballSpeed": [
+          850,
+          1100
+        ],
+        "ballHop": [
+          800,
+          1050
+        ],
+        "defenderGapExtra": [
+          1400,
+          2000
+        ]
+      },
+      {
+        "name": "skip",
+        "weight": 1,
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          -500,
+          800
+        ],
+        "approachAngle": [
+          -18,
+          18
+        ],
+        "ballLead": [
+          500,
+          800
+        ],
+        "ballSpeed": [
+          900,
+          1100
+        ],
+        "ballHop": [
+          380,
+          480
+        ],
+        "defenderGapExtra": 300
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4000,
+        17
+      ],
+      "rotation": [
+        0,
+        16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "holdSeconds": 0.35
+      }
+    }
+  ],
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 11
+    },
+    {
+      "type": "save"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.holdSeconds": 0.6,
+      "situation.defenderGap": [
+        2500,
+        3100
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "bots.0.params.holdSeconds": 0.15,
+      "situation.defenderGap": [
+        1500,
+        2000
+      ],
+      "situation.defenderSpeed": [
+        450,
+        750
+      ]
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

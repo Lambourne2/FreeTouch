@@ -1,0 +1,26 @@
+{
+  "id": "first_touch.backboard_rebound",
+  "name": "First touch lab: backboard rebound",
+  "category": "first_touch",
+  "description": "The ball is shot off the opponent's backboard; read the rebound, take the first touch and finish.",
+  "tags": ["first_touch", "backboard"],
+  "allowMirror": true,
+  "notes": "The ball centre meets the back wall at y 5027, above the 643-high goal mouth.",
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [[-700, 700], [2600, 3200], [93, 200]],
+    "aimAt": { "point": [[-700, 700], 5027, [800, 1300]], "speed": [2000, 2400] }
+  },
+  "player": {
+    "location": [[-500, 500], [1100, 1700], 17],
+    "rotation": [0, 16384, 0],
+    "boost": [60, 100],
+    "faceBall": true
+  },
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    { "type": "timeout", "seconds": 10 }
+  ]
+}

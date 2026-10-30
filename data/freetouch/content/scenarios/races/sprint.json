@@ -1,0 +1,72 @@
+{
+  "id": "races.sprint",
+  "name": "Race: no-boost sprint",
+  "category": "races",
+  "description": "From a standstill with no boost, 3,500 uu to the finish. Flips, wave dashes and speed flips all count. Race your ghost.",
+  "tags": [
+    "race",
+    "speed flip",
+    "wave dash",
+    "movement"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [
+      0,
+      0,
+      5
+    ],
+    "hidden": true,
+    "markObjective": true
+  },
+  "player": {
+    "location": [
+      0,
+      -3600,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      0,
+      0
+    ],
+    "boost": 0
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "id": "finish",
+      "radius": 260,
+      "triggeredBy": "car",
+      "color": "accent",
+      "location": [
+        0,
+        -100,
+        15
+      ]
+    }
+  ],
+  "success": {
+    "type": "reach_object",
+    "objectId": "finish"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 8
+    }
+  ],
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "A race against your own best run: beat it and your run becomes the ghost."
+}

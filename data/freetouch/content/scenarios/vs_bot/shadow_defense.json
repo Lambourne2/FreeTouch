@@ -1,0 +1,159 @@
+{
+  "id": "vs_bot.shadow_defense",
+  "name": "1v1: shadow defense",
+  "category": "vs_bot",
+  "description": "Match Skills: the bot attacks with the ball (bouncing it, down the side wall, on its roof or rolling) and you start in front of it. Shadow: stay between the ball and your net, back off with it, and challenge when its touch goes loose, not into its control. Judged on how you defend: GOOD CHALLENGE (a loose ball, cleared), WON IT (taken off its control), SAVED, HELD HIM UP (still in front at time up), or BEATEN / DOVE IN / CONCEDED. The screen shows how much of the time you were goal-side.",
+  "tags": [
+    "defense",
+    "shadow",
+    "match skills",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: defend), judged by success type shadow (shadow_judged in the log).",
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -3000,
+      17
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "boost": [
+      33,
+      66
+    ]
+  },
+  "situation": {
+    "type": "defend",
+    "x": [
+      -1800,
+      1800
+    ],
+    "y": [
+      -700,
+      900
+    ],
+    "approachAngle": [
+      -15,
+      15
+    ],
+    "attackerSpeed": [
+      1100,
+      1500
+    ],
+    "dribbleChance": 0.2,
+    "bounceChance": 0.45,
+    "bounceHop": [
+      380,
+      600
+    ],
+    "bounceLead": [
+      500,
+      750
+    ],
+    "rollLead": [
+      280,
+      420
+    ],
+    "defenderGap": [
+      2000,
+      2700
+    ],
+    "defenderLateral": [
+      350,
+      750
+    ],
+    "playerAngle": [
+      20,
+      40
+    ],
+    "playerSpeed": [
+      500,
+      900
+    ],
+    "wallChance": 0.2,
+    "wallHeight": [
+      250,
+      450
+    ],
+    "wallHop": [
+      100,
+      250
+    ],
+    "wallOffset": [
+      350,
+      600
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        1000,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "beta": 1
+      }
+    }
+  ],
+  "success": {
+    "type": "shadow"
+  },
+  "fail": [
+    {
+      "type": "conceded"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.beta": 0.6,
+      "situation.defenderGap": [
+        2400,
+        3000
+      ],
+      "situation.attackerSpeed": [
+        900,
+        1200
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "situation.defenderGap": [
+        1600,
+        2100
+      ],
+      "situation.attackerSpeed": [
+        1400,
+        1750
+      ],
+      "situation.dribbleChance": 0.3
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "showTrajectory": true
+}

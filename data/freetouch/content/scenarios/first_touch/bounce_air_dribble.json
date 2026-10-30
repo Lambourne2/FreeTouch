@@ -1,0 +1,29 @@
+{
+  "id": "first_touch.bounce_air_dribble",
+  "name": "First touch lab: one-bounce air dribble",
+  "category": "first_touch",
+  "description": "A ball comes down almost straight in front of you, as if off a 50 in the air; take it off the first bounce into an air dribble and finish.",
+  "tags": ["first_touch", "air_dribble", "aerial"],
+  "allowMirror": true,
+  "notes": "Ball from midfield back at about 75% of ceiling height, already heading down (like after an aerial 50), near vertical with a small drift; the car starts 1300-1800 back from where the ball lands, on the line from there to the net (landingToGoal), pointed up to 30 degrees off the ball (faceBallOffset) and maybe rolling. Hard adds sideways drift.",
+  "timeLimitSeconds": 12,
+  "ball": {
+    "location": [[-1800, 1800], [-1800, 0], [1250, 1550]],
+    "velocity": [[-200, 200], [-150, 150], [-350, -100]]
+  },
+  "player": {
+    "location": [[-400, 400], [-1800, -1300], 17],
+    "relativeTo": "landingToGoal",
+    "rotation": [0, 16384, 0],
+    "boost": [70, 100],
+    "faceBall": true,
+    "faceBallOffset": [-5500, 5500],
+    "forwardSpeed": [0, 500]
+  },
+  "success": { "type": "goal" },
+  "fail": [{ "type": "timeout", "seconds": 12 }],
+  "difficulty": {
+    "easy": { "ball.velocity.0": [-80, 80], "ball.velocity.1": [-80, 80] },
+    "hard": { "ball.velocity.0": [-500, 500], "ball.velocity.1": [-250, 250] }
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "id": "mechanics.ceiling_shot",
+  "name": "Ceiling shots",
+  "category": "mechanics",
+  "description": "Ceiling shot practice: drive up the side wall onto the ceiling, drop off it with your flip and score off the ball as it comes down. Three feeds: the ball rolling up the wall to the ceiling, the same further up the field, and a high lob from your corner. Unlimited boost.",
+  "tags": [
+    "ceiling",
+    "ceiling shot",
+    "practice"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      2300,
+      0,
+      93
+    ],
+    "velocity": [
+      [
+        1400,
+        1550
+      ],
+      [
+        180,
+        280
+      ],
+      0
+    ]
+  },
+  "player": {
+    "location": [
+      1650,
+      -100,
+      17
+    ],
+    "rotation": [
+      0,
+      1800,
+      0
+    ],
+    "velocity": [
+      1350,
+      230,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "timeLimitSeconds": 12,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "feeds",
+      "choices": [
+        {
+          "id": "up_wall",
+          "label": "up the wall to the ceiling",
+          "tag": "CEILING SHOT",
+          "objects": [],
+          "ball": {
+            "location": [
+              2300,
+              0,
+              93
+            ],
+            "velocity": [
+              [
+                1400,
+                1550
+              ],
+              [
+                180,
+                280
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1650,
+              -100,
+              17
+            ],
+            "rotation": [
+              0,
+              1800,
+              0
+            ],
+            "velocity": [
+              1350,
+              230,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "ceiling_shot"
+            ],
+            "requireGoal": true,
+            "label": "CEILING SHOT"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "up_wall_far",
+          "label": "up the wall, further up field",
+          "tag": "CEILING SHOT",
+          "objects": [],
+          "ball": {
+            "location": [
+              2300,
+              1500,
+              93
+            ],
+            "velocity": [
+              [
+                1400,
+                1550
+              ],
+              [
+                180,
+                280
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1650,
+              1400,
+              17
+            ],
+            "rotation": [
+              0,
+              1800,
+              0
+            ],
+            "velocity": [
+              1350,
+              230,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "ceiling_shot"
+            ],
+            "requireGoal": true,
+            "label": "CEILING SHOT"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "corner_lob",
+          "label": "high lob from the corner",
+          "tag": "CEILING SHOT",
+          "objects": [],
+          "ball": {
+            "location": [
+              3300,
+              -1500,
+              93
+            ],
+            "velocity": [
+              [
+                -300,
+                -200
+              ],
+              [
+                750,
+                850
+              ],
+              [
+                1480,
+                1550
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              3200,
+              -1200,
+              17
+            ],
+            "rotation": [
+              0,
+              5500,
+              0
+            ],
+            "velocity": [
+              900,
+              700,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "ceiling_shot"
+            ],
+            "requireGoal": true,
+            "label": "CEILING SHOT"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "ceiling_shot"
+    ],
+    "requireGoal": true,
+    "label": "CEILING SHOT"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 12
+    }
+  ],
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2,
+  "notes": "The ceiling shot detector: an aerial touch within 4.5 s of leaving the ceiling (and the goal off it)."
+}

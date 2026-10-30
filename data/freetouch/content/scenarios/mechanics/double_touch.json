@@ -1,0 +1,476 @@
+{
+  "id": "mechanics.double_touch",
+  "name": "Double tap practice",
+  "category": "mechanics",
+  "description": "Eight double tap setups, a new one each rep: ground pops, bouncing balls, diagonals, a cross pass, and off the side wall. Hit it into their backboard, follow it, and score the second touch before the ball lands. Unlimited boost. Any double tap goal counts (the lab version wants the lit zone).",
+  "tags": [
+    "double_touch",
+    "double tap",
+    "backboard",
+    "practice"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      [
+        -200,
+        200
+      ],
+      [
+        2300,
+        2600
+      ],
+      93
+    ],
+    "velocity": [
+      0,
+      [
+        200,
+        300
+      ],
+      [
+        1100,
+        1200
+      ]
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      900,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      900,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "timeLimitSeconds": 9,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "setup",
+      "choices": [
+        {
+          "id": "pop_straight",
+          "label": "straight pop",
+          "about": "Popped up in front of the box: a short aerial, into the backboard, follow it in.",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -200,
+                200
+              ],
+              [
+                2300,
+                2600
+              ],
+              93
+            ],
+            "velocity": [
+              0,
+              [
+                200,
+                300
+              ],
+              [
+                1100,
+                1200
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              900,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              900,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "pop_high",
+          "label": "high pop",
+          "about": "Straight up at the top of the box: time it, hit it up into the backboard.",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -150,
+                150
+              ],
+              [
+                2900,
+                3100
+              ],
+              93
+            ],
+            "velocity": [
+              0,
+              0,
+              [
+                1250,
+                1350
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              1600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "bounce_in",
+          "label": "bouncing",
+          "about": "A bouncing ball rolling toward the net: take it off a bounce.",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -200,
+                200
+              ],
+              [
+                1700,
+                1900
+              ],
+              300
+            ],
+            "velocity": [
+              0,
+              [
+                400,
+                500
+              ],
+              [
+                650,
+                750
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              300,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1100,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "diag_right",
+          "label": "diagonal",
+          "about": "From the right of the box: hit it across into the backboard and follow it.",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                1300,
+                1500
+              ],
+              [
+                2200,
+                2400
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                -300,
+                -200
+              ],
+              [
+                250,
+                350
+              ],
+              [
+                1100,
+                1200
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              2300,
+              900,
+              17
+            ],
+            "rotation": [
+              0,
+              22343,
+              0
+            ],
+            "velocity": [
+              -487,
+              757,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "diag_left_far",
+          "label": "far diagonal",
+          "about": "From wide on the left: a longer diagonal into the backboard.",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -1900,
+                -1700
+              ],
+              [
+                2600,
+                2800
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                300,
+                400
+              ],
+              [
+                200,
+                300
+              ],
+              [
+                1100,
+                1200
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              -2600,
+              1300,
+              17
+            ],
+            "rotation": [
+              0,
+              10969,
+              0
+            ],
+            "velocity": [
+              447,
+              781,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "cross_pass",
+          "label": "cross pass",
+          "about": "A pass coming across the box in the air: meet it in the middle.",
+          "objects": [],
+          "ball": {
+            "location": [
+              2600,
+              [
+                3200,
+                3400
+              ],
+              200
+            ],
+            "velocity": [
+              [
+                -1250,
+                -1150
+              ],
+              [
+                50,
+                150
+              ],
+              [
+                850,
+                950
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              1500,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1000,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "wall_carry",
+          "label": "off the wall",
+          "about": "Take it up the side wall and pop it off toward the backboard.",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                1100,
+                1300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                400,
+                500
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              700,
+              17
+            ],
+            "rotation": [
+              0,
+              7246,
+              0
+            ],
+            "velocity": [
+              768,
+              640,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        },
+        {
+          "id": "wall_drop",
+          "label": "wall drop",
+          "about": "Coming off the side wall in the air near the box: hit it into the backboard.",
+          "objects": [],
+          "ball": {
+            "location": [
+              3850,
+              [
+                2400,
+                2600
+              ],
+              900
+            ],
+            "velocity": [
+              [
+                -750,
+                -650
+              ],
+              [
+                300,
+                400
+              ],
+              [
+                450,
+                550
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              2400,
+              900,
+              17
+            ],
+            "rotation": [
+              0,
+              11796,
+              0
+            ],
+            "velocity": [
+              405,
+              860,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          }
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "double_touch"
+    ],
+    "requireGoal": true,
+    "label": "DOUBLE TAP"
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "notes": "From mechanics.lab.double_tap (same setups) without the zone_cycle; boost locked at 100.",
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 9
+    }
+  ]
+}

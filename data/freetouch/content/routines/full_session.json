@@ -1,0 +1,28 @@
+{
+  "name": "Full session",
+  "description": "A whole day of Rocket League: review, warm up, a few 1v1s, then ranked, then a short look back.",
+  "order": 2,
+  "focus": true,
+  "sections": [
+    { "id": "w1", "title": "Warm-up", "warmup": true },
+    { "id": "w2", "title": "Play" },
+    { "id": "w3", "title": "After" }
+  ],
+  "steps": [
+    { "id": "s1", "section": "w1", "type": "task", "title": "Review one of your replays", "minutes": 10, "notes": true, "notesHint": "Mistakes -> fixes" },
+    { "id": "s2", "section": "w1", "type": "task", "title": "Watch high-level gameplay", "minutes": 10, "detail": "A pro or high-rank replay: watch one player's positioning." },
+    { "id": "s3", "section": "w1", "type": "drills", "title": "Free Touch warm-up", "minutes": 15, "difficulty": "medium",
+      "drills": [
+        { "id": "first_touch.high_lob", "reps": 5 },
+        { "id": "saves.basic.mixed", "reps": 5 },
+        { "id": "basics.shoot_on_defender.rolling", "reps": 5 },
+        { "id": "movement.rings.course", "reps": 3 }
+      ] },
+    { "id": "s4", "section": "w1", "type": "packs", "title": "Two training packs", "minutes": 15,
+      "items": [ { "name": "Training pack 1", "code": "" }, { "name": "Training pack 2", "code": "" } ] },
+    { "id": "s5", "section": "w1", "type": "task", "title": "1v1 games", "minutes": 20, "count": 3 },
+    { "id": "s6", "section": "w2", "type": "task", "title": "Ranked games (until done)" },
+    { "id": "s7", "section": "w3", "type": "task", "title": "Replay review", "minutes": 10, "optional": true, "notes": true, "notesHint": "Mistakes -> fixes" },
+    { "id": "s8", "section": "w3", "type": "notes", "title": "Notes on the day" }
+  ]
+}

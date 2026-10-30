@@ -1,0 +1,41 @@
+{
+  "id": "basics.target.popped",
+  "name": "Target shooting: popped ball",
+  "category": "basics",
+  "description": "Ball is popped up toward you from midfield. Volley or settle it into the highlighted pocket; the blue pockets bounce the ball out.",
+  "tags": ["shooting", "accuracy", "aerial"],
+  "allowMirror": true,
+  "notes": "The goal mouth is a grid (easy 2x1, medium 3x2, hard 4x2); one random pocket is the target, every other pocket a blue blocker.",
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [[-600, 600], [600, 1300], [93, 200]],
+    "velocity": [[-150, 150], [-600, -300], [700, 1000]]
+  },
+  "player": {
+    "location": [[-400, 400], -1800, 17],
+    "rotation": [0, 16384, 0],
+    "boost": [33, 100],
+    "faceBall": true
+  },
+  "objects": [
+    {
+      "type": "target",
+      "id": "target",
+      "surface": "orange_goal",
+      "grid": [3, 2]
+    }
+  ],
+  "success": { "type": "object_hit", "objectId": "target" },
+  "fail": [
+    { "type": "timeout", "seconds": 8 },
+    { "type": "object_hit", "objectId": "target_block_*" }
+  ],
+  "difficulty": {
+    "easy": {
+      "objects.0.grid": [2, 1]
+    },
+    "hard": {
+      "objects.0.grid": [4, 2]
+    }
+  }
+}

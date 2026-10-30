@@ -1,0 +1,28 @@
+{
+  "id": "movement.boost_circle.random",
+  "name": "Movement: reach the circle",
+  "category": "movement",
+  "description": "Spawn facing a random way with random boost and get to the circle as fast as you can: on the floor, up a side wall, on the ceiling or on the wall above a goal. Reach it and the next circle appears at once: keep your speed and your boost. Timed per circle: beat your best.",
+  "tags": ["movement", "speed", "boost_management"],
+  "allowMirror": true,
+  "timeLimitSeconds": 15,
+  "timed": true,
+  "onSuccess": "chain",
+  "chainMinDistance": 2500,
+  "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true },
+  "player": {
+    "location": [[-3000, 3000], [-4000, -2000], 17],
+    "rotation": [0, [0, 65535], 0],
+    "boost": [0, 100]
+  },
+  "objects": [
+    { "type": "circle", "id": "goal_circle", "location": [[-3400, 3400], [-4200, 4200], 15], "radius": 300, "triggeredBy": "car", "color": "accent", "placeOn": ["floor", "wall", "wall", "ceiling", "back_wall"] }
+  ],
+  "notes": "The ball is shrunk out of sight and held on the floor at centre for the whole rep (ball cam still points at it).",
+  "success": { "type": "reach_object", "objectId": "goal_circle" },
+  "fail": [{ "type": "timeout", "seconds": 15 }],
+  "difficulty": {
+    "easy": { "player.boost": [50, 100], "objects.0.radius": 380 },
+    "hard": { "player.boost": [0, 40], "objects.0.radius": 220 }
+  }
+}

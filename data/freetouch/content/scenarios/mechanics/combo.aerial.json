@@ -1,0 +1,379 @@
+{
+  "id": "mechanics.combo.aerial",
+  "name": "Build Your Combo: aerial ladder",
+  "category": "mechanics",
+  "description": "From a lob to a double reset: aerial goal, double tap, flip reset goal, flip reset double tap, double reset goal. Each step unlocks the next.",
+  "tags": [
+    "combo",
+    "aerial",
+    "flip reset"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      [
+        -400,
+        400
+      ],
+      -500,
+      900
+    ],
+    "velocity": [
+      0,
+      [
+        400,
+        600
+      ],
+      [
+        400,
+        550
+      ]
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -3000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      1400,
+      0
+    ],
+    "boost": 100
+  },
+  "timeLimitSeconds": 9,
+  "progression": "combo",
+  "readFirst": true,
+  "dropOnMiss": false,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "steps",
+      "choices": [
+        {
+          "id": "aerial",
+          "label": "Aerial goal",
+          "tag": "AERIAL GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -500,
+              900
+            ],
+            "velocity": [
+              0,
+              [
+                400,
+                600
+              ],
+              [
+                400,
+                550
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3000,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1400,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 11,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "aerial_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 11
+            }
+          ]
+        },
+        {
+          "id": "dt",
+          "label": "Double tap",
+          "tag": "DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -300,
+                300
+              ],
+              -200,
+              400
+            ],
+            "velocity": [
+              0,
+              [
+                850,
+                1000
+              ],
+              [
+                850,
+                1000
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -2300,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 11,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 11
+            }
+          ]
+        },
+        {
+          "id": "fr",
+          "label": "Flip reset goal",
+          "tag": "FLIP RESET GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -800,
+              [
+                1300,
+                1500
+              ]
+            ],
+            "velocity": [
+              0,
+              [
+                300,
+                450
+              ],
+              [
+                500,
+                650
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 13,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flip_reset"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 13
+            }
+          ]
+        },
+        {
+          "id": "fr_dt",
+          "label": "Flip reset double tap",
+          "tag": "FLIP RESET DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -800,
+              [
+                1300,
+                1500
+              ]
+            ],
+            "velocity": [
+              0,
+              [
+                300,
+                450
+              ],
+              [
+                500,
+                650
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 13,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flip_reset",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 13
+            }
+          ]
+        },
+        {
+          "id": "dr",
+          "label": "Double reset goal",
+          "tag": "DOUBLE RESET GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -800,
+              [
+                1300,
+                1500
+              ]
+            ],
+            "velocity": [
+              0,
+              [
+                300,
+                450
+              ],
+              [
+                500,
+                650
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 13,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "double_reset"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 13
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "aerial_touch"
+    ],
+    "requireGoal": true
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2
+}

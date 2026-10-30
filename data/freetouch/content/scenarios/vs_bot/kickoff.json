@@ -1,0 +1,113 @@
+{
+  "id": "vs_bot.kickoff",
+  "name": "1v1: kickoffs",
+  "category": "vs_bot",
+  "description": "Real 1v1 kickoffs against the bot: a 3-2-1 countdown with both cars frozen on the kickoff spots and 33 boost, then go. Judged 2.5 s after the first touch: WON if the ball is heading into its half, LOST if into yours, otherwise whoever is nearer the ball has it. The result shows who touched first and how fast. Nexto plays its own speedflip kickoff.",
+  "tags": [
+    "kickoff",
+    "1v1",
+    "speed flip"
+  ],
+  "allowMirror": true,
+  "notes": "Spots as in the game (blue side; the bot takes the opposite spot through the centre). Mirrored reps are the left / right spot.",
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [
+      0,
+      0,
+      92.75
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -4608,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": 33
+  },
+  "situation": {
+    "type": "kickoff",
+    "variantLabel": "Kickoff spot",
+    "variants": [
+      {
+        "id": "diagonal",
+        "name": "diagonal",
+        "weight": 2,
+        "x": -2048,
+        "y": -2560,
+        "yaw": 45
+      },
+      {
+        "id": "off_centre",
+        "name": "off-centre",
+        "weight": 2,
+        "x": -256,
+        "y": -3840,
+        "yaw": 90
+      },
+      {
+        "id": "straight",
+        "name": "straight",
+        "weight": 1,
+        "x": 0,
+        "y": -4608,
+        "yaw": 90
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4608,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "boost": 33,
+      "params": {
+        "skill": 0.5,
+        "beta": 1,
+        "scriptedKickoff": true
+      }
+    }
+  ],
+  "success": {
+    "type": "kickoff",
+    "judgeSeconds": 2.5
+  },
+  "fail": [
+    {
+      "type": "conceded"
+    },
+    {
+      "type": "timeout",
+      "seconds": 8
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.beta": 0.5,
+      "bots.0.params.scriptedKickoff": false
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0
+    }
+  },
+  "startCountdownSeconds": 3,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

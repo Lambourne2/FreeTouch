@@ -1,0 +1,71 @@
+{
+  "id": "races.half_flip",
+  "name": "Race: half flip",
+  "category": "races",
+  "description": "Facing away from the finish, standing still, no boost. Turn round and get there: a half flip is the fastest way. Race your ghost.",
+  "tags": [
+    "race",
+    "half flip",
+    "movement"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 6,
+  "ball": {
+    "location": [
+      0,
+      0,
+      5
+    ],
+    "hidden": true,
+    "markObjective": true
+  },
+  "player": {
+    "location": [
+      0,
+      -2600,
+      17
+    ],
+    "rotation": [
+      0,
+      -16384,
+      0
+    ],
+    "velocity": [
+      0,
+      0,
+      0
+    ],
+    "boost": 0
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "id": "finish",
+      "radius": 260,
+      "triggeredBy": "car",
+      "color": "accent",
+      "location": [
+        0,
+        -700,
+        15
+      ]
+    }
+  ],
+  "success": {
+    "type": "reach_object",
+    "objectId": "finish"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 6
+    }
+  ],
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "A race against your own best run: beat it and your run becomes the ghost."
+}

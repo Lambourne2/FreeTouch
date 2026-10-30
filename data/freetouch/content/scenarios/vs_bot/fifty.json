@@ -1,0 +1,190 @@
+{
+  "id": "vs_bot.fifty",
+  "name": "1v1: 50s",
+  "category": "vs_bot",
+  "description": "You and the bot drive at a loose ball and meet it at the same moment, rolling across or dropping in on a bounce. Each rep has an aim, shown on screen: forward into their corner, safely to the side or corner in your half (never back through the middle), or back to your teammate (the green circle behind you). Judged by where the ball goes after the 50.",
+  "tags": [
+    "50/50",
+    "challenge",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: fifty): the ball, your car and the bot are timed to meet at (x, y) after meetSeconds.",
+  "timeLimitSeconds": 6,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -2000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      30,
+      60
+    ]
+  },
+  "situation": {
+    "type": "fifty",
+    "variantLabel": "Aim",
+    "meetSeconds": [
+      0.9,
+      1.25
+    ],
+    "playerSpeed": [
+      1200,
+      1600
+    ],
+    "botSpeed": [
+      1200,
+      1600
+    ],
+    "ballSpeed": [
+      150,
+      450
+    ],
+    "bounceChance": 0.35,
+    "bounceHop": [
+      250,
+      400
+    ],
+    "variants": [
+      {
+        "id": "corner",
+        "name": "into their corner",
+        "aim": "corner",
+        "x": [
+          1800,
+          3000
+        ],
+        "y": [
+          600,
+          2400
+        ],
+        "playerAngle": [
+          -25,
+          20
+        ],
+        "botAngle": [
+          -25,
+          25
+        ],
+        "short": "Corner"
+      },
+      {
+        "id": "safe",
+        "name": "safe to the side",
+        "aim": "safe",
+        "x": [
+          1600,
+          3100
+        ],
+        "y": [
+          -3400,
+          -1600
+        ],
+        "playerAngle": [
+          -20,
+          25
+        ],
+        "botAngle": [
+          -20,
+          20
+        ],
+        "short": "Safe"
+      },
+      {
+        "id": "mate",
+        "name": "to your teammate",
+        "aim": "mate",
+        "x": [
+          700,
+          2200
+        ],
+        "y": [
+          -600,
+          1200
+        ],
+        "playerAngle": [
+          -20,
+          20
+        ],
+        "botAngle": [
+          -20,
+          20
+        ],
+        "mateBack": [
+          1800,
+          2600
+        ],
+        "mateSide": [
+          700,
+          1300
+        ],
+        "short": "Teammate"
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        2000,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "boost": 40,
+      "params": {
+        "skill": 0.5,
+        "beta": 1
+      }
+    }
+  ],
+  "success": {
+    "type": "fifty"
+  },
+  "fail": [
+    {
+      "type": "conceded"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.beta": 0.6,
+      "situation.botSpeed": [
+        1000,
+        1300
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "situation.botSpeed": [
+        1400,
+        1750
+      ]
+    }
+  },
+  "startCountdownSeconds": 3,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5,
+  "showPlayMap": true,
+  "showTrajectory": true
+}

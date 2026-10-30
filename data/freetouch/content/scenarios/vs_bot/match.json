@@ -1,0 +1,102 @@
+{
+  "id": "vs_bot.match",
+  "name": "1v1: match",
+  "category": "vs_bot",
+  "description": "A full 1v1 against the bot: kickoffs from the real spots, the score and a 3:00 clock on screen. The clock only runs while the ball is in play; at 0:00 the match ends when the ball next touches the floor, and a tie goes to overtime (next goal wins). A new match starts by itself a few seconds after the end.",
+  "tags": [
+    "1v1",
+    "match",
+    "kickoff"
+  ],
+  "allowMirror": true,
+  "notes": "Every rep is a kickoff (situation: kickoff, any spot); a rep ends only with a goal.",
+  "ball": {
+    "location": [
+      0,
+      0,
+      92.75
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -4608,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": 33
+  },
+  "situation": {
+    "type": "kickoff",
+    "variants": [
+      {
+        "name": "diagonal",
+        "weight": 2,
+        "x": -2048,
+        "y": -2560,
+        "yaw": 45
+      },
+      {
+        "name": "off-centre",
+        "weight": 2,
+        "x": -256,
+        "y": -3840,
+        "yaw": 90
+      },
+      {
+        "name": "straight",
+        "weight": 1,
+        "x": 0,
+        "y": -4608,
+        "yaw": 90
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4608,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "boost": 33,
+      "params": {
+        "skill": 0.5,
+        "beta": 1,
+        "scriptedKickoff": true
+      }
+    }
+  ],
+  "success": {
+    "type": "match"
+  },
+  "fail": [],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.beta": 0.5,
+      "bots.0.params.scriptedKickoff": false
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0
+    }
+  },
+  "startCountdownSeconds": 3,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 3,
+  "match": {
+    "minutes": 3
+  }
+}

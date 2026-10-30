@@ -1,0 +1,328 @@
+{
+  "id": "mechanics.combo.air_dribble",
+  "name": "Build Your Combo: air dribble ladder",
+  "category": "mechanics",
+  "description": "Land the chain, then the next rep adds a step: air dribble goal, then + double tap, then + flip reset, then all three. The chain ticks off on screen as you land each part; only the whole chain in order (and a goal) counts.",
+  "tags": [
+    "combo",
+    "air dribble"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      2500,
+      [
+        -2500,
+        -2300
+      ],
+      93
+    ],
+    "velocity": [
+      [
+        900,
+        1100
+      ],
+      [
+        300,
+        450
+      ],
+      0
+    ]
+  },
+  "player": {
+    "location": [
+      1900,
+      [
+        -2950,
+        -2750
+      ],
+      17
+    ],
+    "rotation": [
+      0,
+      4000,
+      0
+    ],
+    "velocity": [
+      927,
+      375,
+      0
+    ],
+    "boost": 100
+  },
+  "timeLimitSeconds": 12,
+  "progression": "combo",
+  "readFirst": true,
+  "dropOnMiss": false,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "steps",
+      "choices": [
+        {
+          "id": "ad",
+          "label": "Air dribble goal",
+          "tag": "AIR DRIBBLE GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 14,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 14
+            }
+          ]
+        },
+        {
+          "id": "ad_dt",
+          "label": "Air dribble + double tap",
+          "tag": "AIR DRIBBLE + DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 14,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 14
+            }
+          ]
+        },
+        {
+          "id": "ad_fr",
+          "label": "Air dribble + flip reset goal",
+          "tag": "AIR DRIBBLE + FLIP RESET GOAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 14,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble",
+              "flip_reset"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 14
+            }
+          ]
+        },
+        {
+          "id": "ad_fr_dt",
+          "label": "Air dribble + flip reset + double tap",
+          "tag": "AIR DRIBBLE + FLIP RESET + DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 14,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble",
+              "flip_reset",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 14
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "air_dribble"
+    ],
+    "requireGoal": true
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2
+}

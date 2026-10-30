@@ -1,0 +1,267 @@
+{
+  "id": "vs_bot.ball_control",
+  "name": "1v1: ball control",
+  "category": "vs_bot",
+  "description": "An awkward ball comes to you (dropping in on you, off a big bounce, a spinning skipper, down the side wall, or a pass over your head) while the bot charges in to take it. Control it: keep it for 4 seconds, get past the bot with it, or score. The ball is yours while you are on it (a touch in the last 0.75 s, none of the bot's since) or when you have sent it on target; otherwise the bot getting to it first for half a second is losing it. Your first touch's speed is shown: soft is control.",
+  "tags": [
+    "ball control",
+    "first touch",
+    "1v1",
+    "pressure"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: control): the ball reaches you at (x, y) after meetSeconds; the bot arrives botLate seconds after you. Judged by success type possession (control_judged in the log).",
+  "timeLimitSeconds": 9,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -2500,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      40,
+      70
+    ]
+  },
+  "situation": {
+    "type": "control",
+    "variantLabel": "Reception",
+    "meetSeconds": [
+      1.1,
+      1.5
+    ],
+    "playerSpeed": [
+      900,
+      1300
+    ],
+    "playerAngle": [
+      -12,
+      12
+    ],
+    "botSpeed": [
+      1200,
+      1500
+    ],
+    "botLate": [
+      0.7,
+      1.0
+    ],
+    "botLateral": [
+      -400,
+      400
+    ],
+    "variants": [
+      {
+        "id": "lob",
+        "name": "dropping in on you",
+        "weight": 2,
+        "kind": "lob",
+        "x": [
+          -1800,
+          1800
+        ],
+        "y": [
+          -2200,
+          -600
+        ],
+        "ballSpeed": [
+          700,
+          1000
+        ],
+        "ballAngle": [
+          -25,
+          25
+        ],
+        "lobHeight": [
+          700,
+          1000
+        ]
+      },
+      {
+        "id": "bounce",
+        "name": "off a big bounce",
+        "weight": 2,
+        "kind": "bounce",
+        "x": [
+          -1800,
+          1800
+        ],
+        "y": [
+          -2200,
+          -600
+        ],
+        "ballSpeed": [
+          800,
+          1100
+        ],
+        "ballAngle": [
+          -20,
+          20
+        ],
+        "lobHeight": [
+          450,
+          650
+        ]
+      },
+      {
+        "id": "spin",
+        "name": "spinning skipper",
+        "weight": 1.5,
+        "kind": "spin",
+        "x": [
+          -1800,
+          1800
+        ],
+        "y": [
+          -2000,
+          -600
+        ],
+        "ballSpeed": [
+          900,
+          1200
+        ],
+        "ballAngle": [
+          -35,
+          35
+        ],
+        "ballHop": [
+          200,
+          320
+        ],
+        "spin": 6
+      },
+      {
+        "id": "wall",
+        "name": "down the side wall",
+        "weight": 1.5,
+        "kind": "wall",
+        "x": 1,
+        "y": [
+          -2400,
+          -800
+        ],
+        "wallOffset": [
+          450,
+          650
+        ],
+        "wallHeight": [
+          650,
+          950
+        ],
+        "ballSpeed": [
+          500,
+          800
+        ],
+        "ballHop": [
+          100,
+          250
+        ],
+        "playerAngle": [
+          -20,
+          -5
+        ]
+      },
+      {
+        "id": "over",
+        "name": "a pass over your head",
+        "weight": 1,
+        "kind": "over",
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          -1600,
+          -200
+        ],
+        "ballSpeed": [
+          1100,
+          1400
+        ],
+        "ballAngle": [
+          -15,
+          15
+        ],
+        "lobHeight": [
+          800,
+          1000
+        ],
+        "meetSeconds": [
+          1.3,
+          1.6
+        ]
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        2500,
+        17
+      ],
+      "rotation": [
+        0,
+        -16384,
+        0
+      ],
+      "boost": 50,
+      "params": {
+        "skill": 0.5,
+        "beta": 1,
+        "holdSeconds": 0.2
+      }
+    }
+  ],
+  "success": {
+    "type": "possession",
+    "keepSeconds": 4,
+    "lostSeconds": 0.5,
+    "pastMargin": 600
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 9
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "situation.botLate": [
+        1.1,
+        1.5
+      ],
+      "bots.0.params.holdSeconds": 0.45,
+      "bots.0.params.skill": 0.0,
+      "success.keepSeconds": 3
+    },
+    "hard": {
+      "situation.botLate": [
+        0.4,
+        0.7
+      ],
+      "bots.0.params.holdSeconds": 0.1,
+      "bots.0.params.skill": 1.0
+    }
+  },
+  "startCountdownSeconds": 2,
+  "showTrajectory": true,
+  "trajectorySeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

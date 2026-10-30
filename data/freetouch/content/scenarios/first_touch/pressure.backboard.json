@@ -1,0 +1,32 @@
+{
+  "id": "first_touch.pressure.backboard",
+  "name": "First touch pressure: two defenders",
+  "category": "first_touch",
+  "description": "Same idea as the first touch lab, but one defender usually whiffs and one sits on backboard, so double touches aren't free.",
+  "tags": ["first_touch", "pressure", "double_touch"],
+  "allowMirror": true,
+  "notes": "Phase 3 content. Needs the whiffer and backboard_sitter puppet behaviors.",
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [[-1500, 1500], [1500, 2500], [600, 1000]],
+    "velocity": [[-200, 200], [200, 500], [100, 300]]
+  },
+  "player": {
+    "location": [[-500, 500], -500, 17],
+    "rotation": [0, 16384, 0],
+    "boost": 100,
+    "faceBall": true
+  },
+  "bots": [
+    { "type": "puppet", "behavior": "whiffer", "team": 1, "location": [0, 3200, 17], "rotation": [0, -16384, 0],
+      "params": { "touchChance": 0.2, "reaction": 0.3, "maxSpeed": 1500 } },
+    { "type": "puppet", "behavior": "backboard_sitter", "team": 1, "location": [0, 4900, 17], "rotation": [0, -16384, 0],
+      "params": { "reaction": 0.25, "maxSpeed": 1700 } }
+  ],
+  "success": { "type": "goal" },
+  "fail": [{ "type": "timeout", "seconds": 10 }, { "type": "save" }],
+  "difficulty": {
+    "easy": { "bots.1.params.reaction": 0.45 },
+    "hard": { "bots.0.params.touchChance": 0.4, "bots.1.params.reaction": 0.12 }
+  }
+}

@@ -1,0 +1,462 @@
+{
+  "id": "mechanics.aerial_reads",
+  "name": "Aerials & Reads",
+  "category": "mechanics",
+  "description": "Read the ball and meet it: catch a dropping ball on your roof, an air catch into an air dribble, a ball off the side wall, off their backboard (straight and off its corner), and a cross to redirect. A new setup each rep (or pick one); the goal for each is on screen. Unlimited boost.",
+  "tags": [
+    "aerial",
+    "reads",
+    "backboard",
+    "wall",
+    "catch"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      [
+        -800,
+        800
+      ],
+      [
+        -100,
+        300
+      ],
+      [
+        850,
+        1000
+      ]
+    ],
+    "velocity": [
+      0,
+      [
+        -700,
+        -550
+      ],
+      [
+        -50,
+        50
+      ]
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -2000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      700,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "timeLimitSeconds": 9,
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "reads",
+      "choices": [
+        {
+          "id": "catch",
+          "label": "Catch it on your roof",
+          "tag": "CATCH",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -800,
+                800
+              ],
+              [
+                -100,
+                300
+              ],
+              [
+                850,
+                1000
+              ]
+            ],
+            "velocity": [
+              0,
+              [
+                -700,
+                -550
+              ],
+              [
+                -50,
+                50
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -2000,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 7,
+          "success": {
+            "type": "dribble",
+            "seconds": 1.5,
+            "label": "CAUGHT"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 7
+            }
+          ]
+        },
+        {
+          "id": "air_catch",
+          "label": "Air catch into an air dribble",
+          "tag": "AIR CATCH",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -1000,
+              93
+            ],
+            "velocity": [
+              0,
+              [
+                250,
+                350
+              ],
+              [
+                1250,
+                1350
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -2300,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1000,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 7,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble"
+            ],
+            "requireGoal": false,
+            "label": "AIR CATCH"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 7
+            }
+          ]
+        },
+        {
+          "id": "wall_read",
+          "label": "Read it off the side wall",
+          "tag": "WALL READ",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                1300,
+                1600
+              ],
+              [
+                600,
+                1000
+              ],
+              500
+            ],
+            "velocity": [
+              [
+                2600,
+                2800
+              ],
+              [
+                600,
+                800
+              ],
+              [
+                1000,
+                1100
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              0,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1000,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 8,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "aerial_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 8
+            }
+          ]
+        },
+        {
+          "id": "backboard_read",
+          "label": "Backboard read",
+          "tag": "BACKBOARD READ",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -500,
+                500
+              ],
+              1500,
+              300
+            ],
+            "velocity": [
+              0,
+              [
+                1800,
+                2000
+              ],
+              [
+                1050,
+                1200
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1200,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "backboard_read"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "backboard_corner",
+          "label": "Backboard corner read",
+          "tag": "BACKBOARD READ",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              1500,
+              300
+            ],
+            "velocity": [
+              [
+                350,
+                500
+              ],
+              [
+                1800,
+                2000
+              ],
+              [
+                1100,
+                1180
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1200,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "backboard_read"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "redirect",
+          "label": "Redirect a cross",
+          "tag": "REDIRECT",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                3000,
+                3300
+              ],
+              [
+                3300,
+                3700
+              ],
+              300
+            ],
+            "velocity": [
+              [
+                -1400,
+                -1200
+              ],
+              [
+                200,
+                400
+              ],
+              [
+                850,
+                1000
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              -300,
+              1000,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              900,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "redirect"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "dribble",
+    "seconds": 1.5,
+    "label": "CAUGHT"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 9
+    }
+  ],
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2,
+  "notes": "Steering through rings is trained by the ring courses (Movement). Wall and corner setups are set by hand: tune in game."
+}

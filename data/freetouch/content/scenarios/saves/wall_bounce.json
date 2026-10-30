@@ -1,0 +1,30 @@
+{
+  "id": "saves.wall.bounce",
+  "name": "Saves: off the side wall",
+  "category": "saves",
+  "description": "Shots banked off the side wall toward your net; read the bounce and save it.",
+  "tags": ["defense", "wall"],
+  "allowMirror": true,
+  "notes": "aimAt via sideWall: the ball hits the side wall on its own side and comes back across into the near half of the goal. The wall keeps only 0.6 of the sideways speed, so banked shots need 2600+ uu/s.",
+  "timeLimitSeconds": 7,
+  "ball": {
+    "location": [[1600, 2800], [-1500, 0], [93, 300]],
+    "aimAt": { "point": [[150, 600], -5120, [150, 450]], "speed": [2800, 3200], "via": "sideWall" }
+  },
+  "player": {
+    "location": [0, -4900, 17],
+    "rotation": [0, 16384, 0],
+    "boost": [20, 60],
+    "faceBall": true
+  },
+  "success": {
+    "type": "save"
+  },
+  "fail": [
+    { "type": "conceded" }
+  ],
+  "difficulty": {
+    "easy": { "ball.aimAt.speed": [2600, 2900] },
+    "hard": { "ball.aimAt.speed": [3400, 3800] }
+  }
+}

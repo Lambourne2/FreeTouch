@@ -1,0 +1,144 @@
+{
+  "id": "basics.shoot_on_defender.wing",
+  "name": "Shoot on a defender: from the wing",
+  "category": "basics",
+  "description": "Attacking down the side with the ball rolling ahead of you; the defender shadows between you and the net. Shoot across it, cut in or pass it to yourself off the wall. Some reps bounce the ball ahead of you instead of rolling it.",
+  "tags": [
+    "shooting",
+    "ground",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "Generated as one play (situation: attack): you are already driving at a ball rolling toward the net; the defender shadows goal-side, facing its net and backing up, and reacts after holdSeconds.",
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      40,
+      80
+    ]
+  },
+  "situation": {
+    "type": "attack",
+    "x": [
+      2000,
+      2900
+    ],
+    "y": [
+      500,
+      2200
+    ],
+    "approachAngle": [
+      -8,
+      22
+    ],
+    "ballLead": [
+      450,
+      750
+    ],
+    "ballSpeed": [
+      750,
+      1050
+    ],
+    "ballHop": 0,
+    "playerSpeed": [
+      1350,
+      1650
+    ],
+    "defenderGap": [
+      1700,
+      2300
+    ],
+    "defenderLateral": [
+      -250,
+      150
+    ],
+    "defenderSpeed": [
+      700,
+      1000
+    ],
+    "bounceChance": 0.4,
+    "bounceHop": [
+      300,
+      480
+    ],
+    "bounceLeadExtra": [
+      150,
+      300
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4000,
+        17
+      ],
+      "rotation": [
+        0,
+        16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "holdSeconds": 0.35
+      }
+    }
+  ],
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 8
+    },
+    {
+      "type": "save"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.holdSeconds": 0.6,
+      "situation.defenderGap": [
+        2500,
+        3100
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "bots.0.params.holdSeconds": 0.15,
+      "situation.defenderGap": [
+        1500,
+        2000
+      ],
+      "situation.defenderSpeed": [
+        450,
+        750
+      ]
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

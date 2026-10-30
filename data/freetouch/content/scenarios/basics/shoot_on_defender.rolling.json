@@ -1,0 +1,282 @@
+{
+  "id": "basics.shoot_on_defender.rolling",
+  "name": "Shoot on a defender: breakaway",
+  "category": "basics",
+  "description": "A breakaway with the ball yours: from midfield, from deep in your half with a huge bounce, up the side wall from your corner, bouncing out of the corner, or close in. The defender shadows back facing its own net.",
+  "tags": [
+    "shooting",
+    "ground",
+    "1v1"
+  ],
+  "allowMirror": true,
+  "notes": "situation: attack with variants (the event log's rep_start shows which one).",
+  "timeLimitSeconds": 11,
+  "ball": {
+    "location": [
+      0,
+      0,
+      93
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "boost": [
+      40,
+      80
+    ]
+  },
+  "situation": {
+    "type": "attack",
+    "playerSpeed": [
+      1400,
+      1700
+    ],
+    "defenderGap": [
+      2000,
+      2600
+    ],
+    "defenderLateral": [
+      -350,
+      350
+    ],
+    "defenderSpeed": [
+      700,
+      1000
+    ],
+    "variants": [
+      {
+        "name": "midfield roll",
+        "weight": 2,
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          -1200,
+          400
+        ],
+        "approachAngle": [
+          -18,
+          18
+        ],
+        "ballLead": [
+          500,
+          800
+        ],
+        "ballSpeed": [
+          850,
+          1150
+        ],
+        "ballHop": 0,
+        "defenderGapExtra": [
+          500,
+          900
+        ]
+      },
+      {
+        "name": "own half, huge bounce",
+        "weight": 2,
+        "x": [
+          -1500,
+          1500
+        ],
+        "y": [
+          -3300,
+          -1800
+        ],
+        "approachAngle": [
+          -15,
+          15
+        ],
+        "ballLead": [
+          550,
+          800
+        ],
+        "ballSpeed": [
+          800,
+          1050
+        ],
+        "ballHop": [
+          650,
+          950
+        ],
+        "defenderGapExtra": [
+          1400,
+          2000
+        ]
+      },
+      {
+        "name": "up the side wall from your corner",
+        "weight": 1.5,
+        "onWall": 1,
+        "x": 1,
+        "y": [
+          -3500,
+          -2500
+        ],
+        "ballHeight": [
+          200,
+          420
+        ],
+        "ballSpeed": [
+          1000,
+          1300
+        ],
+        "ballHop": [
+          150,
+          350
+        ],
+        "playerSpeed": [
+          1550,
+          1850
+        ],
+        "ballLead": [
+          450,
+          700
+        ],
+        "wallOffset": [
+          500,
+          800
+        ],
+        "defenderGapExtra": [
+          2300,
+          2800
+        ]
+      },
+      {
+        "name": "close in",
+        "weight": 1,
+        "x": [
+          -1600,
+          1600
+        ],
+        "y": [
+          -200,
+          1200
+        ],
+        "approachAngle": [
+          -18,
+          18
+        ],
+        "ballLead": [
+          450,
+          750
+        ],
+        "ballSpeed": [
+          750,
+          1050
+        ],
+        "ballHop": 0,
+        "bounceChance": 0.4,
+        "bounceHop": [
+          300,
+          480
+        ],
+        "bounceLeadExtra": [
+          150,
+          300
+        ]
+      },
+      {
+        "name": "along your goal line, up the corner",
+        "weight": 1.5,
+        "x": [
+          900,
+          1700
+        ],
+        "y": [
+          -4350,
+          -3950
+        ],
+        "heading": [
+          8,
+          20
+        ],
+        "ballLead": [
+          500,
+          800
+        ],
+        "ballSpeed": [
+          1000,
+          1250
+        ],
+        "ballHop": 0,
+        "playerSpeed": [
+          1450,
+          1750
+        ],
+        "defenderGapExtra": [
+          2300,
+          2800
+        ]
+      }
+    ]
+  },
+  "bots": [
+    {
+      "type": "psyonix",
+      "team": 1,
+      "location": [
+        0,
+        4000,
+        17
+      ],
+      "rotation": [
+        0,
+        16384,
+        0
+      ],
+      "params": {
+        "skill": 0.5,
+        "holdSeconds": 0.35
+      }
+    }
+  ],
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 11
+    },
+    {
+      "type": "save"
+    }
+  ],
+  "difficulty": {
+    "easy": {
+      "bots.0.params.skill": 0.0,
+      "bots.0.params.holdSeconds": 0.6,
+      "situation.defenderGap": [
+        2500,
+        3100
+      ]
+    },
+    "hard": {
+      "bots.0.params.skill": 1.0,
+      "bots.0.params.holdSeconds": 0.15,
+      "situation.defenderGap": [
+        1500,
+        2000
+      ],
+      "situation.defenderSpeed": [
+        450,
+        750
+      ]
+    }
+  },
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

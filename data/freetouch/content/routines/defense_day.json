@@ -1,0 +1,21 @@
+{
+  "name": "Defense focus",
+  "description": "Saves, wall reads and clears, then games where you only think about defending well.",
+  "order": 4,
+  "focus": true,
+  "sections": [
+    { "id": "w1", "title": "Warm-up", "warmup": true },
+    { "id": "w2", "title": "Play" },
+    { "id": "w3", "title": "After" }
+  ],
+  "steps": [
+    { "id": "s1", "section": "w1", "type": "drills", "title": "Defense drills", "minutes": 15, "difficulty": "medium",
+      "drills": [
+        { "id": "saves.basic.mixed", "reps": 8 },
+        { "id": "saves.wall.bounce", "reps": 6 },
+        { "id": "first_touch.side_wall_pass", "reps": 5 }
+      ] },
+    { "id": "s2", "section": "w2", "type": "task", "title": "Ranked: focus on rotating back post", "count": 5 },
+    { "id": "s3", "section": "w3", "type": "task", "title": "Watch the goals you conceded", "minutes": 10, "notes": true, "notesHint": "What would have saved it?" }
+  ]
+}

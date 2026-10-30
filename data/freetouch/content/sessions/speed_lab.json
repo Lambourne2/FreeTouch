@@ -1,0 +1,13 @@
+{
+  "id": "session.speed_lab",
+  "name": "Freeplay+",
+  "description": "Ten minutes of freeplay with intent: one objective at a time (targets, carries, rings and circles), no clock, live play never resets.",
+  "category": "speed_lab",
+  "durationMinutes": 10,
+  "difficulty": "medium",
+  "airRoll": "free",
+  "order": "sequential",
+  "exercises": [
+    { "ref": "speed_lab.objectives" }
+  ]
+}

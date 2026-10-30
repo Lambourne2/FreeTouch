@@ -1,0 +1,1099 @@
+{
+  "id": "mechanics.horse",
+  "name": "HORSE",
+  "category": "mechanics",
+  "description": "Called shots, one try each. Make it and the next call is harder; miss it and you earn a letter. Spell H-O-R-S-E and the game is over: how many can you make? (Your best is kept.) The call and your letters are on screen; past the end of the list the calls come from the hardest shots.",
+  "tags": [
+    "horse",
+    "called shots",
+    "game"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      [
+        -400,
+        400
+      ],
+      -500,
+      900
+    ],
+    "velocity": [
+      0,
+      [
+        400,
+        600
+      ],
+      [
+        400,
+        550
+      ]
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -3000,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      1400,
+      0
+    ],
+    "boost": 100,
+    "boostLock": true
+  },
+  "timeLimitSeconds": 9,
+  "progression": "horse",
+  "readFirst": true,
+  "word": "HORSE",
+  "objects": [
+    {
+      "type": "one_of",
+      "id": "shots",
+      "choices": [
+        {
+          "id": "aerial",
+          "label": "Aerial goal",
+          "tag": "AERIAL",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -500,
+              900
+            ],
+            "velocity": [
+              0,
+              [
+                400,
+                600
+              ],
+              [
+                400,
+                550
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3000,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1400,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "aerial_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "power_shot",
+          "label": "Power shot goal (110+ km/h)",
+          "tag": "POWER SHOT",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -300,
+                300
+              ],
+              400,
+              93
+            ],
+            "velocity": [
+              0,
+              [
+                -500,
+                -300
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -2600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1400,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 8,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "power_shot"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 8
+            }
+          ]
+        },
+        {
+          "id": "flick",
+          "label": "Flick goal",
+          "tag": "FLICK",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 10,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 10
+            }
+          ]
+        },
+        {
+          "id": "wall",
+          "label": "Off-the-wall goal",
+          "tag": "WALL",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "wall_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "redirect",
+          "label": "Redirect goal",
+          "tag": "REDIRECT",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                3000,
+                3300
+              ],
+              [
+                3300,
+                3700
+              ],
+              300
+            ],
+            "velocity": [
+              [
+                -1400,
+                -1200
+              ],
+              [
+                200,
+                400
+              ],
+              [
+                850,
+                1000
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              -300,
+              1000,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              900,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "redirect"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "backboard_read",
+          "label": "Backboard read goal",
+          "tag": "BACKBOARD READ",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -500,
+                500
+              ],
+              1500,
+              300
+            ],
+            "velocity": [
+              0,
+              [
+                1800,
+                2000
+              ],
+              [
+                1050,
+                1200
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1200,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "backboard_read"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "air_dribble",
+          "label": "Air dribble goal",
+          "tag": "AIR DRIBBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "double_tap",
+          "label": "Double tap off the side wall",
+          "tag": "DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                500,
+                700
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                1200,
+                1350
+              ],
+              [
+                350,
+                500
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                50,
+                250
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              1150,
+              465,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "wall_pinch",
+          "label": "Pinch goal",
+          "tag": "PINCH",
+          "objects": [],
+          "ball": {
+            "location": [
+              2300,
+              0,
+              93
+            ],
+            "velocity": [
+              [
+                1300,
+                1450
+              ],
+              [
+                180,
+                280
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1500,
+              -120,
+              17
+            ],
+            "rotation": [
+              0,
+              1800,
+              0
+            ],
+            "velocity": [
+              1650,
+              260,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "pinch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "ceiling",
+          "label": "Ceiling shot goal",
+          "tag": "CEILING SHOT",
+          "objects": [],
+          "ball": {
+            "location": [
+              2300,
+              0,
+              93
+            ],
+            "velocity": [
+              [
+                1400,
+                1550
+              ],
+              [
+                180,
+                280
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1650,
+              -100,
+              17
+            ],
+            "rotation": [
+              0,
+              1800,
+              0
+            ],
+            "velocity": [
+              1350,
+              230,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "ceiling_shot"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "flip_reset",
+          "label": "Flip reset goal",
+          "tag": "FLIP RESET",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 15,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flip_reset"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 15
+            }
+          ]
+        },
+        {
+          "id": "musty",
+          "label": "Musty flick goal",
+          "tag": "MUSTY",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 10,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick:musty"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 10
+            }
+          ]
+        },
+        {
+          "id": "air_dribble_x3",
+          "label": "Three-touch air dribble goal",
+          "tag": "AIR DRIBBLE x3",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble:x3"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "air_dribble_double",
+          "label": "Air dribble double tap",
+          "tag": "AIR DRIBBLE + DOUBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "ceiling_double",
+          "label": "Ceiling shot double tap",
+          "tag": "CEILING + DOUBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              2300,
+              0,
+              93
+            ],
+            "velocity": [
+              [
+                1400,
+                1550
+              ],
+              [
+                180,
+                280
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1650,
+              -100,
+              17
+            ],
+            "rotation": [
+              0,
+              1800,
+              0
+            ],
+            "velocity": [
+              1350,
+              230,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "ceiling_shot",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "reset_double",
+          "label": "Flip reset double tap",
+          "tag": "RESET + DOUBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 15,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flip_reset",
+              "double_touch"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 15
+            }
+          ]
+        },
+        {
+          "id": "double_reset",
+          "label": "Double reset goal",
+          "tag": "DOUBLE RESET",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100,
+            "boostLock": true
+          },
+          "timeLimitSeconds": 15,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "double_reset"
+            ],
+            "requireGoal": true
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 15
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "aerial_touch"
+    ],
+    "requireGoal": true
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 2.2,
+  "notes": "Shots in rising difficulty in this order (17). One try per call. Every shot has unlimited boost."
+}

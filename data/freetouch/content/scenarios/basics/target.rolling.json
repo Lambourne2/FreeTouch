@@ -1,0 +1,29 @@
+{
+  "id": "basics.target.rolling",
+  "name": "Target shooting: rolling ball",
+  "category": "basics",
+  "description": "Ball rolls in the attacking half in any direction (across, away from you or toward you), some with a small hop to volley. Shoot it into the highlighted pocket of the goal; the blue pockets bounce the ball out.",
+  "tags": ["shooting", "accuracy", "ground"],
+  "allowMirror": true,
+  "notes": "The goal mouth is a grid (easy 2x1, medium 3x2, hard 4x2); one random pocket is the target, every other pocket a blue blocker.",
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [[-1100, 1100], [1000, 2100], 93],
+    "velocity": [[-900, 900], [-600, 900], [-100, 650]]
+  },
+  "player": {
+    "location": [[-600, 600], [-500, 300], 17],
+    "rotation": [0, 16384, 0],
+    "boost": [33, 100],
+    "faceBall": true
+  },
+  "objects": [
+    { "type": "target", "id": "target", "surface": "orange_goal", "grid": [3, 2] }
+  ],
+  "success": { "type": "object_hit", "objectId": "target" },
+  "fail": [{ "type": "timeout", "seconds": 8 }, { "type": "object_hit", "objectId": "target_block_*" }],
+  "difficulty": {
+    "easy": { "objects.0.grid": [2, 1], "ball.velocity": [[-600, 600], [-400, 600], [-100, 350]] },
+    "hard": { "objects.0.grid": [4, 2], "ball.velocity": [[-1250, 1250], [-800, 1250], [-100, 750]] }
+  }
+}

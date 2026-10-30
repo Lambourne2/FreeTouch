@@ -1,0 +1,21 @@
+{
+  "name": "Quick warm-up",
+  "description": "15 minutes to wake your hands up before ranked: a short drill block and some free hits.",
+  "order": 1,
+  "focus": true,
+  "sections": [
+    { "id": "w1", "title": "Warm-up", "warmup": true },
+    { "id": "w2", "title": "Play" }
+  ],
+  "steps": [
+    { "id": "s1", "section": "w1", "type": "drills", "title": "Free Touch warm-up", "minutes": 10, "difficulty": "medium",
+      "drills": [
+        { "id": "basics.target.rolling", "reps": 5 },
+        { "id": "saves.basic.mixed", "reps": 5 },
+        { "id": "first_touch.high_lob", "reps": 5 },
+        { "id": "movement.boost_circle.random", "reps": 5 }
+      ] },
+    { "id": "s2", "section": "w1", "type": "task", "title": "Freeplay: controlled touches", "minutes": 5 },
+    { "id": "s3", "section": "w2", "type": "task", "title": "Ranked games" }
+  ]
+}

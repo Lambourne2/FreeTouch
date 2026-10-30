@@ -1,0 +1,71 @@
+{
+  "id": "races.zap_dash",
+  "name": "Race: zap dash",
+  "category": "races",
+  "description": "Already rolling, no boost, a long way to the finish: zap dashes (a quick jump, then a tiny forward dodge as you land) keep your speed climbing.",
+  "tags": [
+    "race",
+    "zap dash",
+    "movement"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 8,
+  "ball": {
+    "location": [
+      0,
+      0,
+      5
+    ],
+    "hidden": true,
+    "markObjective": true
+  },
+  "player": {
+    "location": [
+      0,
+      -4200,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      1300,
+      0
+    ],
+    "boost": 0
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "id": "finish",
+      "radius": 260,
+      "triggeredBy": "car",
+      "color": "accent",
+      "location": [
+        0,
+        300,
+        15
+      ]
+    }
+  ],
+  "success": {
+    "type": "reach_object",
+    "objectId": "finish"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 8
+    }
+  ],
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "A race against your own best run: beat it and your run becomes the ghost."
+}

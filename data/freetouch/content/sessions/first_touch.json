@@ -1,0 +1,14 @@
+{
+  "id": "session.first_touch",
+  "name": "First touch lab",
+  "description": "Passes, lobs, crosses and rebounds; take the first touch and play it however you want.",
+  "category": "first_touch",
+  "durationMinutes": 10,
+  "difficulty": "medium",
+  "airRoll": "free",
+  "order": "shuffle",
+  "repsPerExercise": 4,
+  "exercises": [
+    { "ref": "first_touch.*" }
+  ]
+}

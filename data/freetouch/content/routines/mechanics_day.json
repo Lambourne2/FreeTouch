@@ -1,0 +1,28 @@
+{
+  "name": "Mechanics day",
+  "description": "Car control first, then touches and aerial work, with a workshop map to finish.",
+  "order": 3,
+  "focus": true,
+  "sections": [
+    { "id": "w1", "title": "Warm-up", "warmup": true },
+    { "id": "w2", "title": "Practice" },
+    { "id": "w3", "title": "After" }
+  ],
+  "steps": [
+    { "id": "s1", "section": "w1", "type": "drills", "title": "Car control", "minutes": 10, "difficulty": "medium",
+      "drills": [
+        { "id": "movement.rings.course", "reps": 3 },
+        { "id": "movement.boost_circle.recovery", "reps": 5 },
+        { "id": "glade.lanes", "reps": 3 }
+      ] },
+    { "id": "s2", "section": "w2", "type": "drills", "title": "Touches and aerials", "minutes": 20, "difficulty": "medium",
+      "drills": [
+        { "id": "first_touch.bounce_air_dribble", "reps": 6 },
+        { "id": "first_touch.backboard_rebound", "reps": 6 },
+        { "id": "first_touch.bounce_cross", "reps": 6 },
+        { "id": "glade.ball", "reps": 3 }
+      ] },
+    { "id": "s3", "section": "w2", "type": "workshop", "title": "Workshop map", "minutes": 15, "items": [ { "name": "Your favourite obstacle course", "code": "" } ] },
+    { "id": "s4", "section": "w3", "type": "notes", "title": "What clicked today?" }
+  ]
+}

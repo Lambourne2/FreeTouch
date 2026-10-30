@@ -1,0 +1,25 @@
+{
+  "id": "saves.basic.mixed",
+  "name": "Saves: mixed shots",
+  "category": "saves",
+  "description": "Shots at the blue net from random angles; ground shots and lobs.",
+  "tags": ["defense"],
+  "allowMirror": true,
+  "timeLimitSeconds": 6,
+  "ball": {
+    "location": [[-2500, 2500], [-1200, 300], [93, 500]],
+    "aimAt": { "point": [[-760, 760], -5120, [100, 520]], "speed": [1600, 2400] }
+  },
+  "player": {
+    "location": [0, -4900, 17],
+    "rotation": [0, 16384, 0],
+    "boost": [20, 60],
+    "faceBall": true
+  },
+  "success": { "type": "save" },
+  "fail": [{ "type": "conceded" }],
+  "difficulty": {
+    "easy": { "ball.aimAt.speed": 1500 },
+    "hard": { "ball.aimAt.speed": 2900 }
+  }
+}

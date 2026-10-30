@@ -1,0 +1,78 @@
+{
+  "id": "races.wall_dash",
+  "name": "Race: wall dash",
+  "category": "races",
+  "description": "Rolling toward the side wall with no boost (pads give nothing): get up on the wall and wall dash along it down the field to the circle on the far end of the wall. Wall dashes (a little jump off the wall, then dodge back into it) are faster than driving. Race your ghost.",
+  "tags": [
+    "race",
+    "wall dash",
+    "movement"
+  ],
+  "allowMirror": true,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 9,
+  "ball": {
+    "location": [
+      0,
+      0,
+      5
+    ],
+    "hidden": true,
+    "markObjective": true
+  },
+  "player": {
+    "location": [
+      3650,
+      -3200,
+      17
+    ],
+    "rotation": [
+      0,
+      12500,
+      0
+    ],
+    "velocity": [
+      330,
+      1050,
+      0
+    ],
+    "boost": 0,
+    "noPads": true
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "id": "finish",
+      "radius": 320,
+      "triggeredBy": "car",
+      "color": "accent",
+      "location": [
+        4086,
+        2600,
+        650
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ]
+    }
+  ],
+  "success": {
+    "type": "reach_object",
+    "objectId": "finish"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 9
+    }
+  ],
+  "startCountdownSeconds": 2,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "A race against your own best run: beat it and your run becomes the ghost.",
+  "recordVersion": 2
+}

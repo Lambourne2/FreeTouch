@@ -1,0 +1,55 @@
+{
+  "id": "races.speed_flip",
+  "name": "Race: speed flip kickoff",
+  "category": "races",
+  "description": "From the back-centre kickoff spot with kickoff boost: get to the ball as fast as you can. A clean speed flip is around 2.2 s; your ghost shows your best. After each run the coach gives one tip on your speed flip (jump timing, the flip's angle, the cancel, the landing, boost) and your speed when you land.",
+  "coach": "speed_flip",
+  "tags": [
+    "race",
+    "speed flip",
+    "kickoff"
+  ],
+  "allowMirror": false,
+  "timed": true,
+  "ghost": true,
+  "timeLimitSeconds": 5,
+  "ball": {
+    "location": [
+      0,
+      0,
+      92.75
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -4608,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      0,
+      0
+    ],
+    "boost": 33
+  },
+  "success": {
+    "type": "touch"
+  },
+  "fail": [
+    {
+      "type": "timeout",
+      "seconds": 5
+    }
+  ],
+  "startCountdownSeconds": 3,
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.4,
+  "notes": "Timed to the first touch."
+}

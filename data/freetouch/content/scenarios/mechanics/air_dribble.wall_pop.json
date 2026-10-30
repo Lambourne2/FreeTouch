@@ -1,0 +1,22 @@
+{
+  "id": "mechanics.air_dribble.wall_pop",
+  "name": "Air dribble setup: ball rolling up the side wall",
+  "category": "mechanics",
+  "description": "The ball rolls toward the right side wall; follow it up and carry it in the air.",
+  "tags": ["air_dribble", "wall"],
+  "allowMirror": true,
+  "notes": "Approximate: you start about 750 uu behind the ball, rolling with it at 1000 uu/s. Capture your favourite wall setups with ft_capture and add them next to this file.",
+  "timeLimitSeconds": 12,
+  "ball": {
+    "location": [2500, [-2500, -2300], 93],
+    "velocity": [[900, 1100], [300, 450], 0]
+  },
+  "player": {
+    "location": [1900, [-2950, -2750], 17],
+    "rotation": [0, 4000, 0],
+    "velocity": [927, 375, 0],
+    "boost": 100
+  },
+  "success": { "type": "detector", "detector": "air_dribble" },
+  "fail": [{ "type": "timeout", "seconds": 12 }, { "type": "ball_hits_ground" }]
+}

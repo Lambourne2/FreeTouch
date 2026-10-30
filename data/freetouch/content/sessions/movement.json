@@ -1,0 +1,15 @@
+{
+  "id": "session.movement",
+  "name": "Movement",
+  "description": "Get places fast: reach the circle on random boost and fly the ring course up the wall. Every run is timed against your best.",
+  "category": "movement",
+  "durationMinutes": 8,
+  "difficulty": "medium",
+  "airRoll": "free",
+  "order": "shuffle",
+  "repsPerExercise": 4,
+  "exercises": [
+    { "ref": "movement.boost_circle.*" },
+    { "ref": "movement.rings.*" }
+  ]
+}

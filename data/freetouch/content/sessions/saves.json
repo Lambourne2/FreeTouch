@@ -1,0 +1,15 @@
+{
+  "id": "session.saves",
+  "name": "Saves",
+  "description": "Shots at your net from random angles and speeds; off the side wall on hard.",
+  "category": "saves",
+  "durationMinutes": 10,
+  "difficulty": "medium",
+  "airRoll": "free",
+  "order": "shuffle",
+  "repsPerExercise": 5,
+  "exercises": [
+    { "ref": "saves.basic.*", "weight": 2 },
+    { "ref": "saves.wall.*", "weight": 1, "difficulties": ["hard"] }
+  ]
+}

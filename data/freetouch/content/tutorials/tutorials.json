@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "about": "Short tips shown the first time each place in the menu opens (and from its ? button). scene: the drawing above the text (hubs, tabs, controller, difficulty, freeplay, routine, daily, ghost, board, packs, record, net, share, friends, progress, settings).",
+  "tutorials": [
+    {
+      "id": "home",
+      "title": "Welcome to Free Touch",
+      "steps": [
+        { "scene": "hubs", "title": "Everything in a few places", "text": "Train to practise, Compete for the Daily, races and the Shot Board, and Create for your own drills. Friends, Progress and Settings are yours." },
+        { "scene": "tabs", "title": "Tabs along the top", "text": "Each place keeps its pages as tabs along the top. The ? button in the corner brings these tips back any time." },
+        { "scene": "controller", "title": "In a drill", "text": "R3 resets the shot, D-pad right and left go to the next or previous one, and D-pad down is slow motion. You can change them in Settings." }
+      ]
+    },
+    {
+      "id": "train",
+      "title": "Train",
+      "steps": [
+        { "scene": "difficulty", "title": "Pick a drill", "text": "Exercises has every drill. Pick Easy, Medium or Hard and press Play; star the ones you like to find them fast." },
+        { "scene": "freeplay", "title": "Freeplay+", "text": "Free play with goals popping up around the field: rings, targets and shots, while you play however you like." },
+        { "scene": "routine", "title": "Your routine", "text": "Build a warm-up you can play in order every day. Sessions & Labs has timed playlists made for you." }
+      ]
+    },
+    {
+      "id": "compete",
+      "title": "Compete",
+      "steps": [
+        { "scene": "daily", "title": "The Daily Challenge", "text": "The same ten shots for every player today. One attempt counts, and once it's done your score is locked in for the day." },
+        { "scene": "ghost", "title": "Races and ghosts", "text": "Beat your best and that run becomes your ghost. Open a race's Board to race a friend's ghost instead." },
+        { "scene": "board", "title": "The Shot Board", "text": "Shots players posted. Play one, like it, or add it to your own drills." }
+      ]
+    },
+    {
+      "id": "create",
+      "title": "Create",
+      "steps": [
+        { "scene": "packs", "title": "Any training pack, your way", "text": "Paste the code of ANY training pack on the Training Packs tab and every shot becomes a Free Touch drill. Then put a bot in net to defend it, and pick the part of the net you have to score in: chosen tiles, a random one, a moving one, or a hole just bigger than the ball." },
+        { "scene": "record", "title": "Record your own drill", "text": "Press record, play the moment out, then drag the timeline to where your drill should start and save it." },
+        { "scene": "net", "title": "Set it up when you play", "text": "Your recorded drills work the same way: Play asks for a defender and a net target, from picked tiles to a hole just bigger than the ball." },
+        { "scene": "share", "title": "Share it", "text": "Copy it as a file for Discord, send it straight to a friend, or post it on the Shot Board." }
+      ]
+    },
+    {
+      "id": "friends",
+      "title": "Friends",
+      "steps": [
+        { "scene": "friends", "title": "Add friends by code", "text": "Give your friend code, or type theirs. They accept, and you see each other's training: minutes, streak and last drill." },
+        { "scene": "board", "title": "Play together", "text": "Send each other shots, and see each other on the Daily and race leaderboards." }
+      ]
+    },
+    {
+      "id": "progress",
+      "title": "Progress",
+      "steps": [
+        { "scene": "progress", "title": "Watch yourself improve", "text": "Your training time, records and rank over time, and a journal of each day's routine and notes." }
+      ]
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "steps": [
+        { "scene": "settings", "title": "Make it yours", "text": "Your account, controls, sounds and colours. Pick a name under Account to play with friends." }
+      ]
+    }
+  ]
+}

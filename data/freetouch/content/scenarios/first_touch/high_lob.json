@@ -1,0 +1,25 @@
+{
+  "id": "first_touch.high_lob",
+  "name": "First touch lab: high lob",
+  "category": "first_touch",
+  "description": "A high lob drops toward midfield from the other half; settle it, pop it or shoot it out of the air.",
+  "tags": ["first_touch", "aerial"],
+  "allowMirror": true,
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [[-1500, 1500], [3200, 3800], [150, 300]],
+    "aimAt": { "point": [[-400, 400], [-100, 500], [300, 500]], "speed": [1750, 1950] }
+  },
+  "player": {
+    "location": [[-300, 300], [-1300, -1000], 17],
+    "rotation": [0, 16384, 0],
+    "boost": [60, 100],
+    "faceBall": true
+  },
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    { "type": "timeout", "seconds": 10 }
+  ]
+}

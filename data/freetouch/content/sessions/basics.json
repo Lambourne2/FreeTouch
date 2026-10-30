@@ -1,0 +1,16 @@
+{
+  "id": "session.basics",
+  "name": "Basics",
+  "description": "Shooting on a defender, target shooting and saves.",
+  "category": "basics",
+  "durationMinutes": 10,
+  "difficulty": "medium",
+  "airRoll": "free",
+  "order": "shuffle",
+  "repsPerExercise": 5,
+  "exercises": [
+    { "ref": "basics.shoot_on_defender.*", "weight": 2 },
+    { "ref": "basics.target.*", "weight": 1 },
+    { "ref": "saves.basic.*", "weight": 1 }
+  ]
+}

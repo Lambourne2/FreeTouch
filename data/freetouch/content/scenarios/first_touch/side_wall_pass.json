@@ -1,0 +1,25 @@
+{
+  "id": "first_touch.side_wall_pass",
+  "name": "First touch lab: pass off the side wall",
+  "category": "first_touch",
+  "description": "A pass drops off the side wall into the channel in front of you; take the first touch however you like and finish.",
+  "tags": ["first_touch", "aerial"],
+  "allowMirror": true,
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [3950, [-500, 100], [900, 1200]],
+    "aimAt": { "point": [[1300, 2100], [500, 1100], [350, 650]], "speed": [1350, 1600] }
+  },
+  "player": {
+    "location": [[1100, 1700], [-600, -200], 17],
+    "rotation": [0, 16384, 0],
+    "boost": [60, 100],
+    "faceBall": true
+  },
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    { "type": "timeout", "seconds": 10 }
+  ]
+}

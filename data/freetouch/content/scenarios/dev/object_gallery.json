@@ -1,0 +1,26 @@
+{
+  "id": "dev.object_gallery",
+  "name": "Dev: object gallery",
+  "category": "dev",
+  "description": "One of every world object, to check drawing and hits: drive through the ring at kickoff, the checkpoint (left), the circle (right) and along the lane (far right); shoot the ball through the high ring, at the target (not the blue blocker) and the backboard panel; knock over the pins (left side, orange half).",
+  "tags": ["dev"],
+  "allowMirror": false,
+  "timeLimitSeconds": 180,
+  "ball": { "location": [0, -900, 93] },
+  "player": { "location": [0, -1500, 17], "rotation": [0, 16384, 0], "boost": 100 },
+  "objects": [
+    { "type": "ring", "id": "ring_car", "location": [0, 0, 200], "normal": [0, 1, 0], "radius": 200, "triggeredBy": "car" },
+    { "type": "ring", "id": "ring_ball", "location": [1200, 2500, 600], "normal": [0, 1, 0], "radius": 300, "color": "orange" },
+    { "type": "checkpoint", "id": "checkpoint", "location": [-1500, 600, 300], "normal": [0, 1, 0], "radius": 300, "color": "green" },
+    { "type": "circle", "id": "circle", "location": [1500, -1000, 0], "radius": 300, "color": "green" },
+    { "type": "lane", "id": "lane", "points": [[2800, -2500, 0], [2800, 0, 0], [3300, 1500, 0]], "width": 500, "color": "white" },
+    { "type": "target", "id": "target", "location": [-300, 5100, 300], "normal": [0, -1, 0], "radius": 200 },
+    { "type": "blocker", "id": "blocker", "location": [400, 5090, 320], "size": [600, 640, 40], "normal": [0, -1, 0] },
+    { "type": "panel", "id": "panel", "location": [1100, 5110, 1100], "normal": [0, -1, 0], "size": [500, 300, 20], "color": "orange" },
+    { "type": "pin", "id": "pin_1", "location": [-2000, 3000, 0] },
+    { "type": "pin", "id": "pin_2", "location": [-2090, 3150, 0] },
+    { "type": "pin", "id": "pin_3", "location": [-1910, 3150, 0] }
+  ],
+  "success": { "type": "all_objects_hit" },
+  "fail": [{ "type": "timeout", "seconds": 180 }]
+}

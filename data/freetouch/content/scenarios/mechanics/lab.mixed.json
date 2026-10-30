@@ -1,0 +1,387 @@
+{
+  "id": "mechanics.lab.mixed",
+  "name": "Mechanics lab: mixed",
+  "category": "mechanics",
+  "description": "A different mechanic every rep (flick, air dribble, double tap, flip reset, off the wall), shown on screen; finish it into the lit zone.",
+  "tags": [
+    "lab",
+    "zone",
+    "mixed"
+  ],
+  "allowMirror": true,
+  "showMechanics": true,
+  "ball": {
+    "location": [
+      0,
+      -1800,
+      172
+    ],
+    "velocity": [
+      0,
+      700,
+      0
+    ]
+  },
+  "player": {
+    "location": [
+      0,
+      -1800,
+      17
+    ],
+    "rotation": [
+      0,
+      16384,
+      0
+    ],
+    "velocity": [
+      0,
+      700,
+      0
+    ],
+    "boost": 100
+  },
+  "timeLimitSeconds": 10,
+  "objects": [
+    {
+      "type": "zone_cycle",
+      "id": "zones",
+      "surface": "orange_goal",
+      "grid": [
+        3,
+        2
+      ],
+      "cycleSeconds": 1.6,
+      "color": "accent"
+    },
+    {
+      "type": "one_of",
+      "id": "lab",
+      "choices": [
+        {
+          "id": "flick",
+          "label": "Flick into the lit zone",
+          "tag": "FLICK",
+          "objects": [],
+          "ball": {
+            "location": [
+              0,
+              -1800,
+              172
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -1800,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              700,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 10,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flick"
+            ],
+            "requireGoal": true,
+            "zone": true,
+            "label": "IN THE ZONE"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 10
+            }
+          ]
+        },
+        {
+          "id": "air_dribble",
+          "label": "Air dribble into the lit zone",
+          "tag": "AIR DRIBBLE",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "air_dribble"
+            ],
+            "requireGoal": true,
+            "zone": true,
+            "label": "IN THE ZONE"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        },
+        {
+          "id": "double_tap",
+          "label": "Double tap into the lit zone",
+          "tag": "DOUBLE TAP",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -300,
+                300
+              ],
+              -200,
+              400
+            ],
+            "velocity": [
+              0,
+              [
+                850,
+                1000
+              ],
+              [
+                850,
+                1000
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -2300,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 9,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "double_touch"
+            ],
+            "requireGoal": true,
+            "zone": true,
+            "label": "IN THE ZONE"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 9
+            }
+          ]
+        },
+        {
+          "id": "flip_reset",
+          "label": "Flip reset into the lit zone",
+          "tag": "FLIP RESET",
+          "objects": [],
+          "ball": {
+            "location": [
+              [
+                -400,
+                400
+              ],
+              -800,
+              [
+                1300,
+                1500
+              ]
+            ],
+            "velocity": [
+              0,
+              [
+                300,
+                450
+              ],
+              [
+                500,
+                650
+              ]
+            ]
+          },
+          "player": {
+            "location": [
+              0,
+              -3600,
+              17
+            ],
+            "rotation": [
+              0,
+              16384,
+              0
+            ],
+            "velocity": [
+              0,
+              1500,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 11,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "flip_reset"
+            ],
+            "requireGoal": true,
+            "zone": true,
+            "label": "IN THE ZONE"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 11
+            }
+          ]
+        },
+        {
+          "id": "wall",
+          "label": "Off the wall into the lit zone",
+          "tag": "WALL",
+          "objects": [],
+          "ball": {
+            "location": [
+              2500,
+              [
+                -2500,
+                -2300
+              ],
+              93
+            ],
+            "velocity": [
+              [
+                900,
+                1100
+              ],
+              [
+                300,
+                450
+              ],
+              0
+            ]
+          },
+          "player": {
+            "location": [
+              1900,
+              [
+                -2950,
+                -2750
+              ],
+              17
+            ],
+            "rotation": [
+              0,
+              4000,
+              0
+            ],
+            "velocity": [
+              927,
+              375,
+              0
+            ],
+            "boost": 100
+          },
+          "timeLimitSeconds": 12,
+          "success": {
+            "type": "mechanic",
+            "chain": [
+              "wall_touch"
+            ],
+            "requireGoal": true,
+            "zone": true,
+            "label": "IN THE ZONE"
+          },
+          "fail": [
+            {
+              "type": "timeout",
+              "seconds": 12
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "success": {
+    "type": "mechanic",
+    "chain": [
+      "flick"
+    ],
+    "requireGoal": true,
+    "zone": true
+  },
+  "difficulty": {
+    "easy": {
+      "objects.0.cycleSeconds": 2.2
+    },
+    "hard": {
+      "objects.0.cycleSeconds": 1.1
+    }
+  },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

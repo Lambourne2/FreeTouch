@@ -1,0 +1,36 @@
+{
+  "id": "movement.boost_circle.recovery",
+  "name": "Movement: recover, then reach the circle",
+  "category": "movement",
+  "description": "You are thrown at a side wall or a corner in a weird position: tilted or upside down and spinning. Recover off the wall, land on your wheels and race to the circle (floor, wall, ceiling or above a goal). Reach it and you are thrown into the next recovery. Timed: beat your best.",
+  "tags": ["movement", "recovery", "aerial", "speed"],
+  "allowMirror": true,
+  "notes": "Hidden ball on the circle so ball cam points at it. tossAt: starts 1000-1800 uu from a side wall or corner, flying at it at 900-1400 uu/s; spin up to 3.5 rad/s on medium.",
+  "timeLimitSeconds": 15,
+  "timed": true,
+  "onSuccess": "next",
+  "ball": { "location": [0, 0, 5], "hidden": true, "markObjective": true },
+  "player": {
+    "location": [0, 0, [400, 900]],
+    "rotation": [[-16000, 16000], [0, 65535], [-32768, 32767]],
+    "angularVelocity": [[-3.5, 3.5], [-3.5, 3.5], [-3.5, 3.5]],
+    "boost": [20, 100],
+    "tossAt": {
+      "targets": [
+        [4096, [-3000, 3000], [250, 1100]], [-4096, [-3000, 3000], [250, 1100]],
+        [3550, 4450, [200, 700]], [-3550, 4450, [200, 700]], [3550, -4450, [200, 700]], [-3550, -4450, [200, 700]]
+      ],
+      "distance": [1000, 1800],
+      "speed": [900, 1400]
+    }
+  },
+  "objects": [
+    { "type": "circle", "id": "goal_circle", "location": [[-3200, 3200], [800, 4200], 15], "radius": 300, "triggeredBy": "car", "color": "accent", "placeOn": ["floor", "wall", "wall", "ceiling", "back_wall"] }
+  ],
+  "success": { "type": "reach_object", "objectId": "goal_circle" },
+  "fail": [{ "type": "timeout", "seconds": 15 }],
+  "difficulty": {
+    "easy": { "player.angularVelocity": [[-1.5, 1.5], [-1.5, 1.5], [-1.5, 1.5]], "player.tossAt.speed": [700, 1000], "player.boost": [50, 100] },
+    "hard": { "player.angularVelocity": [[-4.5, 4.5], [-4.5, 4.5], [-4.5, 4.5]], "player.tossAt.speed": [1100, 1600], "player.location.2": [600, 1200], "player.boost": [0, 50] }
+  }
+}

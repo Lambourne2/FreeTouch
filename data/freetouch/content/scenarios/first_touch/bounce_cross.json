@@ -1,0 +1,25 @@
+{
+  "id": "first_touch.bounce_cross",
+  "name": "First touch lab: bouncing cross",
+  "category": "first_touch",
+  "description": "A cross from the corner bounces across the field in front of you; meet it on the bounce or in the air.",
+  "tags": ["first_touch", "ground"],
+  "allowMirror": true,
+  "timeLimitSeconds": 10,
+  "ball": {
+    "location": [[2800, 3300], [2600, 3200], [100, 250]],
+    "aimAt": { "point": [[-500, 500], [300, 1100], 93], "speed": [1700, 2100] }
+  },
+  "player": {
+    "location": [[-300, 300], [-900, -600], 17],
+    "rotation": [0, 16384, 0],
+    "boost": [60, 100],
+    "faceBall": true
+  },
+  "success": {
+    "type": "goal"
+  },
+  "fail": [
+    { "type": "timeout", "seconds": 10 }
+  ]
+}
