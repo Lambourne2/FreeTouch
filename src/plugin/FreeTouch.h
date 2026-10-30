@@ -38,10 +38,12 @@
 #include "version.h"
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
-class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public PluginWindowBase
+class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWindowBase, public PluginWindowBase
 {
 	void onLoad() override;
 	void onUnload() override;
+	// BakkesMod's F2 > Plugins > Free Touch: how to open Free Touch, and a button that does. Render thread.
+	void RenderSettings() override;
 
 	void openEventLog();
 	void logState();
@@ -146,6 +148,18 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public PluginWindow
 	bool feedVisible() const { return mechanicsFeed_ && devTools_; }
 	void onMechanics();
 	bool devTools_ = false;      // settings/ui.json "devTools": Saved Shots, Captured and Dev categories
+	// The welcome toast ("press F7 to open Free Touch") shows on entering freeplay until the player has opened Free
+	// Touch once (settings/ui.json "menuOpened").
+	bool menuOpened_ = false;
+	bool welcomeWasFreeplay_ = false;
+	bool welcomeAfterLoad_ = false; // the hint a few seconds after loading has been shown (the main menu, usually)
+	// The hint is drawn on screen (BakkesMod's own toasts are off by default): until this steady-clock time, in ms.
+	std::atomic<long long> welcomeUntilMs_{0};
+	void drawWelcome(Canvas& c);
+	void pollWelcome();
+	// The controller's Select outside a drill: drill-only actions open Free Touch instead (nothing else opens it on a
+	// pad).
+	bool drillRunning() const;
 	std::string defender_ = "psyonix"; // settings/ui.json "defender": psyonix | necto
 	std::string packDefender_;         // settings/ui.json "packDefender": "" (none) | psyonix | necto | nexto
 	std::string packTarget_;           // settings/ui.json "packTarget": "" (whole net) | pick | tile (random) | moving

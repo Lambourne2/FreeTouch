@@ -3,7 +3,7 @@
 
 std::string SettingsWindowBase::GetPluginName()
 {
-	return "FreeTouch";
+	return "Free Touch";
 }
 
 void SettingsWindowBase::SetImGuiContext(uintptr_t ctx)

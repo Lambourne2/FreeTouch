@@ -30,8 +30,6 @@ std::shared_ptr<CVarManagerWrapper> _globalCvarManager;
 
 namespace
 {
-	constexpr auto kReloadKey = "F9";
-	constexpr auto kReloadCommand = "plugin unload freetouch; plugin load freetouch";
 	constexpr auto kSelectKey = "XboxTypeS_Back";
 	constexpr auto kMenuKey = "F7"; // F6 is the BakkesMod console
 	constexpr auto kFreeplayId = "speed_lab.objectives"; // Freeplay+
@@ -63,8 +61,9 @@ namespace
 void FreeTouch::onLoad()
 {
 	_globalCvarManager = cvarManager;
-
-	cvarManager->setBind(kReloadKey, kReloadCommand);
+	// F9 (reload Free Touch) is a developer's bind: BakkesMod keeps it in cfg/binds.cfg once set with
+	// `bind F9 "plugin unload freetouch; plugin load freetouch"`. Free Touch no longer sets it for every player
+	// (2026-10-30: it took over their F9).
 
 	game_ = std::make_unique<BakkesGameAdapter>(gameWrapper);
 	openEventLog();
@@ -199,6 +198,17 @@ void FreeTouch::onLoad()
 		selectCommand.setValue("ft_mark");
 	cvarManager->registerNotifier("ft_select", [this](std::vector<std::string>) {
 		const std::string command = cvarManager->getCvar("ft_select_command").getStringValue();
+		// Outside a drill, an action that only means something in one opens Free Touch instead: on a controller
+		// nothing else does (2026-10-30). Actions that work anywhere (save this moment, record, warm-up, the menu),
+		// Nothing, and test commands keep doing what they say.
+		static const std::set<std::string> kDrillOnly = {"ft_next", "ft_prev", "ft_retry", "ft_stop", "ft_slowmo", "ft_mark"};
+		if (kDrillOnly.count(command) && !drillRunning())
+		{
+			eventLog_.write("select_pressed", {{"command", command}, {"opened", !isWindowOpen_}});
+			if (!isWindowOpen_)
+				cvarManager->executeCommand("togglemenu " + GetMenuName());
+			return;
+		}
 		eventLog_.write("select_pressed", {{"command", command}});
 		size_t start = 0; // several commands may be separated by ';'
 		while (start <= command.size())
@@ -729,6 +739,7 @@ void FreeTouch::onLoad()
 		if (!s.inReplay && replayBindOn_)
 			leaveReplay(); // R3 back to the player's own bind
 		drawReplayHint(canvas, s);
+		drawWelcome(canvas);
 		if (s.paused)
 		{
 			hud_.drawFeed(canvas); // hints only (a training shot waiting frozen counts as paused)
@@ -929,7 +940,8 @@ void FreeTouch::onLoad()
 
 	// Last: it reads ft_content_dir, which has to be registered first (1.0.0.204 crashed reading it before then).
 	loadFonts();
-	LOG("Free Touch loaded (v{}). {} opens Free Touch, {} reloads the plugin.", plugin_version, kMenuKey, kReloadKey);
+	LOG("Free Touch loaded (v{}). {} opens Free Touch (or Select on a controller, outside a drill).", plugin_version, kMenuKey);
+	pollWelcome();
 }
 
 void FreeTouch::loadFonts()
@@ -1613,6 +1625,92 @@ void FreeTouch::OnOpen()
 {
 	PluginWindowBase::OnOpen();
 	playMenuSound("ui_open");
+	if (!menuOpened_)
+		game_->runOnGameThread([this] {
+			if (menuOpened_)
+				return;
+			menuOpened_ = true; // no more welcome toasts
+			saveUiSettings();
+			eventLog_.write("menu_first_open");
+		});
+}
+
+bool FreeTouch::drillRunning() const
+{
+	return (player_ && player_->status().active) || (session_ && session_->active()) || (daily_ && daily_->active());
+}
+
+void FreeTouch::pollWelcome()
+{
+	// Every 2 s until Free Touch has been opened once: the hint a few seconds after loading (a new player is usually on
+	// the main menu), then on every entry into freeplay. Drawn by drawWelcome for 15 s.
+	if (unloading_ || menuOpened_)
+		return;
+	const auto show = [this](const char* where) {
+		if (unloading_ || menuOpened_ || game_->inOnlineGame())
+			return;
+		const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count();
+		welcomeUntilMs_ = nowMs + 15000;
+		eventLog_.write("welcome_hint", {{"where", where}});
+	};
+	const bool freeplay = game_->inFreeplay() && !game_->inOnlineGame();
+	if (!welcomeAfterLoad_)
+	{
+		welcomeAfterLoad_ = true;
+		game_->runAfter(5.f, [show] { show("load"); });
+	}
+	else if (freeplay && !welcomeWasFreeplay_)
+		game_->runAfter(2.5f, [this, show] {
+			if (game_->inFreeplay())
+				show("freeplay");
+		});
+	welcomeWasFreeplay_ = freeplay;
+	game_->runAfter(2.f, [this] { pollWelcome(); });
+}
+
+void FreeTouch::drawWelcome(Canvas& c)
+{
+	// "FREE TOUCH | Press F7 to open it": a card at the top middle, fading out over its last second; gone for good once
+	// Free Touch has been opened.
+	const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count();
+	const long long left = welcomeUntilMs_ - nowMs;
+	if (left <= 0 || menuOpened_)
+		return;
+	const float alpha = std::min(1.f, left / 1000.f);
+	const auto a = [alpha](int v) { return static_cast<unsigned char>(v * alpha); };
+	const float k = c.height() / 1080.f;
+	const std::string brand = "FREE TOUCH";
+	const std::string line = std::string("Press ") + kMenuKey + " to open it   |   Select on a controller";
+	float bw = 0, bh = 0, lw = 0, lh = 0;
+	c.textSize(brand, 1.3f * k, bw, bh);
+	c.textSize(line, 1.3f * k, lw, lh);
+	const float gap = 22.f * k, padX = 26.f * k, padY = 14.f * k;
+	const float w = bw + gap + lw + padX * 2.f, h = std::max(bh, lh) + padY * 2.f;
+	const float x = (c.width() - w) * 0.5f, y = 90.f * k;
+	c.fillRect(x, y, w, h, Rgba{10, 13, 20, a(215)});
+	c.fillRect(x, y + h - 3.f * k, w, 3.f * k, Rgba{44, 217, 196, a(230)});
+	c.text(x + padX, y + padY, brand, 1.3f * k, Rgba{44, 217, 196, a(255)});
+	c.text(x + padX + bw + gap, y + padY, line, 1.3f * k, Rgba{240, 244, 250, a(255)});
+}
+
+void FreeTouch::RenderSettings()
+{
+	// F2 > Plugins > Free Touch, where players look after installing a plugin. Render thread: the button only queues.
+	ImGui::TextUnformatted("Free Touch: structured freeplay training.");
+	ImGui::Spacing();
+	ImGui::Text("Press %s in game to open Free Touch.", kMenuKey);
+	ImGui::TextUnformatted("On a controller: press Select (Back / View) when no drill is running.");
+	ImGui::Spacing();
+	if (ImGui::Button("Open Free Touch", ImVec2(220.f, 36.f)))
+		gameWrapper->Execute([this](GameWrapper*) {
+			cvarManager->executeCommand("closemenu settings");
+			if (!isWindowOpen_)
+				cvarManager->executeCommand("togglemenu " + GetMenuName());
+		});
+	ImGui::Spacing();
+	ImGui::TextDisabled("Free Touch is free. Support it on Ko-fi: ko-fi.com/peytonlambourne");
 }
 
 void FreeTouch::OnClose()
@@ -1650,6 +1748,8 @@ void FreeTouch::loadUiSettings()
 			if (id.is_string())
 				tutorialsSeen_.insert(id.get<std::string>());
 		devTools_ = doc.value("devTools", false);
+		// Players from before 2026-10-30 who got past the first-run steps have opened it.
+		menuOpened_ = doc.value("menuOpened", firstRunDone_ || !tutorialsSeen_.empty());
 		autoUpdate_ = doc.value("autoUpdate", true);
 		mechanicsFeed_ = doc.value("mechanicsFeed", true);
 		defender_ = doc.value("defender", std::string("psyonix"));
@@ -1710,6 +1810,7 @@ void FreeTouch::saveUiSettings()
 		{"firstRunDone", firstRunDone_},
 		{"tutorialsSeen", tutorialsSeen_},
 		{"devTools", devTools_},
+		{"menuOpened", menuOpened_},
 		{"autoUpdate", autoUpdate_},
 		{"mechanicsFeed", mechanicsFeed_},
 		{"defender", defender_},

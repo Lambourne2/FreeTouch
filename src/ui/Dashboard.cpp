@@ -6994,7 +6994,8 @@ void Dashboard::renderSettings(const DashboardModel& m, const DashboardStatus& s
 
 	// The controller's Select button: one of Free Touch's actions (ft_select_command). Its own bind comes back when
 	// Free Touch unloads.
-	settingRow("Select button", "What the controller's Select (Back / View) button does while Free Touch is loaded.");
+	settingRow("Select button", "What the controller's Select (Back / View) button does in a drill. Outside one, drill-only "
+		"actions open Free Touch instead.");
 	{
 		struct Action { const char* command; const char* label; bool dev; };
 		static const Action kActions[] = {

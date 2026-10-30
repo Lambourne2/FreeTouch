@@ -12,7 +12,8 @@ This is the source of the version on BakkesPlugins, which installs it and keeps 
 how it builds, its data files and what it sends online, for BakkesPlugins' moderators and anyone else reading the code.
 Credits for the bots, fonts and libraries are in `THIRD_PARTY.md`.
 
-**Install:** https://bakkesplugins.com/plugin/908. **Support:** Free Touch is free, and nothing is ever locked. If it
+**Install:** https://bakkesplugins.com/plugin/908, then press **F7** in game to open it (or Select on a controller
+when no drill is running). **Support:** Free Touch is free, and nothing is ever locked. If it
 helps your training, you can support it on [Ko-fi](https://ko-fi.com/peytonlambourne). Put your friend code (Settings
 > Account) in the message to get a supporter heart by your name.
 
