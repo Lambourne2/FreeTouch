@@ -327,7 +327,11 @@ bool ScenarioPlayer::apply(const Entry& entry, const std::string& reason, bool k
 	repStartTick_ = lastTick_;
 	touches_ = 0;
 	goalHeld_ = false;
-	goalLetThrough_ = false;
+	// A restart while a real goal plays: the ball is still in the net until the game's reset, so it isn't judged again.
+	// (The reset always follows, replay included; the limit only keeps a missed one from switching goals off.)
+	if (goalResetDue_ && lastTick_ > goalResetDueTick_ + static_cast<uint64_t>(30.0 * kTicksPerSecond))
+		goalResetDue_ = false;
+	goalLetThrough_ = goalResetDue_;
 	realGoalPending_ = false;
 	goalSide_ = 0;
 	goalCheckFromTick_ = lastTick_ + 3;
@@ -676,6 +680,8 @@ void ScenarioPlayer::onTick(const Snapshot& snap)
 			{
 				goalLetThrough_ = true;
 				realGoalPending_ = true;
+				goalResetDue_ = true;
+				goalResetDueTick_ = snap.tick;
 			}
 			// The explosion: the player's own for their goals, the default one (no scorer) for goals against them.
 			else if (goalExplosion_ && game_.explodeBall(c.side, attackingNet))
@@ -1539,6 +1545,11 @@ void ScenarioPlayer::tickLeadIn(const Snapshot& snap)
 	game_.setBall(current_->ball);
 	game_.poseLocalCar(car);
 	leadInPhase_ = LeadInPhase::Off;
+	// An undone reset goes back within the live shot, never to the frozen ball from before this: a restart with the
+	// throttle held releases at once, the restart's own game reset lands just after, and undoing it stopped the ball
+	// dead (Lambourne 2026-11-03: a training pack ball with no momentum). Too soon after this for any state: the rep is
+	// put back, frozen, and goes on the next input.
+	recent_.clear();
 	repStartTick_ = snap.tick;
 	goalCheckFromTick_ = snap.tick + 3;
 	touches_ = 0;
@@ -2046,6 +2057,11 @@ void ScenarioPlayer::onRealGoal()
 {
 	// The game scored a goal for real: its explosion, slow motion and replay play now, then freeplay resets. Until that
 	// reset the exercise waits (no next rep, the HUD hidden, the daily's next shot held back); onRoundReset moves on.
+	if (!goalResetDue_)
+	{
+		goalResetDue_ = true;
+		goalResetDueTick_ = lastTick_;
+	}
 	if (!current_ || realGoalPending_)
 		return;
 	realGoalPending_ = true;
@@ -2055,10 +2071,13 @@ void ScenarioPlayer::onRealGoal()
 
 void ScenarioPlayer::onRoundReset()
 {
+	const bool goalReset = goalResetDue_;
+	goalResetDue_ = false;
 	if (!current_ || historyIndex_ < 0)
 		return;
 	const int resetRep = rep_;
-	log_.write("game_round_reset", {{"exercise", current_->id}, {"rep", resetRep}, {"afterRealGoal", realGoalPending_}});
+	log_.write("game_round_reset", {{"exercise", current_->id}, {"rep", resetRep}, {"afterRealGoal", realGoalPending_},
+		{"goalReset", goalReset}});
 	if (realGoalPending_)
 	{
 		// "Goal replays": this is the reset after a real goal's replay. Move on as the rep would have: its next rep for
@@ -2077,18 +2096,27 @@ void ScenarioPlayer::onRoundReset()
 		});
 		return;
 	}
+	// Select's ball controls are on: this is the player's own reset.
+	if (ballControls_ && !goalReset)
+	{
+		log_.write("game_reset_kept", {{"exercise", current_->id}, {"rep", resetRep}});
+		return;
+	}
 	// During an exercise freeplay's reset (Epic's default reset button, or R3 on some setups) is undone: the ball and
 	// car go back to where they were a moment before it, moving as they were; the rep, its clock and the streak carry
 	// on (it used to re-apply the rep as a new one: +1 rep, +2 with a retry on the same button, a skip in the daily).
 	// The reset's first event comes 1-2 ticks before this one, so the state from 4 ticks back is from before it.
+	// Not a real goal's reset: a restart came before it, and "before" is the ball in the net (Lambourne 2026-11-03, a
+	// Freeplay+ restart after a goal put the ball back in the net). Nor a state in a net from any other way there.
 	const RecentState* before = nullptr;
-	for (auto it = recent_.rbegin(); it != recent_.rend(); ++it)
-		if (it->tick + 4 <= lastTick_)
-		{
-			before = &*it;
-			break;
-		}
-	if (before && !ballExploded_)
+	if (!goalReset)
+		for (auto it = recent_.rbegin(); it != recent_.rend(); ++it)
+			if (it->tick + 4 <= lastTick_)
+			{
+				before = &*it;
+				break;
+			}
+	if (before && !ballExploded_ && !goalguard::pastLine(before->ball.location))
 	{
 		const RecentState s = *before;
 		log_.write("game_reset_undone", {{"exercise", current_->id}, {"rep", resetRep}, {"fromTick", s.tick},
@@ -2107,7 +2135,9 @@ void ScenarioPlayer::onRoundReset()
 		});
 		return;
 	}
-	// No state from before it (or the ball was exploded by a goal): put the same rep back, as before.
+	// No state to go back to (or the ball was exploded by a goal): put the same rep back, as before.
+	log_.write("game_reset_reapplied", {{"exercise", current_->id}, {"rep", resetRep}, {"afterGoal", goalReset},
+		{"hadState", before != nullptr}});
 	game_.runAfter(0.05f, [this, resetRep] {
 		if (current_ && rep_ == resetRep && historyIndex_ >= 0)
 			apply(history_[historyIndex_], "game_reset");

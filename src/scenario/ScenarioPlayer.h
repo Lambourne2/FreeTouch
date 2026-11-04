@@ -47,6 +47,8 @@ public:
 	// "Goal replays" (Settings): goals go in for real and the game's replay plays; the drill moves on after it. Off:
 	// every goal is caught at the line and exploded, straight on to the next rep.
 	void setGoalReplays(bool on) { goalReplays_ = on; }
+	// Select's ball controls are on: the player's own freeplay controls are live, so a freeplay reset is theirs to keep.
+	void setBallControls(bool on) { ballControls_ = on; }
 	// Training packs: a defender in the orange net on every pack ("" none, or psyonix / necto / nexto).
 	void setPackDefender(const std::string& type) { packDefender_ = type; }
 	// Training packs: only part of the net counts ("" whole net, "tile" one lit tile per shot, "moving" a lit tile
@@ -434,6 +436,11 @@ private:
 	bool goalReplays_ = false;     // "Goal replays" setting: goals go in for real, with the game's replay
 	bool goalLetThrough_ = false;  // this rep's goal was let through (not caught again)
 	bool realGoalPending_ = false; // ...and its replay / freeplay reset has not come yet
+	// A real goal's reset is still to come. Unlike realGoalPending_ this outlives a new rep: a restart while the goal
+	// plays can't move the exploded ball, so the rep is put back when the reset comes (onRoundReset).
+	bool goalResetDue_ = false;
+	uint64_t goalResetDueTick_ = 0;
+	bool ballControls_ = false;
 	bool ballExploded_ = false; // the ball was exploded; respawn it before the next rep
 	// The last ticks of ball and local car during a rep: a freeplay reset puts them back (onRoundReset).
 	struct RecentState

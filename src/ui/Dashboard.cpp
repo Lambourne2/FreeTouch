@@ -6994,12 +6994,14 @@ void Dashboard::renderSettings(const DashboardModel& m, const DashboardStatus& s
 
 	// The controller's Select button: one of Free Touch's actions (ft_select_command). Its own bind comes back when
 	// Free Touch unloads.
-	settingRow("Select button", "What the controller's Select (Back / View) button does in a drill. Outside one, drill-only "
-		"actions open Free Touch instead.");
+	settingRow("Select button", "What the controller's Select (Back / View) button does in a drill. Ball controls swaps the "
+		"drill buttons for your usual freeplay controls (BakkesMod's or Epic's) and back. Outside a drill, drill-only actions "
+		"open Free Touch instead.");
 	{
 		struct Action { const char* command; const char* label; bool dev; };
 		static const Action kActions[] = {
-			{"ft_menu", "Open the menu", false}, {"ft_retry", "Reset the shot", false}, {"ft_next", "Next shot", false},
+			{"ft_ball_controls", "Ball controls", false}, {"ft_menu", "Open the menu", false},
+			{"ft_retry", "Reset the shot", false}, {"ft_next", "Next shot", false},
 			{"ft_prev", "Previous shot", false}, {"ft_stop", "Stop", false}, {"ft_slowmo", "Slow motion", false},
 			{"ft_capture", "Save this moment", false}, {"ft_record", "Record", false}, {"ft_warmup", "Warm-up", false},
 			{"", "Nothing", false}, {"ft_mark", "Mark a mechanic", true}};

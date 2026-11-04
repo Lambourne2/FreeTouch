@@ -186,22 +186,19 @@ void FreeTouch::onLoad()
 	// (cpt_do_checkpoint on Lambourne's PC) comes back on unload.
 	// The arena Free Touch loads when an exercise is started from the main menu.
 	cvarManager->registerCvar("ft_freeplay_map", "Stadium_P", "Map Free Touch loads for Free Play from the main menu");
-	auto selectCommand = cvarManager->registerCvar("ft_select_command", "ft_next",
+	auto selectCommand = cvarManager->registerCvar("ft_select_command", "ft_ball_controls",
 		"Console command the controller's Select button runs while Free Touch is loaded (quick testing)");
 	if (selectCommand.getStringValue() == "ft_test_hide_next") // saved value from the removed hide test
-		selectCommand.setValue("ft_next");
+		selectCommand.setValue("ft_ball_controls");
 	if (selectCommand.getStringValue() == "ft_dump; ft_capture") // saved value from the capture test
-		selectCommand.setValue("ft_next");
-	// While the mechanic detectors are being tuned, Select marks a missed / misnamed mechanic (ft_mark); D-pad right
-	// still skips to the next rep in exercises.
-	if (selectCommand.getStringValue() == "ft_next")
-		selectCommand.setValue("ft_mark");
+		selectCommand.setValue("ft_ball_controls");
 	cvarManager->registerNotifier("ft_select", [this](std::vector<std::string>) {
 		const std::string command = cvarManager->getCvar("ft_select_command").getStringValue();
 		// Outside a drill, an action that only means something in one opens Free Touch instead: on a controller
 		// nothing else does (2026-10-30). Actions that work anywhere (save this moment, record, warm-up, the menu),
 		// Nothing, and test commands keep doing what they say.
-		static const std::set<std::string> kDrillOnly = {"ft_next", "ft_prev", "ft_retry", "ft_stop", "ft_slowmo", "ft_mark"};
+		static const std::set<std::string> kDrillOnly = {"ft_ball_controls", "ft_next", "ft_prev", "ft_retry", "ft_stop",
+			"ft_slowmo", "ft_mark"};
 		if (kDrillOnly.count(command) && !drillRunning())
 		{
 			eventLog_.write("select_pressed", {{"command", command}, {"opened", !isWindowOpen_}});
@@ -237,6 +234,12 @@ void FreeTouch::onLoad()
 		game_->dataFolder() / "freetouch" / "settings" / "bindings.json");
 	controls_->load();
 	player_->setActiveListener([this](bool active) {
+		if (!active && ballControls_)
+		{
+			ballControls_ = false; // a new drill starts on its own buttons
+			player_->setBallControls(false);
+			controlsPopup_ = static_cast<int>(ControlsPopup::None);
+		}
 		controls_->setActive(active);
 		exerciseBindsOn_ = active;
 		updateFreeplayBindings();
@@ -740,6 +743,7 @@ void FreeTouch::onLoad()
 			leaveReplay(); // R3 back to the player's own bind
 		drawReplayHint(canvas, s);
 		drawWelcome(canvas);
+		drawControlsPopup(canvas);
 		if (s.paused)
 		{
 			hud_.drawFeed(canvas); // hints only (a training shot waiting frozen counts as paused)
@@ -837,6 +841,16 @@ void FreeTouch::onLoad()
 		});
 	}, "Start a scenario: ft_play <scenario id> [easy|medium|hard] [seed]", PERMISSION_ALL);
 
+	cvarManager->registerNotifier("ft_ball_controls", [this](std::vector<std::string>) {
+		game_->runOnGameThread([this] {
+			if (isWindowOpen_ || !drillRunning())
+				return;
+			if (ballControlsAllowed())
+				setBallControls(!ballControls_);
+			else
+				showControlsPopup(ControlsPopup::NotHere);
+		});
+	}, "In a drill: swap Free Touch's drill buttons for your own freeplay ball controls (BakkesMod's or Epic's) and back", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_retry", [this](std::vector<std::string>) {
 		game_->runOnGameThread([this] { player_->retry(); });
 	}, "Retry the current rep (same seed)", PERMISSION_ALL);
@@ -1669,6 +1683,90 @@ void FreeTouch::pollWelcome()
 	game_->runAfter(2.f, [this] { pollWelcome(); });
 }
 
+bool FreeTouch::ballControlsAllowed() const
+{
+	return !(daily_ && daily_->active()) && player_->status().scenarioId.rfind("races.", 0) != 0;
+}
+
+bool FreeTouch::bakkesBallControls() const
+{
+	// The player's own setting: while Free Touch holds the cvar, the value it replaced.
+	constexpr auto kBindings = "sv_freeplay_bindings";
+	const auto& held = settings_->originalCvars();
+	if (const auto it = held.find(kBindings); it != held.end())
+		return std::atof(it->second.c_str()) != 0.0;
+	CVarWrapper cvar = cvarManager->getCvar(kBindings);
+	return !cvar.IsNull() && cvar.getBoolValue();
+}
+
+void FreeTouch::setBallControls(bool on)
+{
+	if (on == ballControls_ || !controls_)
+		return;
+	ballControls_ = on;
+	player_->setBallControls(on);
+	// Off with the drill's binds and the cvar goes back: the D-pad does what it does outside Free Touch.
+	controls_->setActive(!on);
+	exerciseBindsOn_ = !on;
+	updateFreeplayBindings();
+	playMenuSound("ui_toggle");
+	showControlsPopup(on ? ControlsPopup::BallOn : ControlsPopup::DrillButtons);
+	eventLog_.write("ball_controls", {{"on", on}, {"default", bakkesBallControls() ? "bakkesmod" : "epic"},
+		{"exercise", player_->status().scenarioId}});
+}
+
+void FreeTouch::showControlsPopup(ControlsPopup which)
+{
+	const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count();
+	controlsPopupBakkes_ = bakkesBallControls();
+	controlsPopup_ = static_cast<int>(which);
+	controlsPopupUntilMs_ = nowMs + 3500;
+}
+
+void FreeTouch::drawControlsPopup(Canvas& c)
+{
+	// A card under the HUD's strip: which controls the D-pad has now. Fades out; while the ball controls stay on, a small
+	// reminder stays in its place (nothing else on screen says the drill buttons are off).
+	const auto which = static_cast<ControlsPopup>(controlsPopup_.load());
+	if (which == ControlsPopup::None)
+		return;
+	const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::steady_clock::now().time_since_epoch()).count();
+	const long long left = controlsPopupUntilMs_ - nowMs;
+	const float k = c.height() / 1080.f;
+	const std::string name = controlsPopupBakkes_ ? "BAKKESMOD" : "EPIC";
+	if (left <= 0)
+	{
+		if (which != ControlsPopup::BallOn)
+			return;
+		const std::string tag = "BALL CONTROLS: " + name + "   |   SELECT: DRILL BUTTONS";
+		float w = 0, h = 0;
+		c.textSize(tag, 0.9f * k, w, h);
+		const float x = (c.width() - w) * 0.5f, y = 104.f * k;
+		c.fillRect(x - 14.f * k, y - 6.f * k, w + 28.f * k, h + 12.f * k, Rgba{10, 13, 20, 150});
+		c.text(x, y, tag, 0.9f * k, Rgba{240, 244, 250, 220});
+		return;
+	}
+	const float alpha = std::min(1.f, left / 600.f);
+	const auto a = [alpha](int v) { return static_cast<unsigned char>(v * alpha); };
+	const Rgba accent{255, 170, 60, a(255)}, teal{44, 217, 196, a(255)};
+	const std::string title = which == ControlsPopup::BallOn ? "BALL CONTROLS ON"
+		: which == ControlsPopup::DrillButtons ? "FREE TOUCH CONTROLS" : "BALL CONTROLS ARE OFF HERE";
+	const std::string line = which == ControlsPopup::BallOn ? "Your default: " + std::string(controlsPopupBakkes_ ? "BakkesMod" : "Epic") + " controls"
+		: which == ControlsPopup::DrillButtons ? "Next shot, last shot, slow motion" : "Not in the Daily Challenge or races";
+	float tw = 0, th = 0, lw = 0, lh = 0;
+	c.textSize(title, 1.5f * k, tw, th);
+	c.textSize(line, 1.1f * k, lw, lh);
+	const float padX = 30.f * k, padY = 14.f * k, gap = 7.f * k;
+	const float w = std::max(tw, lw) + padX * 2.f, h = th + gap + lh + padY * 2.f;
+	const float x = (c.width() - w) * 0.5f, y = 104.f * k;
+	c.fillRect(x, y, w, h, Rgba{10, 13, 20, a(225)});
+	c.fillRect(x, y + h - 3.f * k, w, 3.f * k, which == ControlsPopup::DrillButtons ? teal : accent);
+	c.text((c.width() - tw) * 0.5f, y + padY, title, 1.5f * k, which == ControlsPopup::DrillButtons ? teal : accent);
+	c.text((c.width() - lw) * 0.5f, y + padY + th + gap, line, 1.1f * k, Rgba{240, 244, 250, a(255)});
+}
+
 void FreeTouch::drawWelcome(Canvas& c)
 {
 	// "FREE TOUCH | Press F7 to open it": a card at the top middle, fading out over its last second; gone for good once
@@ -1748,6 +1846,15 @@ void FreeTouch::loadUiSettings()
 			if (id.is_string())
 				tutorialsSeen_.insert(id.get<std::string>());
 		devTools_ = doc.value("devTools", false);
+		// Select's new default reaches players whose saved action was the old default (once: after this, what they
+		// pick stays).
+		if (!doc.value("selectBallControls", false))
+			if (CVarWrapper select = cvarManager->getCvar("ft_select_command"); !select.IsNull())
+			{
+				const std::string was = select.getStringValue();
+				if (was == "ft_mark" || was == "ft_next")
+					select.setValue("ft_ball_controls");
+			}
 		// Players from before 2026-10-30 who got past the first-run steps have opened it.
 		menuOpened_ = doc.value("menuOpened", firstRunDone_ || !tutorialsSeen_.empty());
 		autoUpdate_ = doc.value("autoUpdate", true);
@@ -1811,6 +1918,7 @@ void FreeTouch::saveUiSettings()
 		{"tutorialsSeen", tutorialsSeen_},
 		{"devTools", devTools_},
 		{"menuOpened", menuOpened_},
+		{"selectBallControls", true},
 		{"autoUpdate", autoUpdate_},
 		{"mechanicsFeed", mechanicsFeed_},
 		{"defender", defender_},
@@ -2434,7 +2542,8 @@ void FreeTouch::updatePracticeSpeed()
 {
 	// The slow-motion and clutch buttons are read from the key state (hold works); the game speed changes only
 	// when the wanted speed does, and goes back to the original value (normal speed) through the SettingSwapper.
-	const bool active = player_ && player_->status().active && game_->inFreeplay();
+	// (The ball controls have the D-pad: its slow-motion button is theirs then.)
+	const bool active = player_ && player_->status().active && game_->inFreeplay() && !ballControls_;
 	bool slowHeld = false, clutchHeld = false;
 	if (active)
 	{

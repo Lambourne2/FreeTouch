@@ -21,6 +21,9 @@ namespace goalguard
 	// (Lambourne 2026-10-20: 22 in his logs, each with freeplay's slow motion and replay).
 	constexpr float kLookaheadTicks = 2.f;
 
+	// The ball's centre is past a goal line: in a net, a place no shot starts from.
+	inline bool pastLine(const Vec3& ball) { return std::fabs(ball.y) > kGoalLineY; }
+
 	struct Catch
 	{
 		bool caught = false;

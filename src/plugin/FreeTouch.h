@@ -160,6 +160,19 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	// The controller's Select outside a drill: drill-only actions open Free Touch instead (nothing else opens it on a
 	// pad).
 	bool drillRunning() const;
+	// Select in a drill (ft_ball_controls, the default since 2026-11-03): swaps Free Touch's drill buttons for the
+	// player's own freeplay ball controls and back, with a popup saying which. Their own are BakkesMod's or Epic's
+	// (sv_freeplay_bindings as they have it). Not in the Daily or races: the ball controls would help on a leaderboard.
+	bool ballControls_ = false;
+	bool ballControlsAllowed() const;
+	bool bakkesBallControls() const;
+	void setBallControls(bool on);
+	enum class ControlsPopup { None, BallOn, DrillButtons, NotHere };
+	std::atomic<int> controlsPopup_{0};
+	std::atomic<bool> controlsPopupBakkes_{false};
+	std::atomic<long long> controlsPopupUntilMs_{0};
+	void showControlsPopup(ControlsPopup which);
+	void drawControlsPopup(Canvas& c);
 	std::string defender_ = "psyonix"; // settings/ui.json "defender": psyonix | necto
 	std::string packDefender_;         // settings/ui.json "packDefender": "" (none) | psyonix | necto | nexto
 	std::string packTarget_;           // settings/ui.json "packTarget": "" (whole net) | pick | tile (random) | moving

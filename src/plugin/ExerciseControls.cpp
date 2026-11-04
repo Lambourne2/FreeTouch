@@ -11,7 +11,7 @@ namespace
 {
 	constexpr float kPollSeconds = 0.02f;
 	constexpr int kPollLimit = 500;                          // 10 s
-	constexpr auto kQuickTestKey = "XboxTypeS_Back";         // Select stays the quick-test button
+	constexpr auto kQuickTestKey = "XboxTypeS_Back";         // Select runs ft_select_command
 	constexpr auto kCancelKey = "Escape";
 	std::string labelOf(const std::string& actionId)
 	{
@@ -83,7 +83,7 @@ bool ExerciseControls::assign(const std::string& actionId, const std::string& ke
 {
 	if (key == kQuickTestKey)
 	{
-		message = "Select is the quick-test button; pick another one.";
+		message = "Select has its own action (Settings, Select button); pick another one.";
 		return false;
 	}
 	if (const std::string other = controls_.actionUsing(key, actionId); !other.empty())
