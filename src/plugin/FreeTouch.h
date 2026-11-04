@@ -151,6 +151,8 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	// The welcome toast ("press F7 to open Free Touch") shows on entering freeplay until the player has opened Free
 	// Touch once (settings/ui.json "menuOpened").
 	bool menuOpened_ = false;
+	std::string patchNotesSeen_; // settings/ui.json "patchNotesSeen": the newest update the window has shown
+	hudbar::Options hudBar_;     // settings/ui.json "hudBar": the drill bar's style
 	bool welcomeWasFreeplay_ = false;
 	bool welcomeAfterLoad_ = false; // the hint a few seconds after loading has been shown (the main menu, usually)
 	// The hint is drawn on screen (BakkesMod's own toasts are off by default): until this steady-clock time, in ms.
@@ -167,6 +169,7 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	bool ballControlsAllowed() const;
 	bool bakkesBallControls() const;
 	void setBallControls(bool on);
+	void guardBallAction();
 	enum class ControlsPopup { None, BallOn, DrillButtons, NotHere };
 	std::atomic<int> controlsPopup_{0};
 	std::atomic<bool> controlsPopupBakkes_{false};
@@ -220,9 +223,6 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	void startDailyNow();
 	// BakkesMod's freeplay bindings on while a drill runs or the menu is open (the game's own freeplay D-pad ball
 	// actions off), the player's setting back after.
-	void updateFreeplayBindings();
-	bool exerciseBindsOn_ = false;
-	bool freeplayBindingsOn_ = false;
 	// Online upkeep (game thread): sign-in changes, the activity friends see (every 5 min, or a minute after training),
 	// the friends list while the menu is open (every 2 min).
 	void tickOnline();
@@ -256,6 +256,10 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	void sharePublishToken(int64_t now);
 #endif
 	void loadAccountOnce();
+	long long menuClosedMs_ = 0; // steady-clock ms: the press that closed the window can't open it again
+	std::filesystem::path accountFile();
+	std::chrono::steady_clock::time_point accountNextTry_{};
+	int accountWaits_ = 0;
 	void saveAccount();
 	int noticeSeq_ = 0;
 	void notice(const std::string& text);

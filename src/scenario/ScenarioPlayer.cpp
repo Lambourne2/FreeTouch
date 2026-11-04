@@ -324,6 +324,8 @@ bool ScenarioPlayer::apply(const Entry& entry, const std::string& reason, bool k
 	if (reason != "game_reset")
 		++rep_;
 	recent_.clear(); // an undone reset goes back within this rep, never into the one before
+	if (!keepBall)
+		guardBall_ = r.ball;
 	repStartTick_ = lastTick_;
 	touches_ = 0;
 	goalHeld_ = false;
@@ -504,6 +506,19 @@ void ScenarioPlayer::onTick(const Snapshot& snap)
 	lastTick_ = snap.tick;
 	if (!current_)
 		return;
+	// Epic's ball action on a drill button: it moved the ball further than it could have flown (guardBallAction).
+	if (snap.ball)
+	{
+		if (guardBall_ && snap.tick < ballGuardUntilTick_ && !goalResetDue_ && !ballExploded_
+			&& (snap.ball->location - guardBall_->location).length() > guardBall_->velocity.length() / kTicksPerSecond + 300.f)
+		{
+			log_.write("game_ball_action_undone", {{"exercise", current_->id}, {"rep", rep_},
+				{"ball", statejson::toJson(snap.ball->location)}, {"back", statejson::toJson(guardBall_->location)}});
+			game_.setBall(*guardBall_);
+			return;
+		}
+		guardBall_ = BallTarget{snap.ball->location, snap.ball->velocity, snap.ball->angularVelocity};
+	}
 	// The last few ticks of ball and car, to undo a freeplay reset (onRoundReset).
 	if (snap.ball && snap.localCar())
 	{

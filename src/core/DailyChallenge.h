@@ -228,6 +228,17 @@ namespace daily
 		return a;
 	}
 
+	// settings/daily.json's days. A named copy: items() only refers to its json, and a temporary is gone before the loop
+	// runs (every daily.json failed to load, was set aside and took the streak with it; found 2026-11-03).
+	inline std::map<std::string, Attempt> attemptsFromJson(const nlohmann::json& doc)
+	{
+		std::map<std::string, Attempt> out;
+		const nlohmann::json days = doc.value("days", nlohmann::json::object());
+		for (const auto& [date, a] : days.items())
+			out[date] = attemptFromJson(date, a);
+		return out;
+	}
+
 	// Days in a row with a finished daily, ending today (or yesterday, while today's is not finished yet).
 	inline int streak(const std::map<std::string, Attempt>& days, const std::string& today)
 	{

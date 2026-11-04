@@ -270,6 +270,26 @@ void Account::retry(int64_t now)
 	refresh([this] { fetchProfile(); });
 }
 
+void Account::retryIfStuck(int64_t now)
+{
+	if (!busy_)
+	{
+		stuckSince_ = 0;
+		return;
+	}
+	if (stuckSince_ == 0)
+		stuckSince_ = now;
+	if (now - stuckSince_ < 30)
+		return;
+	stuckSince_ = 0;
+	log_("account_stuck_retry", {{"signedIn", signedIn_}});
+	busy_ = false;
+	if (!signedIn_)
+		retry(now);
+	else if (changed_)
+		changed_();
+}
+
 Account::View Account::view() const
 {
 	View v;

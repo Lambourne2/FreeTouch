@@ -7,6 +7,7 @@
 #include "core/Canvas.h"
 #include "core/SessionRunner.h"
 #include "scenario/ScenarioPlayer.h"
+#include "ui/HudBar.h"
 
 // On-screen strip during exercises: exercise, rep number, timer, streak, difficulty, and a big feedback flash
 // (GOAL / CONCEDED / SAVED / TIME) when a rep is judged. Drawn every frame through Canvas (game thread). No SDK.
@@ -14,6 +15,8 @@ class Hud
 {
 public:
 	void draw(Canvas& canvas, const ScenarioPlayer::Status& status, const SessionRunner::Status& session);
+	// The bar's style (Settings > Drill bar).
+	void setBarOptions(const hudbar::Options& options) { barOptions_ = options; }
 	// The game speed when practice slow motion is on (1 = normal: nothing shown).
 	void setGameSpeed(float speed) { gameSpeed_ = speed; }
 	// Mechanics feed (left side, in freeplay and exercises): the mechanics the player just did, fading out.
@@ -42,7 +45,8 @@ private:
 	float hintSeconds_ = 0.f;
 	std::chrono::steady_clock::time_point hintAt_{};
 	void drawHint(Canvas& c);
-	void drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k);
+	hudbar::Placed drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k);
+	hudbar::Options barOptions_;
 	void drawFlash(Canvas& c, float k);
 	void drawObjective(Canvas& c, const ScenarioPlayer::Status& s, float k, float lineY);
 	void drawReadCard(Canvas& c, const ScenarioPlayer::Status& s, float k);

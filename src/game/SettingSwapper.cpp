@@ -21,9 +21,12 @@ int SettingSwapper::recoverFromCrash()
 		const auto saved = nlohmann::json::parse(in);
 		if (saved.contains("binds") || saved.contains("cvars"))
 		{
-			for (const auto& [k, v] : saved.value("binds", nlohmann::json::object()).items())
-				binds_[k] = v.get<std::string>();
-			for (const auto& [k, v] : saved.value("cvars", nlohmann::json::object()).items())
+			// Named copies: items() only refers to its json, and a temporary is gone before the loop runs.
+			const nlohmann::json binds = saved.value("binds", nlohmann::json::object());
+			const nlohmann::json cvars = saved.value("cvars", nlohmann::json::object());
+			for (const auto& [k, v] : binds.items())
+				binds_[k] = playersBind(k, v.get<std::string>());
+			for (const auto& [k, v] : cvars.items())
 				cvars_[k] = v.get<std::string>();
 		}
 		else
@@ -46,10 +49,25 @@ void SettingSwapper::setBind(const std::string& key, const std::string& command)
 {
 	if (!binds_.contains(key))
 	{
-		binds_[key] = cvarManager_->getBindStringForKey(key);
+		binds_[key] = playersBind(key, cvarManager_->getBindStringForKey(key));
 		save();
 	}
 	cvarManager_->setBind(key, command);
+}
+
+bool SettingSwapper::repairLeftover(const std::string& key)
+{
+	if (binds_.contains(key))
+		return false;
+	const std::string bind = cvarManager_->getBindStringForKey(key);
+	if (bind.rfind("ft_", 0) != 0)
+		return false;
+	const std::string stock = stockBind(key);
+	if (stock.empty())
+		cvarManager_->removeBind(key);
+	else
+		cvarManager_->setBind(key, stock);
+	return true;
 }
 
 void SettingSwapper::restoreBind(const std::string& key)

@@ -257,8 +257,7 @@ bool DailyRunner::lockFromService(const std::string& date, int number, const std
 void DailyRunner::loadAttempts(const nlohmann::json& doc)
 {
 	attempts_.clear();
-	for (const auto& [date, a] : doc.value("days", nlohmann::json::object()).items())
-		attempts_[date] = daily::attemptFromJson(date, a);
+	attempts_ = daily::attemptsFromJson(doc);
 }
 
 nlohmann::json DailyRunner::attemptsJson() const

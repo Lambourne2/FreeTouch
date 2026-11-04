@@ -49,6 +49,9 @@ public:
 	void setGoalReplays(bool on) { goalReplays_ = on; }
 	// Select's ball controls are on: the player's own freeplay controls are live, so a freeplay reset is theirs to keep.
 	void setBallControls(bool on) { ballControls_ = on; }
+	// A drill button was pressed on Epic's controls: for the next moment, a ball that jumps (the game's own ball action
+	// on the same button) goes back.
+	void guardBallAction() { ballGuardUntilTick_ = lastTick_ + 12; }
 	// Training packs: a defender in the orange net on every pack ("" none, or psyonix / necto / nexto).
 	void setPackDefender(const std::string& type) { packDefender_ = type; }
 	// Training packs: only part of the net counts ("" whole net, "tile" one lit tile per shot, "moving" a lit tile
@@ -441,6 +444,8 @@ private:
 	bool goalResetDue_ = false;
 	uint64_t goalResetDueTick_ = 0;
 	bool ballControls_ = false;
+	uint64_t ballGuardUntilTick_ = 0;
+	std::optional<BallTarget> guardBall_; // the ball as it should be (the last tick's, or the rep's start)
 	bool ballExploded_ = false; // the ball was exploded; respawn it before the next rep
 	// The last ticks of ball and local car during a rep: a freeplay reset puts them back (onRoundReset).
 	struct RecentState

@@ -124,6 +124,9 @@ public:
 
 	// Puts a file on the Windows clipboard as a file (Explorer's Copy), so Ctrl+V in Discord attaches it. Any thread.
 	virtual bool copyFileToClipboard(const std::filesystem::path& file) { (void)file; return false; }
+	// Whether F7 (the menu key) is held down right now, read from Windows: the menu's own window keeps the keyboard from
+	// the game's binds while it's open. Only while the game has the focus. Any thread.
+	virtual bool menuKeyHeld() { return false; }
 	// Opens an https:// page in the player's browser (Settings > Support). False if it couldn't. Any thread.
 	virtual bool openWebPage(const std::string& url) { (void)url; return false; }
 	// The user's Downloads folder ("" if unknown): where a shot shared in Discord lands.

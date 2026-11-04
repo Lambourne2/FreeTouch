@@ -121,10 +121,10 @@ void Hud::draw(Canvas& canvas, const ScenarioPlayer::Status& status, const Sessi
 		return;
 	}
 	const float k = canvas.height() / 1080.f; // layout is designed at 1080p
-	drawStrip(canvas, status, k);
+	const hudbar::Placed placed = drawStrip(canvas, status, k);
 	if (status.map.show)
 		drawPlayMap(canvas, status.map, k);
-	float lineY = 16.f * k + 64.f * k + 6.f * k; // first line under the strip
+	float lineY = placed.underY; // first line under the strip
 	if (session.active)
 	{
 		// Session line under the strip: name, time left, exercise n of m.
@@ -137,7 +137,7 @@ void Hud::draw(Canvas& canvas, const ScenarioPlayer::Status& status, const Sessi
 				left / 60, left % 60, session.exerciseIndex, session.exerciseCount);
 		float w = 0, h = 0;
 		canvas.textSize(line, 1.05f * k, w, h);
-		const float x = (canvas.width() - w) * 0.5f, y = 16.f * k + 64.f * k + 6.f * k;
+		const float x = (canvas.width() - w) * 0.5f, y = placed.underY;
 		canvas.fillRect(x - 14.f * k, y - 4.f * k, w + 28.f * k, h + 8.f * k, Rgba{12, 15, 21, 170});
 		canvas.text(x, y, line, 1.05f * k, accent());
 		lineY = y + h + 12.f * k;
@@ -176,7 +176,7 @@ void Hud::draw(Canvas& canvas, const ScenarioPlayer::Status& status, const Sessi
 		snprintf(buf, sizeof(buf), "SLOW %d%%", static_cast<int>(gameSpeed_ * 100.f + 0.5f));
 		float w = 0, h = 0;
 		canvas.textSize(buf, 1.3f * k, w, h);
-		const float x = (canvas.width() + 820.f * k) * 0.5f + 14.f * k, y = 16.f * k + 18.f * k;
+		const float x = placed.sideX, y = placed.sideY;
 		canvas.fillRect(x - 10.f * k, y - 6.f * k, w + 20.f * k, h + 12.f * k, kPanel);
 		canvas.fillRect(x - 10.f * k, y + h + 3.f * k, w + 20.f * k, 3.f * k, Rgba{255, 196, 70, 255});
 		canvas.text(x, y, buf, 1.3f * k, Rgba{255, 196, 70, 255});
@@ -335,13 +335,8 @@ void Hud::drawReadCard(Canvas& c, const ScenarioPlayer::Status& s, float k)
 	}
 }
 
-void Hud::drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k)
+hudbar::Placed Hud::drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k)
 {
-	const float w = 820.f * k, h = 64.f * k;
-	const float x = (c.width() - w) * 0.5f, y = 16.f * k;
-	c.fillRect(x, y, w, h, kPanel);
-	c.fillRect(x, y + h - 3.f * k, w, 3.f * k, accent());
-
 	char time[48];
 	if (s.timeLimitSeconds > 0.0 && s.clockCountsDown)
 		snprintf(time, sizeof(time), "%.1f s left", std::max(0.0, s.timeLimitSeconds - s.repSeconds));
@@ -350,49 +345,22 @@ void Hud::drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k)
 	else
 		snprintf(time, sizeof(time), "%.1f s", s.repSeconds);
 
-	struct Cell { const char* label; std::string value; Rgba color; float share; };
+	using Cell = hudbar::Cell;
 	const Rgba timeColor = !s.hasResult ? kText : s.outcome > 0 ? accent() : s.outcome < 0 ? kFail : kDim;
-	const Cell cells[] = {
-		{"EXERCISE", s.scenarioName, kText, 2.6f},
-		{"REP", std::to_string(s.rep), kText, 0.8f},
-		{"TIME", time, timeColor, 1.3f},
-		// Bowling shows the pins down; timed drills show the personal best instead of the streak.
-		s.tank >= 0.f ? Cell{"TANK", std::to_string(static_cast<int>(s.tank + 0.5f)), s.tank < 20.f ? kFail : kText, 0.9f}
+	hudbar::Bar bar;
+	bar.exercise = {"EXERCISE", s.scenarioName, kText};
+	bar.rep = {"REP", std::to_string(s.rep), kText};
+	bar.time = {"TIME", time, timeColor};
+	// Bowling shows the pins down; timed drills show the personal best instead of the streak.
+	bar.stat = s.tank >= 0.f ? Cell{"TANK", std::to_string(static_cast<int>(s.tank + 0.5f)), s.tank < 20.f ? kFail : kText}
 		: s.pinsTotal > 0 ? Cell{"PINS", std::to_string(s.pinsDown) + " / " + std::to_string(s.pinsTotal) + "   T" +
-			std::to_string(s.frameThrow) + "/" + std::to_string(s.frameThrows), s.pinsDown == s.pinsTotal ? accent() : kText, 0.9f}
+			std::to_string(s.frameThrow) + "/" + std::to_string(s.frameThrows), s.pinsDown == s.pinsTotal ? accent() : kText}
 		: s.objectsTotal > 0 ? Cell{"BROKEN", std::to_string(s.objectsHit) + " / " + std::to_string(s.objectsTotal),
-			s.objectsHit == s.objectsTotal ? accent() : kText, 0.9f}
-		: s.timed ? Cell{"BEST", s.bestSeconds > 0.0 ? fmtSeconds(s.bestSeconds) : std::string("-"), s.newBest ? accent() : kText, 0.9f}
-			: Cell{"STREAK", std::to_string(s.streak), s.streak > 0 ? accent() : kText, 0.9f},
-		{"LEVEL", upper(s.difficulty), kText, 1.0f},
-	};
-	float total = 0.f;
-	for (const auto& cell : cells)
-		total += cell.share;
-
-	const float pad = 18.f * k;
-	float cx = x + pad;
-	const float usable = w - 2 * pad;
-	for (size_t i = 0; i < std::size(cells); ++i)
-	{
-		const auto& cell = cells[i];
-		const float cw = usable * cell.share / total;
-		c.text(cx, y + 9.f * k, cell.label, 0.85f * k, kDim, false);
-		std::string value = cell.value;
-		// Keep long exercise names inside their cell: smaller first (down to 70%), cut only if still too long.
-		const float scale = std::max(1.f * k, fitScale(c, value, 1.45f * k, cw - 8.f * k));
-		float tw = 0, th = 0;
-		c.textSize(value, scale, tw, th);
-		while (value.size() > 4 && tw > cw - 8.f * k)
-		{
-			value = value.substr(0, value.size() - 4) + "...";
-			c.textSize(value, scale, tw, th);
-		}
-		c.text(cx, y + 26.f * k + (1.45f * k - scale) * 8.f, value, scale, cell.color);
-		if (i + 1 < std::size(cells))
-			c.fillRect(cx + cw - 10.f * k, y + 12.f * k, 1.f, h - 24.f * k, Rgba{255, 255, 255, 30});
-		cx += cw;
-	}
+			s.objectsHit == s.objectsTotal ? accent() : kText}
+		: s.timed ? Cell{"BEST", s.bestSeconds > 0.0 ? fmtSeconds(s.bestSeconds) : std::string("-"), s.newBest ? accent() : kText}
+			: Cell{"STREAK", std::to_string(s.streak), s.streak > 0 ? accent() : kText};
+	bar.level = {"LEVEL", upper(s.difficulty), kText};
+	return hudbar::draw(c, bar, barOptions_, k, accent());
 }
 
 void Hud::pushMechanic(const std::string& label, float kmh, int points, bool force)

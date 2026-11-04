@@ -233,6 +233,19 @@ void FreeTouch::onLoad()
 	controls_ = std::make_unique<ExerciseControls>(*game_, *settings_, eventLog_,
 		game_->dataFolder() / "freetouch" / "settings" / "bindings.json");
 	controls_->load();
+	{
+		// Binds a crash left behind (recovery couldn't read its backup before 2026-11-03): the drill and menu keys only.
+		std::set<std::string> keys = {"XboxTypeS_DPad_Up", "XboxTypeS_DPad_Down", "XboxTypeS_DPad_Left", "XboxTypeS_DPad_Right",
+			"XboxTypeS_RightThumbStick", "XboxTypeS_A", "XboxTypeS_B", "XboxTypeS_Start"};
+		for (const auto& a : Controls::actions())
+			if (const std::string key = controls_->controls().keyFor(a.id); !key.empty())
+				keys.insert(key);
+		int repaired = 0;
+		for (const auto& key : keys)
+			repaired += settings_->repairLeftover(key) ? 1 : 0;
+		if (repaired > 0)
+			eventLog_.write("binds_repaired", {{"count", repaired}});
+	}
 	player_->setActiveListener([this](bool active) {
 		if (!active && ballControls_)
 		{
@@ -241,8 +254,6 @@ void FreeTouch::onLoad()
 			controlsPopup_ = static_cast<int>(ControlsPopup::None);
 		}
 		controls_->setActive(active);
-		exerciseBindsOn_ = active;
-		updateFreeplayBindings();
 		if (!active)
 		{
 			saveHistory();
@@ -353,6 +364,24 @@ void FreeTouch::onLoad()
 	};
 	dash.dismissSummary = [this] { game_->runOnGameThread([this] { session_->clearSummary(); publishStatus(); }); };
 	dash.refreshControls = [this] { game_->runOnGameThread([this] { refreshControls(); }); };
+	dash.hudBarChanged = [this](const hudbar::Options& options) {
+		game_->runOnGameThread([this, options] {
+			hudBar_ = options;
+			hud_.setBarOptions(hudBar_);
+			saveUiSettings();
+			eventLog_.write("hud_bar", {{"style", hudbar::styleId(options.style)}, {"size", options.size}, {"opacity", options.opacity},
+				{"name", options.showName}, {"level", options.showLevel}});
+			publishStatus();
+		});
+	};
+	dash.patchNotesSeen = [this](const std::string& id) {
+		game_->runOnGameThread([this, id] {
+			patchNotesSeen_ = id;
+			saveUiSettings();
+			eventLog_.write("patch_notes_seen", {{"id", id}});
+			publishStatus();
+		});
+	};
 	dash.tutorialSeen = [this](const std::string& id) {
 		game_->runOnGameThread([this, id] {
 			if (tutorialsSeen_.insert(id).second)
@@ -439,6 +468,7 @@ void FreeTouch::onLoad()
 	dash.dismissOnlineShot = [this](const std::string& delivery) {
 		game_->runOnGameThread([this, delivery] { shots_->dismiss(delivery, static_cast<int64_t>(std::time(nullptr))); });
 	};
+	dash.menuKeyHeld = [this] { return game_->menuKeyHeld(); };
 	dash.openSupport = [this] {
 		game_->runOnGameThread([this] {
 			const bool ok = game_->openWebPage(online::kSupportUrl);
@@ -732,7 +762,10 @@ void FreeTouch::onLoad()
 			dashboard_->queueNav(args[1]);
 	}, "Controller navigation of the Free Touch window: ft_nav up|down|left|right|select|back|close", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_slowmo", [this](std::vector<std::string>) {
-		game_->runOnGameThread([this] { practice_.toggle(); });
+		game_->runOnGameThread([this] {
+			guardBallAction();
+			practice_.toggle();
+		});
 	}, "Toggle practice slow motion during an exercise", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_clutch", [this](std::vector<std::string>) {
 		// Held, not pressed: the clutch is read from the key state every tick.
@@ -763,11 +796,16 @@ void FreeTouch::onLoad()
 	});
 
 	cvarManager->registerNotifier("ft_menu", [this](std::vector<std::string>) {
+		const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()).count();
+		if (!isWindowOpen_ && nowMs - menuClosedMs_ < 300)
+			return; // the same press that just closed it
 		game_->runOnGameThread([this] { reloadPacksIfDirty(); });
 		cvarManager->executeCommand("togglemenu " + GetMenuName());
 	}, "Open or close the Free Touch window", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_back", [this](std::vector<std::string>) {
 		game_->runOnGameThread([this] {
+			guardBallAction();
 			// A double tap: the first press only arms it (a stray press mid-play does nothing), the second within
 			// half a second stops the exercise and opens the window.
 			const auto now = std::chrono::steady_clock::now();
@@ -856,6 +894,7 @@ void FreeTouch::onLoad()
 	}, "Retry the current rep (same seed)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_next", [this](std::vector<std::string>) {
 		game_->runOnGameThread([this] {
+			guardBallAction();
 			if (session_->active())
 				session_->next();
 			else
@@ -892,7 +931,10 @@ void FreeTouch::onLoad()
 		game_->runOnGameThread([this] { startInFreeplay([this] { startQuickPlay(); }, "warm-up"); });
 	}, "Start your warm-up: the next drill block in your Routine's warm-up section (as Home's Warm-up button)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_prev", [this](std::vector<std::string>) {
-		game_->runOnGameThread([this] { player_->previous(); });
+		game_->runOnGameThread([this] {
+			guardBallAction();
+			player_->previous();
+		});
 	}, "Go back to the previous rep (its seed)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_stop", [this](std::vector<std::string>) {
 		game_->runOnGameThread([this] { player_->stop(); LOG("Free Touch: stopped"); });
@@ -1093,6 +1135,8 @@ void FreeTouch::publishStatus()
 	d.firstRun = !firstRunDone_;
 	if (uiLoaded_)
 		d.tutorialsSeen = std::make_shared<const std::set<std::string>>(tutorialsSeen_);
+		d.patchNotesSeen = std::make_shared<const std::string>(patchNotesSeen_);
+		d.hudBar = hudBar_;
 	d.devTools = devTools_;
 	d.mechanicsFeed = mechanicsFeed_;
 	d.recording = recording_;
@@ -1104,6 +1148,9 @@ void FreeTouch::publishStatus()
 	if (account_)
 	{
 		d.account = account_->view();
+		// A saved account not yet read back reads as signing in, never as "Pick a name".
+		if (!accountStarted_ && d.account.state == Account::State::SignedOut && std::filesystem::exists(accountFile()))
+			d.account.state = Account::State::Working;
 		d.shareActivity = account_->shareActivity();
 	}
 	if (friends_)
@@ -1183,6 +1230,18 @@ void FreeTouch::publishDashboardModel(int errors, int warnings)
 		catch (const std::exception& e)
 		{
 			LOG("Tutorials: content/tutorials/tutorials.json could not be read ({})", e.what());
+		}
+	}
+	// The patch notes (content/updates/patch_notes.json).
+	if (std::ifstream pin(contentRoot() / "updates" / "patch_notes.json"); pin)
+	{
+		try
+		{
+			model->patchNotes = patchnotes::parse(nlohmann::json::parse(pin));
+		}
+		catch (const std::exception& e)
+		{
+			LOG("Patch notes: content/updates/patch_notes.json could not be read ({})", e.what());
 		}
 	}
 	model->contentErrors = errors;
@@ -1690,13 +1749,19 @@ bool FreeTouch::ballControlsAllowed() const
 
 bool FreeTouch::bakkesBallControls() const
 {
-	// The player's own setting: while Free Touch holds the cvar, the value it replaced.
-	constexpr auto kBindings = "sv_freeplay_bindings";
-	const auto& held = settings_->originalCvars();
-	if (const auto it = held.find(kBindings); it != held.end())
-		return std::atof(it->second.c_str()) != 0.0;
-	CVarWrapper cvar = cvarManager->getCvar(kBindings);
+	// Read only, never written: BakkesMod reloads freeplay (load_freeplay, a new map) every time this cvar is set. It
+	// was swapped when the menu opened or closed and a drill started or stopped, for Epic's controls (2026-10-29), which
+	// threw players between freeplays (Lambourne 2026-11-03). Epic's actions on Free Touch's buttons are undone instead:
+	// guardBallAction.
+	CVarWrapper cvar = cvarManager->getCvar("sv_freeplay_bindings");
 	return !cvar.IsNull() && cvar.getBoolValue();
+}
+
+void FreeTouch::guardBallAction()
+{
+	// A drill button on Epic's controls is also one of the game's ball actions (the D-pad), and the game's goes through.
+	if (player_ && !bakkesBallControls())
+		player_->guardBallAction();
 }
 
 void FreeTouch::setBallControls(bool on)
@@ -1705,10 +1770,8 @@ void FreeTouch::setBallControls(bool on)
 		return;
 	ballControls_ = on;
 	player_->setBallControls(on);
-	// Off with the drill's binds and the cvar goes back: the D-pad does what it does outside Free Touch.
+	// Off with the drill's binds: the D-pad does what it does outside Free Touch.
 	controls_->setActive(!on);
-	exerciseBindsOn_ = !on;
-	updateFreeplayBindings();
 	playMenuSound("ui_toggle");
 	showControlsPopup(on ? ControlsPopup::BallOn : ControlsPopup::DrillButtons);
 	eventLog_.write("ball_controls", {{"on", on}, {"default", bakkesBallControls() ? "bakkesmod" : "epic"},
@@ -1816,6 +1879,8 @@ void FreeTouch::OnClose()
 	PluginWindowBase::OnClose();
 	const long long nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
 		std::chrono::steady_clock::now().time_since_epoch()).count();
+	menuClosedMs_ = nowMs;
+	eventLog_.write("menu_closed", {{"byKey", game_ && game_->menuKeyHeld()}});
 	if (nowMs - lastConfirmMs_ > 600) // starting something already made its sound
 		playMenuSound("ui_close");
 }
@@ -1846,6 +1911,15 @@ void FreeTouch::loadUiSettings()
 			if (id.is_string())
 				tutorialsSeen_.insert(id.get<std::string>());
 		devTools_ = doc.value("devTools", false);
+		patchNotesSeen_ = doc.value("patchNotesSeen", "");
+		if (const auto bar = doc.find("hudBar"); bar != doc.end() && bar->is_object())
+		{
+			hudBar_.style = hudbar::styleFromId(bar->value("style", ""));
+			hudBar_.size = std::clamp(bar->value("size", 1.f), 0.7f, 1.4f);
+			hudBar_.opacity = std::clamp(bar->value("opacity", 1.f), 0.2f, 1.f);
+			hudBar_.showName = bar->value("name", true);
+			hudBar_.showLevel = bar->value("level", true);
+		}
 		// Select's new default reaches players whose saved action was the old default (once: after this, what they
 		// pick stays).
 		if (!doc.value("selectBallControls", false))
@@ -1903,6 +1977,7 @@ void FreeTouch::loadUiSettings()
 	player_->setPackTarget(packTarget_, packTileSize_, packTile_);
 	bots_->setDefender(defender_);
 	hud_.setFeedEnabled(feedVisible());
+	hud_.setBarOptions(hudBar_);
 }
 
 void FreeTouch::saveUiSettings()
@@ -1918,6 +1993,9 @@ void FreeTouch::saveUiSettings()
 		{"tutorialsSeen", tutorialsSeen_},
 		{"devTools", devTools_},
 		{"menuOpened", menuOpened_},
+		{"patchNotesSeen", patchNotesSeen_},
+		{"hudBar", {{"style", hudbar::styleId(hudBar_.style)}, {"size", hudBar_.size}, {"opacity", hudBar_.opacity},
+			{"name", hudBar_.showName}, {"level", hudBar_.showLevel}}},
 		{"selectBallControls", true},
 		{"autoUpdate", autoUpdate_},
 		{"mechanicsFeed", mechanicsFeed_},
@@ -2140,6 +2218,8 @@ void FreeTouch::pollOnline()
 	if (unloading_)
 		return;
 	loadAccountOnce();
+	if (account_)
+		account_->retryIfStuck(static_cast<int64_t>(std::time(nullptr)));
 	tickOnline();
 #if FT_SELF_UPDATE
 	// Updates: 30 s after start, then every 6 hours (not in an online match).
@@ -2264,24 +2344,53 @@ void FreeTouch::sharePublishToken(int64_t now)
 
 void FreeTouch::loadAccountOnce()
 {
-	// Sign back in with the saved session, once, and never during an online match.
-	if (accountStarted_ || !account_ || game_->inOnlineGame())
+	// Sign back in with the saved session, once, and never during an online match. A saved file that can't be read right
+	// now is tried again, every 5 s: taking it for "no account" showed a signed-in player "Pick a name" for the rest of
+	// the session, with a new name one click from replacing theirs (Lambourne 2026-11-03).
+	if (accountStarted_ || !account_)
 		return;
-	accountStarted_ = true;
+	const auto steadyNow = std::chrono::steady_clock::now();
+	if (steadyNow < accountNextTry_)
+		return;
+	accountNextTry_ = steadyNow + std::chrono::seconds(5);
+	const bool online = game_->inOnlineGame();
+	const auto file = accountFile();
+	std::error_code ec;
+	const bool exists = std::filesystem::exists(file, ec);
 	nlohmann::json saved = nlohmann::json::object();
-	std::ifstream in(game_->dataFolder() / "freetouch" / "settings" / "account.json");
-	if (in)
+	bool read = !exists;
+	if (exists && !online)
 	{
+		std::ifstream in(file);
 		try
 		{
 			saved = nlohmann::json::parse(in);
+			read = saved.is_object();
 		}
 		catch (const std::exception&)
 		{
 		}
 	}
+	if (online || !read)
+	{
+		if (accountWaits_++ == 0)
+			eventLog_.write("account_load_waiting", {{"onlineGame", online}, {"file", exists}, {"read", read}});
+		// In a match it waits for the match to end. An unreadable file gets a minute, then is kept aside.
+		if (online || accountWaits_ < 12)
+			return;
+		safefile::setAside(file);
+		saved = nlohmann::json::object();
+	}
+	accountStarted_ = true;
+	eventLog_.write("account_load", {{"file", exists}, {"read", read}, {"session", saved.contains("refreshToken")},
+		{"waits", accountWaits_}});
 	account_->load(saved, static_cast<int64_t>(std::time(nullptr)));
 	publishStatus();
+}
+
+std::filesystem::path FreeTouch::accountFile()
+{
+	return game_->dataFolder() / "freetouch" / "settings" / "account.json";
 }
 
 void FreeTouch::saveAccount()
@@ -2289,7 +2398,20 @@ void FreeTouch::saveAccount()
 	const auto dir = game_->dataFolder() / "freetouch" / "settings";
 	std::error_code ec;
 	std::filesystem::create_directories(dir, ec);
-	safefile::write(dir / "account.json", account_->save().dump(2) + "\n"); // the sign-in: never half written
+	const nlohmann::json next = account_->save();
+	// Another account taking this file's place: the one it replaces is kept beside it (it can't be asked for again).
+	if (std::ifstream in(accountFile()); in)
+	{
+		const auto old = nlohmann::json::parse(in, nullptr, false);
+		in.close();
+		if (old.is_object() && old.contains("refreshToken") && next.contains("userId")
+			&& old.value("userId", "") != next.value("userId", ""))
+		{
+			std::filesystem::copy_file(accountFile(), dir / "account.json.previous", std::filesystem::copy_options::overwrite_existing, ec);
+			eventLog_.write("account_replaced", {{"kept", !ec}});
+		}
+	}
+	safefile::write(accountFile(), next.dump(2) + "\n"); // the sign-in: never half written
 }
 
 void FreeTouch::notice(const std::string& text)
@@ -2534,7 +2656,6 @@ void FreeTouch::updateMenuNavBinds()
 	if (!open && controls_)
 		controls_->reapply();
 	navBindsOn_ = open;
-	updateFreeplayBindings();
 	eventLog_.write("menu_nav_binds", {{"on", open}});
 }
 
@@ -3062,7 +3183,8 @@ void FreeTouch::loadRoutine()
 		try
 		{
 			const auto doc = nlohmann::json::parse(jin);
-			for (const auto& [day, log] : doc.value("days", nlohmann::json::object()).items())
+			const nlohmann::json days = doc.value("days", nlohmann::json::object()); // items() needs a named json
+			for (const auto& [day, log] : days.items())
 				journal_[day] = routine::dayFromJson(log);
 		}
 		catch (const std::exception&)
@@ -3217,29 +3339,6 @@ void FreeTouch::publishDaily()
 		v->history.push_back(std::move(day));
 	}
 	dailyPub_ = v;
-}
-
-void FreeTouch::updateFreeplayBindings()
-{
-	// Rocket League's own freeplay controls (Epic's defaults, used when BakkesMod's "Enable bakkesmod freeplay
-	// bindings" is off) put ball actions on the D-pad, LB and RB: ball in front, on the car, a redirect pass, pop it
-	// up, a defend shot, a reset. Free Touch's drill buttons and menu use the same D-pad, so one press both moved to
-	// the next shot and threw the ball (Lambourne 2026-10-29: his friend's setup). While a drill runs or the menu is
-	// open, BakkesMod's freeplay bindings are on (they replace the game's); the player's own setting comes back after.
-	const bool want = exerciseBindsOn_ || navBindsOn_;
-	if (want == freeplayBindingsOn_)
-		return;
-	freeplayBindingsOn_ = want;
-	if (want)
-	{
-		const bool ok = settings_->setCvar("sv_freeplay_bindings", "1");
-		eventLog_.write("freeplay_bindings", {{"on", true}, {"ok", ok}});
-	}
-	else
-	{
-		settings_->restoreCvar("sv_freeplay_bindings");
-		eventLog_.write("freeplay_bindings", {{"on", false}});
-	}
 }
 
 void FreeTouch::checkDailyWithService(std::function<void()> then)

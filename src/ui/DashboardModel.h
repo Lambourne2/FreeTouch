@@ -12,7 +12,9 @@
 #include "core/Friends.h"
 #include "core/OnlineShots.h"
 #include "core/Leaderboards.h"
+#include "core/PatchNotes.h"
 #include "core/UpdateStatus.h"
+#include "ui/HudBar.h"
 #include "core/PracticeSpeed.h"
 #include "core/QuickPlay.h"
 #include "core/Routine.h"
@@ -122,6 +124,7 @@ struct DashboardModel
 	std::vector<SavedShot> savedShots;          // favourites first, then newest
 	std::map<std::string, std::string> raceKeys; // race exercise id -> its ghost key (its boards on the service)
 	std::vector<Tutorial> tutorials;            // content/tutorials/tutorials.json
+	std::vector<patchnotes::Update> patchNotes; // content/updates/patch_notes.json, newest first
 	std::vector<ReplayMoment> replayMoments;    // newest first
 	std::string freeplayId;                    // the Freeplay+ scenario
 	std::vector<FreeplayChoice> freeplayChoices;
@@ -350,6 +353,8 @@ struct DashboardStatus
 	PracticeSpeedSettings practice;
 	bool firstRun = false;      // show the first-run steps on Home
 	std::shared_ptr<const std::set<std::string>> tutorialsSeen; // tutorials already shown (null until loaded)
+	std::shared_ptr<const std::string> patchNotesSeen; // the newest patch notes shown (null until loaded)
+	hudbar::Options hudBar;     // the drill bar's style (Settings > Drill bar)
 	bool devTools = false;      // Saved Shots and the Captured / Dev categories
 	bool mechanicsFeed = true;  // the on-screen feed of detected mechanics
 	bool recording = false;     // Record page: a feed is being recorded

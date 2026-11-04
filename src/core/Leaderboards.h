@@ -28,7 +28,7 @@ public:
 	struct Board
 	{
 		std::string day;               // "YYYY-MM-DD"
-		std::string scope = "friends"; // friends | all
+		std::string scope = "all";     // all | friends: everyone first, the board is the Daily's draw
 		bool loaded = false, busy = false;
 		std::vector<Row> rows;
 		int players = 0;               // on this board

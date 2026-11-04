@@ -40,6 +40,8 @@ public:
 		std::function<void()> refreshControls;      // put every bind back and set Free Touch's again
 		std::function<void()> dismissFirstRun;
 		std::function<void(const std::string& id)> tutorialSeen; // shown once: not again by itself
+		std::function<void(const std::string& id)> patchNotesSeen; // the newest update shown: the window doesn't open by itself for it again
+		std::function<void(const hudbar::Options&)> hudBarChanged;
 		std::function<void()> resetTutorials;                    // Settings: show the tips again
 		std::function<void(const std::string& id, const std::string& name)> renameShot;
 		std::function<void(const std::string& id, bool favorite)> favoriteShot;
@@ -72,6 +74,8 @@ public:
 		std::function<void(const std::string& sort)> refreshShotBoard;
 		std::function<void(const std::string& day, const std::string& scope)> refreshDailyBoard; // friends | all
 		std::function<void()> refreshRaceLeaders;
+		// Whether the menu key (F7) is held: the window keeps the keyboard from its bind, so it closes it itself.
+		std::function<bool()> menuKeyHeld;
 		// Support (Settings > Support, Home): opens the Ko-fi page in the browser.
 		std::function<void()> openSupport;
 		// Updates (Settings > Updates).
@@ -176,6 +180,14 @@ private:
 	std::set<std::string> tutorialsShown_; // shown this run (before the plugin's list catches up)
 	void openTutorial(const std::string& id);
 	void renderTutorial(const DashboardModel& m, const DashboardStatus& s);
+	void renderPatchNotes(const DashboardModel& m, const DashboardStatus& s);
+	void renderHudBarCard(const DashboardStatus& s);
+	float hudStyleAnim_ = 0.f, hudSizeAnim_ = 1.f, hudOpacityAnim_ = 0.f;
+	bool patchNotesRequested_ = false;
+	bool patchNotesChecked_ = false; // this session's look at whether it opens by itself
+	bool patchNotesOpen_ = false;    // the controller scrolls it and closes it
+	bool patchNotesClose_ = false;
+	float patchNotesScroll_ = 0.f;
 	std::map<int, Page> hubLast_;
 	bool dailyWaiting_ = false; // today's daily not played yet (a dot on Compete)
 	int sharedWaiting_ = 0;     // shots shared with you not added yet (a count on Create)
@@ -194,7 +206,7 @@ private:
 	void renderRaces(const DashboardModel& m, const DashboardStatus& s);
 	// Daily Challenge page, and its card on Home.
 	void renderDaily(const DashboardModel& m, const DashboardStatus& s);
-	void renderDailyCard(const DailyView& d);
+	void renderDailyCard(const DailyView& d, const Leaderboards::Board& board);
 	int seenDailySeq_ = -1;     // the last finished daily the page was opened for
 	void renderPacks(const DashboardModel& m, const DashboardStatus& s);
 	void packOptions(const DashboardStatus& s, float width); // defender, net target, tile size, the picked tile
@@ -368,7 +380,12 @@ private:
 	float setupTargetAnim_ = 0.f, setupSizeAnim_ = 0.f;
 	void renderPlaySetup(const DashboardStatus& s);
 	float setupDiffAnim_ = 0.f;
+	int menuKeyFrame_ = -10;   // the last frame the window was drawn (a gap: it has just opened)
+	bool menuKeyArmed_ = false; // the key has been up since the window opened: the press that opened it doesn't close it
 	float dailyBoardAnim_ = 0.f;
+	bool dailyBoardAll_ = false;    // past the top 8
+	double dailyBoardAskedAt_ = -1000.0;
+	bool dailyBoardDone_ = false;   // the daily was done when the board was last asked for
 	void renderDailyBoard(const DashboardStatus& s, const DailyView& d, float width);
 	// A race's board (Races page): times for friends or everyone, any ghost to race.
 	struct RaceBoardOpen

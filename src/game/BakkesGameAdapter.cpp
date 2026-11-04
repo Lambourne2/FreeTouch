@@ -832,6 +832,13 @@ bool BakkesGameAdapter::copyFileToClipboard(const std::filesystem::path& file)
 	return ok;
 }
 
+bool BakkesGameAdapter::menuKeyHeld()
+{
+	DWORD process = 0;
+	GetWindowThreadProcessId(GetForegroundWindow(), &process);
+	return process == GetCurrentProcessId() && (GetAsyncKeyState(VK_F7) & 0x8000) != 0;
+}
+
 bool BakkesGameAdapter::openWebPage(const std::string& url)
 {
 	// Web pages only: never a file or a program.

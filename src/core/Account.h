@@ -45,7 +45,9 @@ public:
 	void create(const std::string& name, int64_t now); // "Pick a name"
 	void rename(const std::string& name, int64_t now);
 	void signOut();
-	void retry(int64_t now);                           // Offline: try again
+	void retry(int64_t now);
+	// Call now and then: a request out for 30 s with no reply (a map load can lose one) is given up and sign-in retried.
+	void retryIfStuck(int64_t now);                           // Offline: try again
 	void makeRecoveryCode(int64_t now);                // a new one (the old one stops working)
 	void restore(const std::string& code, int64_t now); // signed out: bring an account here with its code
 
@@ -97,6 +99,7 @@ private:
 	std::string userId_, accessToken_, refreshToken_;
 	int64_t expiresAt_ = 0;
 	int64_t now_ = 0; // the time of the last call (for expires_in)
+	int64_t stuckSince_ = 0; // when retryIfStuck first saw a request out
 	// The profile (kept from the last time for Offline).
 	std::string name_, friendCode_;
 	std::string recoveryCode_; // kept on this PC to show again

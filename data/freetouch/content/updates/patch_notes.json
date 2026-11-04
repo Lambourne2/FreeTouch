@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "about": "Free Touch's patch notes, newest first (the menu's Patch notes window). Every release gets an entry at the top with a new id; a new id opens the window once for each player. kind is new, changed or fixed.",
+  "updates": [
+    {
+      "id": "2026-11-03-compete",
+      "date": "2026-11-03",
+      "title": "Daily leaderboard up front, and no more surprise map changes",
+      "items": [
+        { "kind": "new", "text": "Patch notes: this window. It opens once after each update, and any time from the version at the bottom of the menu or Settings > Updates." },
+        { "kind": "new", "text": "Pick your drill bar in Settings: Classic, Scoreboard, Neon, Pill, Minimal or Side card, with size, background and what it shows." },
+        { "kind": "new", "text": "Compete > Daily: the leaderboard now sits right beside the challenge, with gold, silver and bronze for the top three." },
+        { "kind": "new", "text": "Home's Daily card shows the score to beat, or where you placed once you've played." },
+        { "kind": "changed", "text": "The Daily leaderboard opens on Everyone, so there are always names to chase. Friends is one click away." },
+        { "kind": "fixed", "text": "Opening or closing the menu, or starting a drill, no longer reloads freeplay onto a different map." },
+        { "kind": "fixed", "text": "F7 now closes the menu as well as opening it." },
+        { "kind": "fixed", "text": "Your Daily streak and history now survive restarting the game." },
+        { "kind": "fixed", "text": "Ball controls now get the whole D-pad, even if a crash had left drill buttons stuck in your binds." },
+        { "kind": "fixed", "text": "Free Touch keeps trying to sign in and shows Signing in, instead of looking logged out." }
+      ]
+    },
+    {
+      "id": "2026-11-03-controls",
+      "date": "2026-11-03",
+      "title": "Ball controls on Select, and two restart fixes",
+      "items": [
+        { "kind": "new", "text": "In a drill, Select swaps the drill buttons for your usual BakkesMod or Epic ball controls, and back. A popup says which you're on. Off in the Daily Challenge and races." },
+        { "kind": "fixed", "text": "Restarting right after a goal no longer puts the ball in the net." },
+        { "kind": "fixed", "text": "A training pack shot no longer loses its momentum after a restart with the throttle held." }
+      ]
+    },
+    {
+      "id": "2026-10-30",
+      "date": "2026-10-30",
+      "title": "Support Free Touch, and easier to find",
+      "items": [
+        { "kind": "new", "text": "Support Free Touch on Ko-fi from Settings, Home or the side menu. Free Touch stays free and nothing is locked." },
+        { "kind": "new", "text": "Supporters get a heart by their name on the friends list and leaderboards, and a thank-you by name." },
+        { "kind": "new", "text": "A banner tells new players how to open Free Touch, and F2 > Plugins > Free Touch has an Open button." },
+        { "kind": "new", "text": "On a controller, Select opens Free Touch when no drill is running." },
+        { "kind": "changed", "text": "Free Touch no longer takes over your F9 key." }
+      ]
+    },
+    {
+      "id": "2026-10-29-updates",
+      "date": "2026-10-29",
+      "title": "On BakkesPlugins, with automatic updates",
+      "items": [
+        { "kind": "new", "text": "Free Touch is on BakkesPlugins: one click to install, and BakkesMod keeps it up to date." },
+        { "kind": "new", "text": "Copies shared by zip update themselves: Settings > Updates." }
+      ]
+    },
+    {
+      "id": "2026-10-29-menu",
+      "date": "2026-10-29",
+      "title": "A cleaner menu, with tutorials",
+      "items": [
+        { "kind": "new", "text": "The menu is now seven places with tabs inside them, instead of fourteen pages." },
+        { "kind": "new", "text": "Short tutorials with moving pictures, the first time you open each place. The ? button brings them back." },
+        { "kind": "changed", "text": "Settings > Controls has clear tiles with drawn buttons." },
+        { "kind": "fixed", "text": "Your Daily Challenge score is final for the day, even after restarting the game." }
+      ]
+    },
+    {
+      "id": "2026-10-29-online",
+      "date": "2026-10-29",
+      "title": "Accounts, friends and leaderboards",
+      "items": [
+        { "kind": "new", "text": "Pick a name for an optional free account, with a friend code and a recovery code to move it to another PC." },
+        { "kind": "new", "text": "Friends: add people by code, and see what they've been training." },
+        { "kind": "new", "text": "Send shots to friends, or post them on the public Shot Board." },
+        { "kind": "new", "text": "Daily Challenge leaderboard, for friends and everyone." },
+        { "kind": "new", "text": "Race leaderboards: race anyone's ghost from the board." },
+        { "kind": "new", "text": "Saved shots can have a bot defender and a net target, and be shared as a file." },
+        { "kind": "new", "text": "Pressing Play on any shot asks for difficulty, defender and net first, with the same net choices as training packs." }
+      ]
+    },
+    {
+      "id": "2026-10-23",
+      "date": "2026-10-23",
+      "title": "Smoother shots",
+      "items": [
+        { "kind": "new", "text": "A card to read while a shot waits for you." },
+        { "kind": "fixed", "text": "On-screen text fits the screen, and nothing covers a goal replay." }
+      ]
+    },
+    {
+      "id": "2026-10-20",
+      "date": "2026-10-20",
+      "title": "The Daily Challenge",
+      "items": [
+        { "kind": "new", "text": "Daily Challenge: the same ten shots for everyone, one attempt a day, with a streak and shareable squares." },
+        { "kind": "new", "text": "Some shots now wait for you to read them, with the ball's path drawn in." },
+        { "kind": "new", "text": "More Pinch Bowling setups, and a ground-to-air dribble drill." },
+        { "kind": "new", "text": "Goal replays setting, and a choice of what Select does." },
+        { "kind": "fixed", "text": "Freeplay's own reset no longer throws away a rep." }
+      ]
+    },
+    {
+      "id": "2026-10-19-polish",
+      "date": "2026-10-19",
+      "title": "A new look, and the Record page",
+      "items": [
+        { "kind": "new", "text": "Record page: record up to 15 seconds in freeplay, pick where the drill starts, and save it as a drill." },
+        { "kind": "changed", "text": "New Barlow font, one button style, Settings as cards, and a grouped side menu." },
+        { "kind": "changed", "text": "The menu now follows BakkesMod's GUI scale." },
+        { "kind": "new", "text": "A summary at the end of a session, and small confirmation messages." }
+      ]
+    },
+    {
+      "id": "2026-10-19-drills",
+      "date": "2026-10-19",
+      "title": "Aerials, ball control and better bots",
+      "items": [
+        { "kind": "new", "text": "Double Tap practice, Ceiling Shots, timed Aerial Take-offs, and Aerials & Reads." },
+        { "kind": "new", "text": "Speed flip coach in the speed flip kickoff race: jump timing, flip delay, angle, cancel and landing, with one tip each run." },
+        { "kind": "new", "text": "1v1 Ball Control and Shadow Defense, judged on how you play the ball and defend." },
+        { "kind": "changed", "text": "Necto and Nexto now play differently on easy, medium and hard." },
+        { "kind": "new", "text": "Flip resets count up in one flight: double, triple, quad and more." },
+        { "kind": "changed", "text": "HORSE has 17 shots, with boost locked at 100." }
+      ]
+    },
+    {
+      "id": "2026-10-18-routine",
+      "date": "2026-10-18",
+      "title": "Routines you can build",
+      "items": [
+        { "kind": "new", "text": "Routine editor: sections of steps you can drag to reorder, with a drill browser." },
+        { "kind": "new", "text": "Freeplay+ steps in a routine, timed or as long as you like." }
+      ]
+    },
+    {
+      "id": "2026-10-18-packs",
+      "date": "2026-10-18",
+      "title": "Training packs",
+      "items": [
+        { "kind": "new", "text": "Import any training pack by code, or play one and Free Touch keeps it as a drill." },
+        { "kind": "new", "text": "Packs play like training: shots in order, frozen until your first input, with the ball's path drawn." },
+        { "kind": "new", "text": "Put a Psyonix, Necto or Nexto defender in the net of any pack." },
+        { "kind": "new", "text": "Pick the part of the net to score in: 4, 6 or 8 tiles, or a ball-sized hole. The rest bounces the ball off." },
+        { "kind": "new", "text": "Favourite exercises, and more ways to sort them." },
+        { "kind": "changed", "text": "New art for Training Packs, Races, Backboard Breakout and The Glade." },
+        { "kind": "changed", "text": "D-pad up needs a double tap to open the menu during a drill." }
+      ]
+    },
+    {
+      "id": "2026-10-15",
+      "date": "2026-10-15",
+      "title": "Ghost races",
+      "items": [
+        { "kind": "new", "text": "Six races: half flip, wave dash, zap dash, wall dash, no-boost sprint and speed flip kickoff." },
+        { "kind": "new", "text": "Your best run plays back as a see-through ghost car to race." }
+      ]
+    },
+    {
+      "id": "2026-10-14",
+      "date": "2026-10-14",
+      "title": "Progress, replays and mechanics",
+      "items": [
+        { "kind": "new", "text": "Progress page: minutes trained, success rates, milestones, a journal, and your MMR over time." },
+        { "kind": "new", "text": "Replay takeover: pause a replay and play that moment out in freeplay." },
+        { "kind": "new", "text": "Mechanics lab, HORSE, Build Your Combo and Style Rush." }
+      ]
+    },
+    {
+      "id": "2026-10-13-bots",
+      "date": "2026-10-13",
+      "title": "Real bots",
+      "items": [
+        { "kind": "new", "text": "Necto and Nexto, community-trained neural-network bots, run inside the plugin." },
+        { "kind": "new", "text": "1v1 plays, kickoffs and 50s against the bot, and a full 1v1 match with score, clock and overtime." },
+        { "kind": "new", "text": "Mechanic detectors recognise what you just did." },
+        { "kind": "new", "text": "Slow motion, full controller menu navigation, Saved Shots and first-run steps." },
+        { "kind": "changed", "text": "Redesigned Home, Exercises, Routine and Freeplay+, with a sound pack." }
+      ]
+    },
+    {
+      "id": "2026-10-13-drills",
+      "date": "2026-10-13",
+      "title": "Freeplay+ and the big drill update",
+      "items": [
+        { "kind": "new", "text": "Freeplay+: live freeplay with objectives spawning around you, picked from 13 types." },
+        { "kind": "new", "text": "Target shooting into lit goal pockets." },
+        { "kind": "new", "text": "Movement: boost circles on every surface, recoveries and ring courses." },
+        { "kind": "new", "text": "Pinch Bowling, Backboard Breakout, The Glade and One Tank." }
+      ]
+    },
+    {
+      "id": "2026-10-12",
+      "date": "2026-10-12",
+      "title": "The first version",
+      "items": [
+        { "kind": "new", "text": "Drills that judge every rep, with rep count, streak and time on screen." },
+        { "kind": "new", "text": "Basics, Saves and First Touch labs, timed sessions, and a Quick Play warm-up." },
+        { "kind": "new", "text": "Drill buttons that only exist during a drill, and your own binds come back after." },
+        { "kind": "new", "text": "Goal explosions in drills, a dashboard with Rocket League-style tiles, and Psyonix bot defenders." }
+      ]
+    }
+  ]
+}

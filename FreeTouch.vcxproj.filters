@@ -65,6 +65,7 @@
     <ClCompile Include="src\ui\Theme.cpp"><Filter>ui</Filter></ClCompile>
     <ClCompile Include="src\ui\Icons.cpp"><Filter>ui</Filter></ClCompile>
     <ClCompile Include="src\ui\Hud.cpp"><Filter>ui</Filter></ClCompile>
+    <ClCompile Include="src\ui\HudBar.cpp"><Filter>ui</Filter></ClCompile>
     <ClCompile Include="src\ui\TutorialScenes.cpp"><Filter>ui</Filter></ClCompile>
     <ClCompile Include="src\core\Controls.cpp"><Filter>core</Filter></ClCompile>
     <ClCompile Include="src\core\SessionRunner.cpp"><Filter>core</Filter></ClCompile>

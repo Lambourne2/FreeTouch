@@ -29,6 +29,25 @@ public:
 
 	void restoreAll();
 
+	// What BakkesMod binds a key to out of the box (cfg/default_training.cfg): only the D-pad's ball controls.
+	static std::string stockBind(const std::string& key)
+	{
+		if (key == "XboxTypeS_DPad_Up") return "default_up";
+		if (key == "XboxTypeS_DPad_Down") return "default_down";
+		if (key == "XboxTypeS_DPad_Left") return "default_left";
+		if (key == "XboxTypeS_DPad_Right") return "default_right";
+		return "";
+	}
+	// A key's bind as its owner's: one of Free Touch's own commands (left by a crash) is never the player's, so the key's
+	// stock bind stands in. Restoring one put ft_next back on the D-pad, under Select's ball controls too
+	// (Lambourne 2026-11-03).
+	static std::string playersBind(const std::string& key, const std::string& bind)
+	{
+		return bind.rfind("ft_", 0) == 0 ? stockBind(key) : bind;
+	}
+	// Puts a key's leftover Free Touch command right, if it has one and Free Touch isn't holding the key. True if it did.
+	bool repairLeftover(const std::string& key);
+
 	const std::map<std::string, std::string>& originalBinds() const { return binds_; }
 	const std::map<std::string, std::string>& originalCvars() const { return cvars_; }
 

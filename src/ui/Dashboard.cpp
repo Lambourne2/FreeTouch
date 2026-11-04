@@ -22,6 +22,48 @@ using icons::Icon;
 
 namespace
 {
+	// The game's drawing, on an ImGui draw list: Settings shows the drill bar with the same code that draws it in game.
+	class ImGuiCanvas : public Canvas
+	{
+	public:
+		ImGuiCanvas(ImDrawList* dl, ImVec2 at, float w, float h) : dl_(dl), at_(at), w_(w), h_(h) {}
+		float width() const override { return w_; }
+		float height() const override { return h_; }
+		void fillRect(float x, float y, float w, float h, Rgba c) override
+		{
+			dl_->AddRectFilled(ImVec2(at_.x + x, at_.y + y), ImVec2(at_.x + x + w, at_.y + y + h), col(c));
+		}
+		void line(float x1, float y1, float x2, float y2, float thickness, Rgba c) override
+		{
+			dl_->AddLine(ImVec2(at_.x + x1, at_.y + y1), ImVec2(at_.x + x2, at_.y + y2), col(c), thickness);
+		}
+		void text(float x, float y, const std::string& s, float scale, Rgba c, bool shadow) override
+		{
+			const float px = scale * kFontPixels;
+			if (shadow)
+				dl_->AddText(theme::fontAt(px), px, ImVec2(at_.x + x + 1.f, at_.y + y + 1.f), IM_COL32(0, 0, 0, c.a * 0.8f), s.c_str());
+			dl_->AddText(theme::fontAt(px), px, ImVec2(at_.x + x, at_.y + y), col(c), s.c_str());
+		}
+		void textSize(const std::string& s, float scale, float& w, float& h) override
+		{
+			const float px = scale * kFontPixels;
+			const ImVec2 size = theme::fontAt(px)->CalcTextSizeA(px, FLT_MAX, 0.f, s.c_str());
+			w = size.x;
+			h = size.y;
+		}
+		void line3d(const Vec3&, const Vec3&, Rgba, float, float) override {}
+		bool project(const Vec3&, float&, float&) override { return false; }
+		void setOccluders(const std::vector<Occluder>&) override {}
+		float depthOf(const Vec3&) override { return 0.f; }
+
+	private:
+		static constexpr float kFontPixels = 14.f; // the game's canvas font at scale 1
+		static ImU32 col(Rgba c) { return IM_COL32(c.r, c.g, c.b, c.a); }
+		ImDrawList* dl_;
+		ImVec2 at_;
+		float w_, h_;
+	};
+
 	// Controller navigation: the dashboard being drawn, so every button, tile, chip and checkbox can register with
 	// its focus list right after ImGui draws it (zone 0 = the left rail, 1 = the page).
 	Dashboard* g_nav = nullptr;
@@ -531,6 +573,11 @@ void Dashboard::previewPage(const std::string& page, const std::string& detailId
 			tutorial_.stepAt -= std::atof(rest.c_str() + at + 1);
 		detailId_.clear();
 	}
+	if (detailId == "patchnotes")
+	{
+		patchNotesRequested_ = true; // the preview's patch notes
+		detailId_.clear();
+	}
 	if (detailId.rfind("raceboard:", 0) == 0)
 	{
 		raceBoard_.requested = true; // the preview's race board
@@ -720,6 +767,16 @@ void Dashboard::applyNav()
 		navActive_ = false; // the mouse took over
 	for (const auto& act : actions)
 	{
+		// The patch notes window: the D-pad scrolls it, A or B closes it.
+		if (patchNotesOpen_)
+		{
+			if (act == "up" || act == "down")
+				patchNotesScroll_ += (act == "down" ? 1.f : -1.f) * 140.f * uiScale();
+			else if (act == "select" || act == "back")
+				patchNotesClose_ = true;
+			if (act != "close")
+				continue;
+		}
 		if (!navActive_ && act != "close" && act != "back")
 		{
 			navActive_ = true; // the first press only shows where the focus is
@@ -829,8 +886,20 @@ void Dashboard::render(bool* open)
 		cb_.refreshShotBoard(status.shots.sort);
 	if (page_ == Page::Races && lastPage_ != Page::Races && cb_.refreshRaceLeaders)
 		cb_.refreshRaceLeaders();
-	if (page_ == Page::Daily && lastPage_ != Page::Daily && cb_.refreshDailyBoard && status.daily)
-		cb_.refreshDailyBoard(status.daily->date, status.boards.daily.scope);
+	// Today's board, on the Daily page and Home's card: on arriving, once signed in (a first ask before that is dropped),
+	// when the daily is finished, and every minute while it's on screen.
+	if ((page_ == Page::Daily || page_ == Page::Home) && cb_.refreshDailyBoard && status.daily && status.daily->available
+		&& status.account.state == Account::State::SignedIn && !status.boards.daily.busy)
+	{
+		const double t = ImGui::GetTime();
+		if (lastPage_ != page_ || status.boards.daily.day != status.daily->date || status.daily->done != dailyBoardDone_
+			|| t - dailyBoardAskedAt_ > 60.0)
+		{
+			dailyBoardAskedAt_ = t;
+			dailyBoardDone_ = status.daily->done;
+			cb_.refreshDailyBoard(status.daily->date, status.boards.daily.scope);
+		}
+	}
 	lastPage_ = page_;
 	// Results of sharing online, as a toast.
 	if (status.shots.message != shotsMessage_ || status.shots.error != shotsError_)
@@ -921,6 +990,7 @@ void Dashboard::render(bool* open)
 		ImGui::EndGroup();
 		renderPlaySetup(status);
 		renderRaceBoard(status);
+		renderPatchNotes(m, status);
 		renderTutorial(m, status);
 
 		// Over everything (nested lists included), only for a moment: the page fade, the window fade-in on open, and
@@ -977,6 +1047,18 @@ void Dashboard::render(bool* open)
 	navRectsPrev_[1].swap(navRects_[1]);
 	g_nav = nullptr;
 
+	// F7 closes it too (Lambourne 2026-11-03): with this window open the key never reaches its bind.
+	if (cb_.menuKeyHeld)
+	{
+		const int frame = ImGui::GetFrameCount();
+		if (frame != menuKeyFrame_ + 1)
+			menuKeyArmed_ = false;
+		menuKeyFrame_ = frame;
+		const bool held = cb_.menuKeyHeld();
+		if (held && menuKeyArmed_)
+			closeRequested_ = true;
+		menuKeyArmed_ = !held;
+	}
 	if (closeRequested_)
 	{
 		closeRequested_ = false;
@@ -1331,7 +1413,7 @@ void Dashboard::renderHome(const DashboardModel& m, const DashboardStatus& s)
 		renderSummary(*s.lastSummary);
 	renderHero(m, s);
 	if (s.daily && s.daily->available)
-		renderDailyCard(*s.daily);
+		renderDailyCard(*s.daily, s.boards.daily);
 	renderToday(m, s);
 	renderHomeTiles(m);
 	renderRecent(m, s);
@@ -6826,6 +6908,10 @@ void Dashboard::renderUpdatesCard(const DashboardStatus& s)
 			cb_.autoUpdateChanged(on);
 		settingRowEnd();
 	}
+	settingRow("Patch notes", "What changed in every update so far.");
+	if (navButton("Patch notes##updates", ImVec2(150.f * u, 0.f)))
+		patchNotesRequested_ = true;
+	settingRowEnd();
 	(void)pal;
 	settingsCardEnd();
 }
@@ -7209,6 +7295,7 @@ void Dashboard::renderSettings(const DashboardModel& m, const DashboardStatus& s
 		settingRowEnd();
 	}
 	settingsCardEnd();
+	renderHudBarCard(s);
 
 	settingsCardBegin("advanced", "ADVANCED");
 	{
@@ -7266,7 +7353,16 @@ void Dashboard::renderStatusBar(const DashboardModel& m, const DashboardStatus& 
 	const float room = footerHeight() - ImGui::GetStyle().ItemSpacing.y;
 	ImGui::SetCursorPosY(ImGui::GetCursorPosY() + std::max(0.f, (room - ImGui::GetTextLineHeight()) * 0.5f - 2.f));
 	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 30.f);
-	ImGui::TextDisabled("v%s", version_.c_str());
+	{
+		// The version, and the way to the patch notes.
+		const std::string label = "v" + version_ + "  |  Patch notes";
+		const ImVec2 at = ImGui::GetCursorScreenPos();
+		const ImVec2 size = ImGui::CalcTextSize(label.c_str());
+		if (navInvisible("footer_notes", size, 1))
+			patchNotesRequested_ = true;
+		const bool hovered = ImGui::IsItemHovered();
+		ImGui::GetWindowDrawList()->AddText(at, theme::u32(hovered ? pal.accent : pal.textDim), label.c_str());
+	}
 	ImGui::SameLine(0.f, 18.f);
 	if (s.exerciseActive)
 	{
@@ -9094,6 +9190,212 @@ void Dashboard::openTutorial(const std::string& id)
 		cb_.tutorialSeen(id); // shown once by itself; the ? button brings it back
 }
 
+void Dashboard::renderHudBarCard(const DashboardStatus& s)
+{
+	// Lambourne 2026-11-03: the bar at the top during drills, in the style the player likes, shown live here.
+	const theme::Palette& pal = theme::palette();
+	const float u = uiScale();
+	hudbar::Options o = s.hudBar;
+	bool changed = false;
+	settingsCardBegin("hudbar", "DRILL BAR");
+	{
+		ImGui::TextUnformatted("The bar at the top of the screen during drills.");
+		ImGui::Dummy(ImVec2(0.f, 4.f * u));
+		const char* names[hudbar::kStyles];
+		for (int i = 0; i < hudbar::kStyles; ++i)
+			names[i] = hudbar::styleName(i);
+		const int style = segmented("hud_style", names, hudbar::kStyles, o.style, cardInner_, hudStyleAnim_);
+		changed = changed || style != o.style;
+		o.style = style;
+		ImGui::Dummy(ImVec2(0.f, 6.f * u));
+		// The live preview: a slice of a stadium at the top of a screen.
+		const ImVec2 at = ImGui::GetCursorScreenPos();
+		const float previewH = (o.style == hudbar::Side ? 330.f : 150.f) * u;
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		const ImVec2 end(at.x + cardInner_, at.y + previewH);
+		dl->AddRectFilledMultiColor(at, end, IM_COL32(16, 26, 54, 255), IM_COL32(16, 26, 54, 255), IM_COL32(34, 64, 62, 255), IM_COL32(34, 64, 62, 255));
+		dl->PushClipRect(at, end, true);
+		const hudbar::Cell plain{"", "", Rgba{236, 240, 245, 255}};
+		const auto& a = pal.accent;
+		const Rgba accent{static_cast<uint8_t>(a.x * 255), static_cast<uint8_t>(a.y * 255), static_cast<uint8_t>(a.z * 255), 255};
+		hudbar::Bar bar;
+		bar.exercise = {"EXERCISE", "Freeplay+: ball through the ring", plain.color};
+		bar.rep = {"REP", "12", plain.color};
+		bar.time = {"TIME", "4.9 s", plain.color};
+		bar.stat = {"STREAK", "3", accent};
+		bar.level = {"LEVEL", "MEDIUM", plain.color};
+		ImGuiCanvas canvas(dl, at, cardInner_, previewH);
+		const hudbar::Placed placed = hudbar::draw(canvas, bar, o, std::min(1.f, cardInner_ / 900.f), accent);
+		// Where the objective goes, so a style can be judged with it.
+		{
+			const float k = std::min(1.f, cardInner_ / 900.f);
+			const std::string line = "OBJECTIVE:  BALL THROUGH THE RING";
+			float w = 0, h = 0;
+			canvas.textSize(line, 1.6f * k, w, h);
+			const float x = (cardInner_ - w) * 0.5f;
+			canvas.fillRect(x - 18.f * k, placed.underY - 5.f * k, w + 36.f * k, h + 10.f * k, Rgba{12, 15, 21, 205});
+			canvas.fillRect(x - 18.f * k, placed.underY + h + 2.f * k, w + 36.f * k, 3.f * k, accent);
+			canvas.text(x, placed.underY, line, 1.6f * k, accent, true);
+		}
+		dl->PopClipRect();
+		ImGui::Dummy(ImVec2(cardInner_, previewH + 4.f * u));
+		ImGui::TextDisabled("%s", hudbar::styleAbout(o.style));
+		ImGui::Dummy(ImVec2(0.f, 6.f * u));
+
+		static const char* kSizes[] = {"Small", "Normal", "Large"};
+		static constexpr float kSizeValues[] = {0.85f, 1.f, 1.2f};
+		settingRow("Size", "How big the bar is on screen.");
+		{
+			const int cur = o.size < 0.95f ? 0 : o.size > 1.1f ? 2 : 1;
+			const int pick = segmented("hud_size", kSizes, 3, cur, ImGui::CalcItemWidth(), hudSizeAnim_);
+			if (pick != cur)
+			{
+				o.size = kSizeValues[pick];
+				changed = true;
+			}
+		}
+		settingRowEnd();
+		static const char* kOpacities[] = {"Solid", "Glass", "Light"};
+		static constexpr float kOpacityValues[] = {1.f, 0.7f, 0.4f};
+		settingRow("Background", "How much of the game shows through the panels.");
+		{
+			const int cur = o.opacity > 0.85f ? 0 : o.opacity > 0.55f ? 1 : 2;
+			const int pick = segmented("hud_opacity", kOpacities, 3, cur, ImGui::CalcItemWidth(), hudOpacityAnim_);
+			if (pick != cur)
+			{
+				o.opacity = kOpacityValues[pick];
+				changed = true;
+			}
+		}
+		settingRowEnd();
+		settingRow("Show the drill's name", "Off gives a shorter bar.");
+		changed = switchToggle("hud_name", &o.showName) || changed;
+		settingRowEnd();
+		settingRow("Show the level", "Easy, medium or hard.");
+		changed = switchToggle("hud_level", &o.showLevel) || changed;
+		settingRowEnd();
+	}
+	settingsCardEnd();
+	if (changed && cb_.hudBarChanged)
+		cb_.hudBarChanged(o);
+}
+
+void Dashboard::renderPatchNotes(const DashboardModel& m, const DashboardStatus& s)
+{
+	// Lambourne 2026-11-03: what changed in each update. Opens once after an update, and any time from the version at
+	// the bottom of the menu or Settings > Updates.
+	if (m.patchNotes.empty())
+		return;
+	const std::string& newest = m.patchNotes.front().id;
+	if (s.patchNotesSeen && !patchNotesChecked_)
+	{
+		patchNotesChecked_ = true;
+		const bool unseen = *s.patchNotesSeen != newest;
+		if (patchnotes::opensByItself(m.patchNotes, *s.patchNotesSeen, s.firstRun))
+			patchNotesRequested_ = true;
+		if (unseen && cb_.patchNotesSeen)
+			cb_.patchNotesSeen(newest);
+	}
+	if (patchNotesRequested_ && !ImGui::IsPopupOpen("tutorial") && !ImGui::IsPopupOpen("play_setup") && !ImGui::IsPopupOpen("race_board"))
+	{
+		ImGui::OpenPopup("patch_notes");
+		patchNotesRequested_ = false;
+		patchNotesScroll_ = 0.f;
+		patchNotesClose_ = false;
+	}
+	patchNotesOpen_ = ImGui::IsPopupOpen("patch_notes");
+	const theme::Palette& pal = theme::palette();
+	const float u = uiScale();
+	const float fs = ImGui::GetFontSize();
+	const ImVec2 wp = ImGui::GetWindowPos(), ws = ImGui::GetWindowSize();
+	const float popW = std::min(ws.x - 80.f * u, 720.f * u);
+	const float popH = std::max(320.f * u, ws.y - 70.f * u);
+	ImGui::SetNextWindowPos(ImVec2(wp.x + ws.x * 0.5f, wp.y + ws.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+	ImGui::SetNextWindowSize(ImVec2(popW, popH), ImGuiCond_Always);
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, theme::mix(pal.card, ImVec4(1, 1, 1, 1), 0.03f));
+	ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, ImVec4(0.f, 0.f, 0.f, 0.55f));
+	ImGui::PushStyleColor(ImGuiCol_Border, theme::mix(pal.card, pal.accent, 0.5f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 16.f * u);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(24.f * u, 20.f * u));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.f);
+	if (ImGui::BeginPopupModal("patch_notes", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoScrollbar))
+	{
+		theme::fontScale(1.5f);
+		ImGui::TextUnformatted("Patch notes");
+		theme::fontScale(1.f);
+		ImGui::TextDisabled("You're on version %s.", version_.c_str());
+		ImGui::Dummy(ImVec2(0, 6.f * u));
+		const float bh = std::max(42.f * u, fs * 1.9f);
+		const float listH = ImGui::GetContentRegionAvail().y - bh - 14.f * u;
+		ImGui::BeginChild("patch_notes_list", ImVec2(0.f, listH), false, ImGuiWindowFlags_NoSavedSettings);
+		if (patchNotesScroll_ != 0.f)
+		{
+			ImGui::SetScrollY(std::clamp(ImGui::GetScrollY() + patchNotesScroll_, 0.f, ImGui::GetScrollMaxY()));
+			patchNotesScroll_ = 0.f;
+		}
+		ImDrawList* dl = ImGui::GetWindowDrawList();
+		const float width = ImGui::GetContentRegionAvail().x - 12.f * u;
+		const float pillW = 74.f * u, ps = fs * 0.72f;
+		const float textLeft = ImGui::GetCursorPosX() + pillW + 12.f * u;
+		for (size_t i = 0; i < m.patchNotes.size(); ++i)
+		{
+			const auto& update = m.patchNotes[i];
+			ImGui::PushID(static_cast<int>(i));
+			if (i > 0)
+			{
+				ImGui::Dummy(ImVec2(0, 8.f * u));
+				const ImVec2 p = ImGui::GetCursorScreenPos();
+				dl->AddLine(p, ImVec2(p.x + width, p.y), IM_COL32(255, 255, 255, 16), 1.f);
+				ImGui::Dummy(ImVec2(0, 8.f * u));
+			}
+			ImGui::PushStyleColor(ImGuiCol_Text, pal.accent);
+			theme::fontScale(0.82f);
+			ImGui::TextUnformatted(i == 0 ? ("LATEST  |  " + patchnotes::niceDate(update.date)).c_str() : patchnotes::niceDate(update.date).c_str());
+			theme::fontScale(1.f);
+			ImGui::PopStyleColor();
+			ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + width);
+			theme::fontScale(1.15f);
+			ImGui::TextUnformatted(update.title.c_str());
+			theme::fontScale(1.f);
+			ImGui::PopTextWrapPos();
+			ImGui::Dummy(ImVec2(0, 3.f * u));
+			for (const auto& item : update.items)
+			{
+				// Its kind in a small coloured pill, the line wrapped beside it.
+				const ImVec4 col = item.kind == "fixed" ? ImVec4(0.38f, 0.82f, 0.50f, 1.f) : item.kind == "changed" ? pal.orange : pal.accent;
+				const char* label = item.kind == "fixed" ? "FIXED" : item.kind == "changed" ? "CHANGED" : "NEW";
+				const ImVec2 at = ImGui::GetCursorScreenPos();
+				const float pillH = ps * 1.55f;
+				const ImVec2 pillAt(at.x, at.y + (fs - pillH) * 0.5f + 1.f);
+				dl->AddRectFilled(pillAt, ImVec2(pillAt.x + pillW, pillAt.y + pillH), theme::u32(col, 0.16f), pillH * 0.5f);
+				const ImVec2 ls = theme::fontAt(ps)->CalcTextSizeA(ps, FLT_MAX, 0.f, label);
+				dl->AddText(theme::fontAt(ps), ps, ImVec2(pillAt.x + (pillW - ls.x) * 0.5f, pillAt.y + (pillH - ls.y) * 0.5f), theme::u32(col), label);
+				ImGui::SetCursorPosX(textLeft);
+				ImGui::PushTextWrapPos(textLeft + width - pillW - 12.f * u);
+				ImGui::TextUnformatted(item.text.c_str());
+				ImGui::PopTextWrapPos();
+				ImGui::Dummy(ImVec2(0, 2.f * u));
+			}
+			ImGui::PopID();
+		}
+		ImGui::EndChild();
+		ImGui::Dummy(ImVec2(0, 6.f * u));
+		const float bw = 180.f * u;
+		ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - bw);
+		if (bigButton("notes_close", "Got it", ImVec2(bw, bh), true, Icon::Play, false, Fx::Confirm) || patchNotesClose_
+			|| ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Escape)))
+		{
+			patchNotesClose_ = false;
+			patchNotesOpen_ = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar(3);
+	ImGui::PopStyleColor(3);
+}
+
 void Dashboard::renderTutorial(const DashboardModel& m, const DashboardStatus& s)
 {
 	// Lambourne 2026-10-29: "short tutorial popups with visuals would be PERFECT". The first time a place opens (once
@@ -9101,8 +9403,8 @@ void Dashboard::renderTutorial(const DashboardModel& m, const DashboardStatus& s
 	const char* here = hubKey(hubOf(page_));
 	const auto tut = std::find_if(m.tutorials.begin(), m.tutorials.end(), [&](const Tutorial& t) { return t.id == here; });
 	if (s.tutorialsSeen && tut != m.tutorials.end() && !s.tutorialsSeen->count(here) && !tutorialsShown_.count(here)
-		&& !tutorial_.requested && !playSetup_.requested && !raceBoard_.requested && !ImGui::IsPopupOpen("tutorial")
-		&& !ImGui::IsPopupOpen("play_setup") && !ImGui::IsPopupOpen("race_board"))
+		&& !tutorial_.requested && !playSetup_.requested && !raceBoard_.requested && !patchNotesRequested_ && !patchNotesOpen_
+		&& !ImGui::IsPopupOpen("tutorial") && !ImGui::IsPopupOpen("play_setup") && !ImGui::IsPopupOpen("race_board"))
 		openTutorial(here);
 	if (tutorial_.requested)
 	{
@@ -9500,7 +9802,7 @@ namespace
 	}
 }
 
-void Dashboard::renderDailyCard(const DailyView& d)
+void Dashboard::renderDailyCard(const DailyView& d, const Leaderboards::Board& board)
 {
 	// Home: a slim card for today's daily: its number and state, the squares so far, and one button.
 	const theme::Palette& pal = theme::palette();
@@ -9531,6 +9833,16 @@ void Dashboard::renderDailyCard(const DailyView& d)
 		line = "Shot " + std::to_string(d.played + 1) + " of " + std::to_string(count) + " next  |  " + daily::groupThousands(d.points) + " so far";
 	else
 		line = "Today's ten shots, the same for everyone. One attempt counts.";
+	// The board's pull: the score to beat, and where a finished player stands.
+	if (!d.running && board.loaded && board.day == d.date && board.scope == "all" && !board.rows.empty())
+	{
+		const auto me = std::find_if(board.rows.begin(), board.rows.end(), [](const Leaderboards::Row& r) { return r.me; });
+		if (d.done && me != board.rows.end())
+			line += "  |  #" + std::to_string(me->rank) + " of " + std::to_string(board.players);
+		else if (!d.done)
+			line = "Beat " + board.rows.front().name + ": " + daily::groupThousands(board.rows.front().points) + " points today  |  "
+				+ std::to_string(board.players) + (board.players == 1 ? " player" : " players");
+	}
 
 	// The button at the right, the squares left of it (when there is room), the line at the left.
 	const char* label = d.done ? "See result" : d.played > 0 ? "Continue" : "Play";
@@ -9576,77 +9888,110 @@ void Dashboard::renderDailyBoard(const DashboardStatus& s, const DailyView& d, f
 	const float fs = ImGui::GetFontSize();
 	ImDrawList* dl = ImGui::GetWindowDrawList();
 	const Leaderboards::Board& b = s.boards.daily;
+	const bool current = b.loaded && b.day == d.date;
+	const ImVec2 head = ImGui::GetCursorScreenPos();
 	ImGui::PushStyleColor(ImGuiCol_Text, pal.accent);
-	ImGui::TextUnformatted("LEADERBOARD");
+	ImGui::TextUnformatted("TODAY'S LEADERBOARD");
 	ImGui::PopStyleColor();
+	if (current && b.players > 0)
+	{
+		const std::string n = std::to_string(b.players) + (b.players == 1 ? " player" : " players");
+		dl->AddText(ImVec2(head.x + width - ImGui::CalcTextSize(n.c_str()).x, head.y), theme::u32(pal.textDim), n.c_str());
+	}
+	ImGui::Dummy(ImVec2(0, 2.f * u));
 	if (s.account.state != Account::State::SignedIn)
 	{
-		ImGui::TextDisabled("%s", s.account.state == Account::State::Offline ? "Can't reach the Free Touch service right now."
-			: "Pick a name (Settings > Account) to see how friends and everyone did today.");
+		const char* why = s.account.state == Account::State::Offline ? "Can't reach the Free Touch service right now."
+			: s.account.state == Account::State::Working ? "Signing in..."
+			: "Pick a name (Settings > Account) to see how everyone did today.";
+		ImGui::TextDisabled("%s", why);
 		if (s.account.state == Account::State::SignedOut && navButton("Pick a name in Settings", ImVec2(0, 30.f * u)))
 			page_ = Page::Settings;
 		return;
 	}
-	static const char* kScopes[] = {"Friends", "Everyone"};
-	const int cur = b.scope == "all" ? 1 : 0;
+	static const char* kScopes[] = {"Everyone", "Friends"};
+	const int cur = b.scope == "all" ? 0 : 1;
+	const float refreshW = 92.f * u;
 	const ImVec2 top = ImGui::GetCursorScreenPos();
-	const int pick = segmented("daily_scope", kScopes, 2, cur, std::min(width - 130.f * u, 320.f * u), dailyBoardAnim_);
+	const int pick = segmented("daily_scope", kScopes, 2, cur, std::min(width - refreshW - 12.f * u, 280.f * u), dailyBoardAnim_);
 	if (pick != cur && cb_.refreshDailyBoard)
-		cb_.refreshDailyBoard(d.date, pick == 1 ? "all" : "friends");
+		cb_.refreshDailyBoard(d.date, pick == 0 ? "all" : "friends");
 	const ImVec2 below = ImGui::GetCursorScreenPos();
-	const float rw = 100.f * u;
-	ImGui::SetCursorScreenPos(ImVec2(top.x + width - rw, top.y));
-	if (navButton(b.busy ? "..." : "Refresh##daily", ImVec2(rw, 0.f)) && !b.busy && cb_.refreshDailyBoard)
+	ImGui::SetCursorScreenPos(ImVec2(top.x + width - refreshW, top.y));
+	if (navButton(b.busy ? "..." : "Refresh##daily", ImVec2(refreshW, 0.f)) && !b.busy && cb_.refreshDailyBoard)
 		cb_.refreshDailyBoard(d.date, b.scope);
 	ImGui::SetCursorScreenPos(below);
-	if (!d.done)
-		ImGui::TextDisabled("Finish today's daily to get on the board. One attempt counts.");
+	if (!d.done && !d.running)
+		ImGui::TextDisabled("Finish today's daily to get on the board.");
 	if (!b.error.empty())
 		ImGui::TextDisabled("%s", b.error.c_str());
-	if (!b.loaded || b.day != d.date)
+	if (!current)
 	{
 		ImGui::TextDisabled("Loading...");
 		return;
 	}
 	if (b.rows.empty())
 	{
-		ImGui::TextDisabled("%s", b.scope == "all" ? "Nobody has finished today's daily yet." : "None of your friends have finished today's daily yet.");
+		ImGui::TextDisabled("%s", b.scope == "all" ? "Nobody has finished today's daily yet. Be the first!"
+			: "None of your friends have finished it yet. Everyone shows the whole board.");
 		return;
 	}
 	ImGui::Dummy(ImVec2(0, 4.f * u));
-	const float rowH = std::max(40.f * u, fs * 2.0f);
-	int lastRank = 0;
-	for (const auto& r : b.rows)
+	const float rowH = std::max(38.f * u, fs * 1.9f);
+	constexpr size_t kTop = 8;
+	const size_t cap = dailyBoardAll_ ? b.rows.size() : kTop;
+	for (size_t i = 0; i < b.rows.size(); ++i)
 	{
-		if (lastRank != 0 && r.rank > lastRank + 1 && b.scope == "all")
-		{
+		const auto& r = b.rows[i];
+		if (i >= cap && !r.me)
+			continue; // the top, and the player wherever they are
+		if (r.me && (i >= cap || r.rank > 50))
 			ImGui::TextDisabled("...");
-		}
-		lastRank = r.rank;
 		const ImVec2 a = ImGui::GetCursorScreenPos(), e(a.x + width, a.y + rowH);
 		dl->AddRectFilled(a, e, theme::u32(r.me ? theme::mix(pal.card, pal.accent, 0.16f) : theme::mix(pal.bg, pal.card, 0.6f)), 10.f);
+		const float textY = a.y + (rowH - fs) * 0.5f;
+		// The top three: gold, silver and bronze.
+		const ImU32 medal = r.rank == 1 ? IM_COL32(255, 205, 60, 255) : r.rank == 2 ? IM_COL32(205, 212, 224, 255)
+			: r.rank == 3 ? IM_COL32(222, 150, 92, 255) : 0;
+		if (medal != 0)
+			dl->AddRectFilled(ImVec2(a.x, a.y + 8.f * u), ImVec2(a.x + 3.f * u, e.y - 8.f * u), medal, 2.f);
 		char rank[16];
 		snprintf(rank, sizeof(rank), "#%d", r.rank);
-		const ImU32 rankCol = r.rank == 1 ? IM_COL32(255, 205, 60, 255) : theme::u32(r.me ? pal.accent : pal.textDim);
-		dl->AddText(ImVec2(a.x + 16.f * u, a.y + (rowH - fs) * 0.5f), rankCol, rank);
-		const std::string name = fitText(r.name + (r.me ? "  (you)" : ""), width * 0.42f - 100.f * u);
-		dl->AddText(ImVec2(a.x + 70.f * u, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text), name.c_str());
-		supporterHeart(dl, s, r.name, ImVec2(a.x + 70.f * u, a.y + (rowH - fs) * 0.5f), name, fs);
-		std::vector<int> marks;
-		for (const char c : r.marks)
-			marks.push_back(c - '0');
-		marks.resize(std::max<size_t>(marks.size(), d.shots.size()), 0);
-		const float sq = std::round(14.f * u), gap = std::round(4.f * u);
-		dailyGrid(dl, ImVec2(a.x + width * 0.42f, a.y + (rowH - sq) * 0.5f), marks, sq, gap, 10, theme::u32(pal.textDim, 0.35f));
+		dl->AddText(ImVec2(a.x + 12.f * u, textY), medal != 0 ? medal : theme::u32(r.me ? pal.accent : pal.textDim), rank);
+		// From the right: the score, then the squares if the name still has room.
 		char right[48];
 		snprintf(right, sizeof(right), "%d/%d   %s", r.hits, static_cast<int>(d.shots.size()), daily::groupThousands(r.points).c_str());
 		const ImVec2 rs = ImGui::CalcTextSize(right);
-		dl->AddText(ImVec2(e.x - 16.f * u - rs.x, a.y + (rowH - fs) * 0.5f), theme::u32(pal.text), right);
-		ImGui::SetCursorScreenPos(ImVec2(a.x, e.y + 6.f * u));
+		const float rightW = std::max(rs.x, ImGui::CalcTextSize("10/10   1,500").x); // the squares line up down the board
+		const float rightX = e.x - 12.f * u - rightW;
+		dl->AddText(ImVec2(e.x - 12.f * u - rs.x, textY), theme::u32(pal.text), right);
+		const float nameX = a.x + 52.f * u;
+		const float sq = std::round(11.f * u), gap = std::round(3.f * u);
+		const float gridW = 10.f * sq + 9.f * gap;
+		const float gridX = rightX - 12.f * u - gridW;
+		const bool showGrid = gridX - nameX > 140.f * u;
+		const float nameW = (showGrid ? gridX : rightX) - nameX - fs * 1.4f;
+		const std::string name = fitText(r.name + (r.me ? "  (you)" : ""), nameW);
+		dl->AddText(ImVec2(nameX, textY), theme::u32(pal.text), name.c_str());
+		supporterHeart(dl, s, r.name, ImVec2(nameX, textY), name, fs);
+		if (showGrid)
+		{
+			std::vector<int> marks;
+			for (const char c : r.marks)
+				marks.push_back(c - '0');
+			marks.resize(std::max<size_t>(marks.size(), d.shots.size()), 0);
+			dailyGrid(dl, ImVec2(gridX, a.y + (rowH - sq) * 0.5f), marks, sq, gap, 10, theme::u32(pal.textDim, 0.35f));
+		}
+		ImGui::SetCursorScreenPos(ImVec2(a.x, e.y + 5.f * u));
 		ImGui::Dummy(ImVec2(width, 0.f));
 	}
-	if (b.players > 0)
-		ImGui::TextDisabled("%d %s today", b.players, b.players == 1 ? "player" : "players");
+	if (b.rows.size() > kTop)
+	{
+		const std::string label = dailyBoardAll_ ? std::string("Show the top 8##daily")
+			: "Show all " + std::to_string(b.rows.size()) + "##daily";
+		if (navButton(label.c_str(), ImVec2(0.f, 0.f)))
+			dailyBoardAll_ = !dailyBoardAll_;
+	}
 }
 
 void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
@@ -9668,12 +10013,19 @@ void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
 	ImDrawList* dl = ImGui::GetWindowDrawList();
 	const int count = static_cast<int>(d->shots.size());
 
+	// The leaderboard sits beside the challenge, in view without scrolling and next to the Start button (Lambourne
+	// 2026-11-03: at the bottom of the page it gave nobody a reason to compete). A narrow window stacks them.
+	const float columnGap = 16.f * u;
+	const bool twoColumns = width >= 760.f * u;
+	const float todayW = twoColumns ? std::round((width - columnGap) * 0.47f) : width;
+	const ImVec2 columnsTop = ImGui::GetCursorScreenPos();
+
 	// Today: the number and date, the state, the squares, the streak, and Start / Continue / Copy result.
 	{
-		CardScope card(width, 24.f * u);
+		CardScope card(todayW, (twoColumns ? 18.f : 24.f) * u);
 		const float inner = card.inner();
 		const ImVec2 top = ImGui::GetCursorScreenPos();
-		const float sideW = 180.f * u; // the streak column at the right
+		const float sideW = (twoColumns ? 96.f : 180.f) * u; // the streak column at the right
 		ImGui::PushTextWrapPos(top.x - ImGui::GetWindowPos().x + inner - sideW - 20.f * u); // window-relative
 		char kicker[48];
 		snprintf(kicker, sizeof(kicker), "DAILY #%d", d->number);
@@ -9708,7 +10060,8 @@ void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
 		std::vector<int> marks;
 		for (const auto& sh : d->shots)
 			marks.push_back(sh.mark);
-		const float sq = std::round(std::max(30.f * u, fs * 1.6f)), gap = std::round(8.f * u);
+		const float gap = std::round((twoColumns ? 5.f : 8.f) * u);
+		const float sq = std::floor(std::min(std::max(30.f * u, fs * 1.6f), (inner - (count - 1) * gap) / std::max(count, 1)));
 		const ImVec2 gridAt = ImGui::GetCursorScreenPos();
 		const float grow = easeOut(static_cast<float>((now - pageAt_) / 0.5));
 		const float shown = sq * (0.85f + 0.15f * grow);
@@ -9721,6 +10074,8 @@ void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
 		const float bs = fs * 1.1f;
 		const float btnH = std::max(46.f * u, bs * 1.7f);
 		const auto besideButton = [&](const char* text) {
+			if (twoColumns)
+				return; // no room: the button says enough
 			ImGui::SameLine(0.f, 16.f * u);
 			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (btnH - fs) * 0.5f);
 			ImGui::TextDisabled("%s", text);
@@ -9770,7 +10125,23 @@ void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
 			}
 		}
 	}
-	ImGui::Dummy(ImVec2(0, 16.f * u));
+	// The leaderboard: today's scores for everyone or friends (Phase 8).
+	{
+		const float todayBottom = ImGui::GetCursorScreenPos().y;
+		if (twoColumns)
+			ImGui::SetCursorScreenPos(ImVec2(columnsTop.x + todayW + columnGap, columnsTop.y));
+		else
+			ImGui::Dummy(ImVec2(0, 14.f * u));
+		ImGui::BeginGroup();
+		{
+			CardScope card(twoColumns ? width - todayW - columnGap : width, 18.f * u);
+			renderDailyBoard(s, *d, card.inner());
+		}
+		ImGui::EndGroup();
+		const float bottom = std::max(twoColumns ? todayBottom : 0.f, ImGui::GetItemRectMax().y);
+		ImGui::SetCursorScreenPos(ImVec2(columnsTop.x, bottom + 16.f * u));
+		ImGui::Dummy(ImVec2(width, 0.f));
+	}
 
 	// The shots: each drill shows once played (or once the day is done), with its result; afterwards, practise any.
 	heading("TODAY'S SHOTS", width, d->done ? "practice doesn't count" : nullptr);
@@ -9833,10 +10204,6 @@ void Dashboard::renderDaily(const DashboardModel& m, const DashboardStatus& s)
 			ImGui::PopID();
 		}
 	}
-
-	// The leaderboard: today's scores for friends or everyone (Phase 8).
-	ImGui::Dummy(ImVec2(0, 12.f * u));
-	renderDailyBoard(s, *d, width);
 
 	// Past days: number and date, the squares, hits and points.
 	if (!d->history.empty())
