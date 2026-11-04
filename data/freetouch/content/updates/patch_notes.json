@@ -3,6 +3,17 @@
   "about": "Free Touch's patch notes, newest first (the menu's Patch notes window). Every release gets an entry at the top with a new id; a new id opens the window once for each player. kind is new, changed or fixed.",
   "updates": [
     {
+      "id": "2026-11-04-dpad",
+      "date": "2026-11-04",
+      "title": "D-pad drill controls are back, and a startup crash is gone",
+      "items": [
+        { "kind": "fixed", "text": "The D-pad works in drills and Freeplay+ again for players on Rocket League's own freeplay controls: next shot, previous shot, slow motion and the menu." },
+        { "kind": "fixed", "text": "The D-pad moves around the menu in freeplay again." },
+        { "kind": "fixed", "text": "Fixed a crash that could happen when BakkesMod updated Free Touch while the game was starting." },
+        { "kind": "changed", "text": "Menu pictures now load the first time you open the menu, so they may pop in for a moment." }
+      ]
+    },
+    {
       "id": "2026-11-03-compete",
       "date": "2026-11-03",
       "title": "Daily leaderboard up front, and no more surprise map changes",

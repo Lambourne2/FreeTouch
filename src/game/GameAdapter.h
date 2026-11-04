@@ -158,7 +158,8 @@ public:
 #endif
 
 	// Dashboard images (PNG/JPG). loadImage (game thread) returns a handle, cached per file and modification time,
-	// or -1 if the file does not exist. image (render thread) gives its texture, null until it has loaded.
+	// or -1 if the file does not exist. image (render thread) gives its texture, null until it has loaded; loading starts
+	// the first time it's asked for one.
 	virtual int loadImage(const std::filesystem::path& file) = 0;
 	virtual ImageInfo image(int handle) = 0;
 };

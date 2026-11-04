@@ -28,6 +28,7 @@
 #include "game/GameAdapter.h"
 #include "plugin/ExerciseControls.h"
 #include "core/PracticeSpeed.h"
+#include "core/KeyPresses.h"
 #include <optional>
 
 #include "ui/BindingsScreen.h"
@@ -138,6 +139,8 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	PracticeSpeed practice_;    // settings/ui.json "practice"
 	void updatePracticeSpeed();
 	void updateMenuNavBinds();
+	void pollGameFreeplayKeys();
+	bool firstPress(const std::string& command);
 	void refreshControls();
 	bool firstRunDone_ = false;  // settings/ui.json "firstRunDone"
 	std::set<std::string> tutorialsSeen_; // settings/ui.json "tutorialsSeen": the tips already shown
@@ -264,6 +267,9 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	int noticeSeq_ = 0;
 	void notice(const std::string& text);
 	bool navBindsOn_ = false;
+	KeyPresses gameKeyPresses_;
+	std::mutex lastPressMutex_;
+	std::map<std::string, std::chrono::steady_clock::time_point> lastPress_; // firstPress: command -> when it last ran
 	bool unloading_ = false;
 	void saveUiSettings();
 

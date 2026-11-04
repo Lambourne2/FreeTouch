@@ -1291,7 +1291,8 @@ int BakkesGameAdapter::loadImage(const std::filesystem::path& file)
 	std::lock_guard lock(imagesMutex_);
 	if (const auto it = imageHandles_.find(key); it != imageHandles_.end())
 		return it->second;
-	images_.push_back(std::make_shared<ImageWrapper>(file, false, true));
+	images_.push_back(imagesWanted_ ? std::make_shared<ImageWrapper>(file, false, true) : nullptr);
+	imageFiles_.push_back(file);
 	const int handle = static_cast<int>(images_.size()) - 1;
 	imageHandles_[key] = handle;
 	return handle;
@@ -1307,10 +1308,38 @@ ImageInfo BakkesGameAdapter::image(int handle)
 		img = images_[handle];
 	}
 	if (!img)
+	{
+		// The menu's first picture: they load from here on, not when the plugin does (see keepUnfinishedImages).
+		if (!imagesWanted_.exchange(true))
+			gw_->Execute([this](GameWrapper*) { startImages(); });
 		return {};
-	void* texture = img->GetImGuiTex(); // loads on first use (render thread)
+	}
+	// GetImGuiTex would queue another load for every frame this one is still running.
+	if (!img->IsLoadedForImGui())
+		return {};
+	void* texture = img->GetImGuiTex();
 	if (!texture)
 		return {};
 	const Vector2F size = img->GetSizeF();
 	return {texture, size.X, size.Y};
+}
+
+void BakkesGameAdapter::startImages()
+{
+	std::lock_guard lock(imagesMutex_);
+	for (size_t i = 0; i < images_.size(); ++i)
+		if (!images_[i])
+			images_[i] = std::make_shared<ImageWrapper>(imageFiles_[i], false, true);
+}
+
+void BakkesGameAdapter::keepUnfinishedImages()
+{
+	// The render thread finishes a load by writing into its ImageWrapper, and BakkesMod has no way to call one off: freed
+	// first, that write crashes the game in pluginsdk.dll (2026-11-04: its plugin manager swapped in an update 2.5 s after
+	// load, with the menu's pictures still loading). One still loading stays allocated on purpose; the load only runs
+	// pluginsdk's code, so it lands safely after this DLL is gone.
+	std::lock_guard lock(imagesMutex_);
+	for (const auto& img : images_)
+		if (img && !img->IsLoadedForImGui())
+			new std::shared_ptr<ImageWrapper>(img);
 }

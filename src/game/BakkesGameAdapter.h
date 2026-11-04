@@ -24,6 +24,7 @@ public:
 	{
 		closeFilePicker();
 		stopRequests();
+		keepUnfinishedImages();
 	}
 
 	void start() override;
@@ -108,9 +109,13 @@ private:
 	std::shared_ptr<std::atomic<int>> requestsOut_ = std::make_shared<std::atomic<int>>(0);
 	std::shared_ptr<std::atomic<bool>> requestsWanted_ = std::make_shared<std::atomic<bool>>(true);
 	// Images are never freed while the plugin runs (the render thread may be drawing them); a changed file
-	// gets a new handle.
+	// gets a new handle. None loads until the menu first asks for one: a slot stays empty until then.
+	void startImages();
+	void keepUnfinishedImages();
 	std::mutex imagesMutex_;
 	std::vector<std::shared_ptr<ImageWrapper>> images_;
+	std::vector<std::filesystem::path> imageFiles_; // the file of each slot in images_
+	std::atomic<bool> imagesWanted_{false};
 	std::map<std::string, int> imageHandles_; // path + modification time -> handle
 	std::vector<TickListener> tickListeners_;
 	std::vector<TouchListener> touchListeners_;

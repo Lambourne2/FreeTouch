@@ -32,6 +32,15 @@ namespace
 {
 	constexpr auto kSelectKey = "XboxTypeS_Back";
 	constexpr auto kMenuKey = "F7"; // F6 is the BakkesMod console
+	// While the window is open the controller drives it (updateMenuNavBinds).
+	constexpr std::pair<const char*, const char*> kNavBinds[] = {
+		{"XboxTypeS_DPad_Up", "ft_nav up"}, {"XboxTypeS_DPad_Down", "ft_nav down"},
+		{"XboxTypeS_DPad_Left", "ft_nav left"}, {"XboxTypeS_DPad_Right", "ft_nav right"},
+		{"XboxTypeS_A", "ft_nav select"}, {"XboxTypeS_B", "ft_nav back"}, {"XboxTypeS_Start", "ft_nav close"},
+	};
+	// The buttons Rocket League's own freeplay controls use (pollGameFreeplayKeys).
+	constexpr const char* kGameFreeplayKeys[] = {"XboxTypeS_DPad_Up", "XboxTypeS_DPad_Down", "XboxTypeS_DPad_Left",
+		"XboxTypeS_DPad_Right", "XboxTypeS_LeftShoulder", "XboxTypeS_RightShoulder"};
 	constexpr auto kFreeplayId = "speed_lab.objectives"; // Freeplay+
 
 	// Local time with a strftime format, e.g. "%Y%m%d-%H%M%S" for file names.
@@ -754,14 +763,17 @@ void FreeTouch::onLoad()
 	game_->addTickListener([this](const Snapshot&) {
 		updatePracticeSpeed();
 		updateMenuNavBinds();
+		pollGameFreeplayKeys();
 		reloadPacksIfDirty();
 		publishStatus();
 	});
 	cvarManager->registerNotifier("ft_nav", [this](std::vector<std::string> args) {
-		if (args.size() > 1 && dashboard_)
+		if (args.size() > 1 && dashboard_ && firstPress("ft_nav " + args[1]))
 			dashboard_->queueNav(args[1]);
 	}, "Controller navigation of the Free Touch window: ft_nav up|down|left|right|select|back|close", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_slowmo", [this](std::vector<std::string>) {
+		if (!firstPress("ft_slowmo"))
+			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
 			practice_.toggle();
@@ -804,6 +816,8 @@ void FreeTouch::onLoad()
 		cvarManager->executeCommand("togglemenu " + GetMenuName());
 	}, "Open or close the Free Touch window", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_back", [this](std::vector<std::string>) {
+		if (!firstPress("ft_back"))
+			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
 			// A double tap: the first press only arms it (a stray press mid-play does nothing), the second within
@@ -893,6 +907,8 @@ void FreeTouch::onLoad()
 		game_->runOnGameThread([this] { player_->retry(); });
 	}, "Retry the current rep (same seed)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_next", [this](std::vector<std::string>) {
+		if (!firstPress("ft_next"))
+			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
 			if (session_->active())
@@ -931,6 +947,8 @@ void FreeTouch::onLoad()
 		game_->runOnGameThread([this] { startInFreeplay([this] { startQuickPlay(); }, "warm-up"); });
 	}, "Start your warm-up: the next drill block in your Routine's warm-up section (as Home's Warm-up button)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_prev", [this](std::vector<std::string>) {
+		if (!firstPress("ft_prev"))
+			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
 			player_->previous();
@@ -1751,8 +1769,8 @@ bool FreeTouch::bakkesBallControls() const
 {
 	// Read only, never written: BakkesMod reloads freeplay (load_freeplay, a new map) every time this cvar is set. It
 	// was swapped when the menu opened or closed and a drill started or stopped, for Epic's controls (2026-10-29), which
-	// threw players between freeplays (Lambourne 2026-11-03). Epic's actions on Free Touch's buttons are undone instead:
-	// guardBallAction.
+	// threw players between freeplays (Lambourne 2026-11-03). Epic's actions on Free Touch's buttons are undone instead
+	// (guardBallAction), and those buttons are read directly (pollGameFreeplayKeys).
 	CVarWrapper cvar = cvarManager->getCvar("sv_freeplay_bindings");
 	return !cvar.IsNull() && cvar.getBoolValue();
 }
@@ -2641,11 +2659,6 @@ void FreeTouch::updateMenuNavBinds()
 		scanInbox(); // a shot a friend shared may have landed in Downloads since
 		loadAccountOnce();
 	}
-	static const std::pair<const char*, const char*> kNavBinds[] = {
-		{"XboxTypeS_DPad_Up", "ft_nav up"}, {"XboxTypeS_DPad_Down", "ft_nav down"},
-		{"XboxTypeS_DPad_Left", "ft_nav left"}, {"XboxTypeS_DPad_Right", "ft_nav right"},
-		{"XboxTypeS_A", "ft_nav select"}, {"XboxTypeS_B", "ft_nav back"}, {"XboxTypeS_Start", "ft_nav close"},
-	};
 	for (const auto& [key, command] : kNavBinds)
 	{
 		if (open)
@@ -2657,6 +2670,50 @@ void FreeTouch::updateMenuNavBinds()
 		controls_->reapply();
 	navBindsOn_ = open;
 	eventLog_.write("menu_nav_binds", {{"on", open}});
+}
+
+void FreeTouch::pollGameFreeplayKeys()
+{
+	// With Psyonix's freeplay bindings on (BakkesMod's setting off, sv_freeplay_bindings 0), BakkesMod runs no bind on a
+	// button the game's freeplay uses, so Free Touch's D-pad did nothing in freeplay: "make sure the BM button you wish to
+	// use is not bound to any in-game freeplay action" (its own text). Those buttons' commands run from the key state
+	// instead; the setting can't be swapped for a drill, that reloads the map (see bakkesBallControls). The ball controls
+	// have the buttons back: the drill's binds are off then, and this looks up nothing.
+	if (!game_->inFreeplay() || bakkesBallControls())
+		return;
+	const std::vector<std::string> keys(std::begin(kGameFreeplayKeys), std::end(kGameFreeplayKeys));
+	for (const auto& key : gameKeyPresses_.update(game_->keysDown(keys)))
+	{
+		std::string command;
+		if (navBindsOn_)
+		{
+			for (const auto& [navKey, navCommand] : kNavBinds)
+				if (key == navKey)
+					command = navCommand;
+		}
+		else if (controls_->active())
+		{
+			for (const auto& a : Controls::actions())
+				if (key == controls_->controls().keyFor(a.id))
+					command = a.command;
+		}
+		if (command.empty())
+			continue;
+		eventLog_.write("game_key_press", {{"key", key}, {"command", command}});
+		cvarManager->executeCommand(command, false);
+	}
+}
+
+bool FreeTouch::firstPress(const std::string& command)
+{
+	// One press can arrive twice, as a bind and from the key state, if BakkesMod runs the bind after all.
+	const auto now = std::chrono::steady_clock::now();
+	std::lock_guard lock(lastPressMutex_);
+	auto& last = lastPress_[command];
+	if (now - last < std::chrono::milliseconds(80))
+		return false;
+	last = now;
+	return true;
 }
 
 void FreeTouch::updatePracticeSpeed()
