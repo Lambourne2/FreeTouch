@@ -257,7 +257,7 @@ namespace
 			{"basics", "Basics"}, {"saves", "Saves"}, {"pro_saves", "Pro saves"}, {"mechanics", "Mechanics"},
 			{"horse", "HORSE"}, {"pinch_bowling", "Pinch bowling"}, {"combo", "Combos"},
 			{"backboard_breakout", "Backboard breakout"}, {"movement", "Movement"}, {"first_touch", "First touch"},
-			{"speed_lab", "Freeplay+"}, {"glade", "The Glade"}, {"defense", "Defense"}, {"fifties", "50s"},
+			{"speed_lab", "Game Modes"}, {"glade", "The Glade"}, {"defense", "Defense"}, {"fifties", "50s"},
 			{"races", "Races"}, {"speed_flip", "Speed flip"}, {"replay", "Replays"}, {"packs", "Training packs"}, {"captured", "Captured"}, {"dev", "Dev"},
 			{"vs_bot", "1v1 vs bot"}, {"__favourites", "Favourites"},
 		};
@@ -557,6 +557,11 @@ void Dashboard::previewPage(const std::string& page, const std::string& detailId
 	if (const auto it = pages.find(page); it != pages.end())
 		page_ = it->second;
 	detailId_ = detailId;
+	if (detailId.rfind("mode:", 0) == 0)
+	{
+		gameMode_ = std::atoi(detailId.c_str() + 5);
+		detailId_.clear();
+	}
 	if (detailId.rfind("toast:", 0) == 0)
 	{
 		toast(detailId.substr(6)); // the preview's confirmation message
@@ -874,6 +879,11 @@ void Dashboard::render(bool* open)
 	supporterMe_ = status.account.state == Account::State::SignedIn && Friends::isSupporter(status.friends, status.account.name);
 	hubLast_[static_cast<int>(hubOf(page_))] = page_;
 	dailyWaiting_ = status.daily && status.daily->available && !status.daily->done && !status.daily->running;
+	banksWaiting_ = status.banks.waiting;
+	const bool bankPage = page_ == Page::FreeplayPlus && gameMode_ == 1;
+	if (bankPage && !shotBankShown_ && cb_.shotBankOnline)
+		cb_.shotBankOnline("refresh", "");
+	shotBankShown_ = bankPage;
 	sharedWaiting_ = 0;
 	for (const auto& i : status.shots.inbox)
 		sharedWaiting_ += !(status.haveKeys && status.haveKeys->count(i.key));
@@ -969,7 +979,7 @@ void Dashboard::render(bool* open)
 		switch (page_)
 		{
 		case Page::Home: renderHome(m, status); break;
-		case Page::FreeplayPlus: renderFreeplayPlus(m); break;
+		case Page::FreeplayPlus: renderGameModes(m, status); break;
 		case Page::Sessions: renderSessions(m, status); break;
 		case Page::Exercises: renderExercises(m, status); break;
 		case Page::QuickPlay: renderWarmup(m, status); break;
@@ -1102,7 +1112,7 @@ std::vector<Dashboard::HubTab> Dashboard::hubTabs(Hub hub) const
 	switch (hub)
 	{
 	case Hub::Train:
-		return {{Page::Exercises, "Exercises"}, {Page::Sessions, "Sessions & Labs"}, {Page::FreeplayPlus, "Freeplay+"},
+		return {{Page::Exercises, "Exercises"}, {Page::Sessions, "Sessions & Labs"}, {Page::FreeplayPlus, "Game Modes"},
 			{Page::QuickPlay, "Routine"}};
 	case Hub::Compete:
 		return {{Page::Daily, "Daily"}, {Page::Races, "Races"}, {Page::Board, "Shot Board"}};
@@ -1223,7 +1233,8 @@ void Dashboard::renderRail()
 				dl->AddText(theme::fontAt(cs), cs, ImVec2(tx, textTop + fs + 2.f * u), theme::u32(pal.textDim, selected ? 0.9f : 0.7f),
 					fitText(item.caption, size.x - (tx - pos.x) - 8.f * u).c_str());
 			// Something waiting there: a count (friend requests, shots shared with you) or a dot (today's daily).
-			const int count = item.hub == Hub::Friends ? friendRequests_ : item.hub == Hub::Create ? sharedWaiting_ : 0;
+			const int count = item.hub == Hub::Friends ? friendRequests_ : item.hub == Hub::Create ? sharedWaiting_
+				: item.hub == Hub::Train ? banksWaiting_ : 0;
 			const float bx = tx + ImGui::CalcTextSize(item.label).x + 8.f * u, by = textTop + fs * 0.5f;
 			if (count > 0)
 			{
@@ -1292,7 +1303,7 @@ void Dashboard::drawHubTabs()
 		if (hovered)
 			ImGui::SetTooltip("How this works");
 		if (clicked)
-			openTutorial(hubKey(hub));
+			openTutorial(page_ == Page::FreeplayPlus && gameMode_ == 1 ? "shot_bank" : hubKey(hub));
 	}
 	if (tabs.size() > 1)
 	{
@@ -5200,6 +5211,300 @@ void Dashboard::renderRoutineTemplates(const DashboardModel& m, bool replacing)
 	}
 	ImGui::SetCursorScreenPos(ImVec2(row.x, row.y + 4.f));
 	ImGui::TextDisabled("Templates live in content/routines/ as JSON: add your own there.");
+}
+
+void Dashboard::renderGameModes(const DashboardModel& m, const DashboardStatus& s)
+{
+	// The training game modes, each a tile: pick one and its page opens under them.
+	const theme::Palette& pal = theme::palette();
+	struct Mode { const char* name; const char* line; const std::string& id; };
+	const Mode modes[] = {{"Freeplay+", "Objectives on the fly in live freeplay.", m.freeplayId},
+		{"Shot Bank", "Score five shots, then save them yourself.", m.shotBankId}};
+	ImDrawList* dl = ImGui::GetWindowDrawList();
+	ImFont* font = ImGui::GetFont();
+	const float fs = ImGui::GetFontSize();
+	const float gap = 14.f;
+	const float tileW = (ImGui::GetContentRegionAvail().x - gap) * 0.5f, tileH = fs * 4.4f;
+	const ImVec2 row = ImGui::GetCursorScreenPos();
+	for (int i = 0; i < 2; ++i)
+	{
+		const ImVec2 a(row.x + i * (tileW + gap), row.y), b(a.x + tileW, a.y + tileH);
+		ImGui::SetCursorScreenPos(a);
+		ImGui::PushID(i);
+		if (navInvisible("mode", ImVec2(tileW, tileH)))
+			gameMode_ = i;
+		ImGui::PopID();
+		const bool on = gameMode_ == i, hot = ImGui::IsItemHovered();
+		const ExerciseCard* card = findCard(m, modes[i].id);
+		const ImageInfo art = card && card->image >= 0 && cb_.image ? cb_.image(card->image) : ImageInfo{};
+		if (!drawCover(dl, art, a, b, 12.f, on ? IM_COL32_WHITE : IM_COL32(150, 150, 155, 255), 0.04f))
+			dl->AddRectFilled(a, b, theme::u32(pal.card), 12.f);
+		const ImU32 shade = IM_COL32(5, 8, 15, 225), clear = IM_COL32(5, 8, 15, 0);
+		roundedGradient(dl, a, ImVec2(a.x + tileW * 0.8f, b.y), shade, clear, clear, shade, 12.f, ImDrawCornerFlags_Left);
+		dl->AddRect(a, b, on ? theme::u32(pal.accent) : hot ? IM_COL32(255, 255, 255, 80) : IM_COL32(255, 255, 255, 18), 12.f, ImDrawCornerFlags_All, on ? 2.f : 1.f);
+		shadowedText(dl, font, fs * 1.35f, ImVec2(a.x + 18.f, a.y + fs * 0.75f), IM_COL32(250, 252, 255, 255), modes[i].name);
+		shadowedText(dl, font, fs * 0.95f, ImVec2(a.x + 18.f, a.y + fs * 2.45f), IM_COL32(205, 214, 228, 235), modes[i].line);
+		if (i == 1 && s.banks.waiting > 0)
+		{
+			char waiting[32];
+			snprintf(waiting, sizeof(waiting), "%d to defend", s.banks.waiting);
+			darkPill(dl, ImVec2(b.x - ImGui::CalcTextSize(waiting).x - 30.f, a.y + 10.f), waiting, theme::u32(pal.accent));
+		}
+	}
+	ImGui::SetCursorScreenPos(ImVec2(row.x, row.y + tileH + 18.f));
+	if (gameMode_ == 1)
+		renderShotBank(m, s);
+	else
+		renderFreeplayPlus(m);
+}
+
+void Dashboard::renderShotBank(const DashboardModel& m, const DashboardStatus& s)
+{
+	const theme::Palette& pal = theme::palette();
+	ImDrawList* dl = ImGui::GetWindowDrawList();
+	ImFont* font = ImGui::GetFont();
+	const float fs = ImGui::GetFontSize();
+	const float width = ImGui::GetContentRegionAvail().x;
+	const ShotRackView empty;
+	const ShotRackView& rack = s.shotRack ? *s.shotRack : empty;
+	int filled = 0;
+	for (const auto& slot : rack.slots)
+		filled += slot.filled;
+
+	// Banner: what it is, how full the rack is, what to do next.
+	{
+		const ImVec2 a = ImGui::GetCursorScreenPos(), b(a.x + width, a.y + std::clamp(width * 0.2f, 160.f, 200.f));
+		const ExerciseCard* card = findCard(m, m.shotBankId);
+		const ImageInfo art = card && card->image >= 0 && cb_.image ? cb_.image(card->image) : ImageInfo{};
+		if (!drawCover(dl, art, a, b, 14.f, IM_COL32(235, 235, 235, 255), 0.05f))
+			dl->AddRectFilled(a, b, theme::u32(theme::mix(pal.card, pal.accent, 0.22f)), 14.f);
+		const ImU32 shade = IM_COL32(5, 8, 15, 235), clear = IM_COL32(5, 8, 15, 0);
+		roundedGradient(dl, a, ImVec2(a.x + width * 0.75f, b.y), shade, clear, clear, shade, 14.f, ImDrawCornerFlags_Left);
+		dl->AddRect(a, b, theme::u32(pal.accent, 0.3f), 14.f, ImDrawCornerFlags_All, 1.2f);
+		shadowedText(dl, font, fs * 0.9f, ImVec2(a.x + 28.f, a.y + 20.f), theme::u32(pal.accent), "BEAT YOUR OWN SHOT");
+		shadowedText(dl, font, fs * 2.1f, ImVec2(a.x + 28.f, a.y + 20.f + fs * 1.3f), IM_COL32(250, 252, 255, 255), "Shot Bank");
+		shadowedText(dl, font, fs, ImVec2(a.x + 28.f, a.y + 20.f + fs * 3.5f), IM_COL32(205, 214, 228, 235),
+			"Score five shots. A car replays them at your net, shuffled, and you save them.");
+		char count[32];
+		snprintf(count, sizeof(count), "%d of 5 banked", filled);
+		const ImVec2 cs = ImGui::CalcTextSize(count);
+		darkPill(dl, ImVec2(b.x - cs.x - 34.f, a.y + 16.f), count, theme::u32(pal.accent));
+		ImGui::SetCursorScreenPos(ImVec2(a.x + 28.f, b.y - 62.f));
+		if (rack.full)
+		{
+			if (bigButton("bank_defend", "Defend", ImVec2(170, 46), true, Icon::Play, true, Fx::Confirm) && cb_.shotBank)
+			{
+				cb_.shotBank("defend", -1);
+				closeRequested_ = true;
+			}
+			ImGui::SameLine(0.f, 12.f);
+			if (s.account.state == Account::State::SignedIn)
+			{
+				if (bigButton("bank_send", s.banks.busy ? "Sending..." : "Send to a friend", ImVec2(190, 46), false, Icon::Play, false, Fx::Click))
+					ImGui::OpenPopup("bank_send_menu");
+				if (beginMenuBelow("bank_send_menu"))
+				{
+					std::vector<const Friends::Entry*> friends;
+					for (const auto& e : s.friends.list)
+						if (e.state == "friend")
+							friends.push_back(&e);
+					if (friends.empty())
+						ImGui::TextDisabled("Add friends (Friends page) to send them your bank");
+					for (const auto* e : friends)
+					{
+						ImGui::PushID(e->id.c_str());
+						if (ImGui::Selectable(e->name.c_str()) && cb_.shotBankSend)
+							cb_.shotBankSend({e->id}, e->name);
+						ImGui::PopID();
+					}
+					if (friends.size() > 1 && ImGui::Selectable("All my friends") && cb_.shotBankSend)
+					{
+						std::vector<std::string> ids;
+						for (const auto* e : friends)
+							ids.push_back(e->id);
+						cb_.shotBankSend(ids, "all your friends");
+					}
+					endMenuBelow();
+				}
+				ImGui::SameLine(0.f, 12.f);
+			}
+		}
+		if (bigButton("bank_shoot", filled == 0 ? "Start" : rack.full ? "Redo shots" : "Keep shooting", ImVec2(170, 46), !rack.full, Icon::Play, !rack.full,
+			rack.full ? Fx::Click : Fx::Confirm) && cb_.shotBank)
+		{
+			cb_.shotBank("start", -1);
+			closeRequested_ = true;
+		}
+		ImGui::SetCursorScreenPos(ImVec2(a.x, b.y + 16.f));
+	}
+
+	// The rack: a card per slot, with the shot's path on a little field.
+	const float gap = 12.f;
+	const float cardW = (width - 4.f * gap) / 5.f, pitchH = cardW * 1.08f;
+	const ImVec2 row = ImGui::GetCursorScreenPos();
+	float bottom = row.y;
+	for (size_t i = 0; i < rack.slots.size(); ++i)
+	{
+		const ShotRackView::Slot& slot = rack.slots[i];
+		const ImVec2 a(row.x + i * (cardW + gap), row.y), pitchA(a.x + 10.f, a.y + fs * 1.9f);
+		const ImVec2 pitchB(a.x + cardW - 10.f, pitchA.y + pitchH);
+		const float cardH = pitchB.y - a.y + fs * 4.6f;
+		dl->AddRectFilled(a, ImVec2(a.x + cardW, a.y + cardH), theme::u32(pal.card), 12.f);
+		dl->AddRect(a, ImVec2(a.x + cardW, a.y + cardH), slot.filled ? theme::u32(pal.accent, 0.45f) : IM_COL32(255, 255, 255, 14), 12.f);
+		char label[16];
+		snprintf(label, sizeof(label), "SHOT %d", static_cast<int>(i) + 1);
+		dl->AddText(font, fs * 0.9f, ImVec2(a.x + 12.f, a.y + fs * 0.5f), slot.filled ? theme::u32(pal.accent) : IM_COL32(170, 178, 192, 255), label);
+		dl->AddRectFilled(pitchA, pitchB, IM_COL32(8, 11, 18, 200), 6.f);
+		dl->AddRect(pitchA, pitchB, IM_COL32(255, 255, 255, 40), 6.f);
+		const float midY = (pitchA.y + pitchB.y) * 0.5f, midX = (pitchA.x + pitchB.x) * 0.5f;
+		dl->AddLine(ImVec2(pitchA.x, midY), ImVec2(pitchB.x, midY), IM_COL32(255, 255, 255, 30));
+		dl->AddLine(ImVec2(midX - 12.f, pitchA.y), ImVec2(midX + 12.f, pitchA.y), IM_COL32(255, 150, 60, 230), 2.5f);
+		auto at = [&](const std::array<float, 2>& p) {
+			return ImVec2(midX - p[0] / 4096.f * (pitchB.x - pitchA.x) * 0.5f, midY - p[1] / 5200.f * (pitchB.y - pitchA.y) * 0.5f);
+		};
+		for (size_t p = 1; p < slot.path.size(); ++p)
+			dl->AddLine(at(slot.path[p - 1]), at(slot.path[p]), theme::u32(pal.accent), 2.f);
+		ImGui::SetCursorScreenPos(ImVec2(a.x + 12.f, pitchB.y + 8.f));
+		ImGui::PushID(static_cast<int>(i));
+		if (slot.filled)
+			ImGui::Text("%.0f km/h, %.1f s", slot.kmh, slot.seconds);
+		else
+			ImGui::TextDisabled("Empty");
+		ImGui::SetCursorScreenPos(ImVec2(a.x + 12.f, pitchB.y + 8.f + fs * 1.6f));
+		if (smallButton(slot.filled ? "Redo" : "Record") && cb_.shotBank)
+		{
+			cb_.shotBank("start", static_cast<int>(i));
+			closeRequested_ = true;
+		}
+		if (slot.filled)
+		{
+			ImGui::SameLine(0.f, 8.f);
+			if (smallButton("Clear") && cb_.shotBank)
+				cb_.shotBank("clear", static_cast<int>(i));
+		}
+		ImGui::PopID();
+		bottom = std::max(bottom, a.y + cardH);
+	}
+	ImGui::SetCursorScreenPos(ImVec2(row.x, bottom + 14.f));
+	ImGui::TextDisabled("While shooting, D-pad left and right pick a shot and retry starts it over. Your shots stay until you replace them.");
+	if (filled > 0)
+	{
+		ImGui::Dummy(ImVec2(0.f, 4.f));
+		if (smallButton("New bank (clear all five)") && cb_.shotBank)
+			cb_.shotBank("clear", -1);
+	}
+	ImGui::Dummy(ImVec2(0.f, 10.f));
+	renderBankChallenges(s, width);
+}
+
+void Dashboard::renderBankChallenges(const DashboardStatus& s, float width)
+{
+	// Shot Swap: banks friends sent to defend, and how they did on yours. A square per shot: green saved, red went in.
+	const theme::Palette& pal = theme::palette();
+	ImDrawList* dl = ImGui::GetWindowDrawList();
+	const float fs = ImGui::GetFontSize();
+	if (s.account.state != Account::State::SignedIn)
+	{
+		ImGui::TextDisabled("Pick a name (Settings > Account) to send your bank to friends and defend theirs.");
+		return;
+	}
+	if (!s.banks.error.empty())
+		ImGui::TextColored(ImVec4(1.f, 0.55f, 0.45f, 1.f), "%s", s.banks.error.c_str());
+	else if (!s.banks.message.empty())
+		ImGui::TextColored(pal.accent, "%s", s.banks.message.c_str());
+	auto savedCount = [](const std::string& r) { return static_cast<int>(std::count(r.begin(), r.end(), 'S')); };
+	auto squares = [&](const std::string& results, ImVec2 at) {
+		const float sq = fs * 1.05f, gap = 4.f;
+		for (size_t i = 0; i < results.size(); ++i)
+		{
+			const ImVec2 a(at.x + i * (sq + gap), at.y);
+			dl->AddRectFilled(a, ImVec2(a.x + sq, a.y + sq), results[i] == 'S' ? IM_COL32(83, 196, 108, 255) : IM_COL32(196, 72, 72, 255), 3.f);
+			char n[4];
+			snprintf(n, sizeof(n), "%d", static_cast<int>(i) + 1);
+			const ImVec2 ns = ImGui::CalcTextSize(n);
+			dl->AddText(ImVec2(a.x + (sq - ns.x) * 0.5f, a.y + (sq - ns.y) * 0.5f), IM_COL32(10, 12, 18, 255), n);
+		}
+		return at.x + results.size() * (sq + gap) + 10.f;
+	};
+	const float rowH = fs * 2.5f;
+	auto rowBack = [&](ImVec2 p) {
+		dl->AddRectFilled(p, ImVec2(p.x + width, p.y + rowH), theme::u32(pal.card), 10.f);
+		dl->AddRect(p, ImVec2(p.x + width, p.y + rowH), IM_COL32(255, 255, 255, 14), 10.f);
+	};
+
+	ImGui::TextColored(pal.accent, "FROM YOUR FRIENDS");
+	if (s.banks.inbox.empty())
+		ImGui::TextDisabled("Nothing yet. When a friend sends you their bank, it shows up here.");
+	for (const auto& c : s.banks.inbox)
+	{
+		ImGui::PushID(c.id.c_str());
+		const ImVec2 p = ImGui::GetCursorScreenPos();
+		rowBack(p);
+		const float textY = p.y + (rowH - fs) * 0.5f;
+		ImGui::SetCursorScreenPos(ImVec2(p.x + 14.f, textY));
+		ImGui::TextUnformatted(c.from.c_str());
+		ImGui::SameLine(0.f, 10.f);
+		ImGui::TextDisabled("%s", Friends::ago(c.ageSeconds).c_str());
+		const float buttonX = p.x + width - fs * 11.5f;
+		if (c.results.empty())
+		{
+			ImGui::SetCursorScreenPos(ImVec2(buttonX, p.y + fs * 0.45f));
+			if (smallButton("Defend", Fx::Confirm) && cb_.shotBankOnline)
+			{
+				cb_.shotBankOnline("play", c.id);
+				closeRequested_ = true;
+			}
+			ImGui::SameLine(0.f, 8.f);
+			if (smallButton("No thanks") && cb_.shotBankOnline)
+				cb_.shotBankOnline("remove", c.id);
+		}
+		else
+		{
+			const float after = squares(c.results, ImVec2(p.x + width * 0.34f, p.y + (rowH - fs * 1.05f) * 0.5f));
+			char line[32];
+			snprintf(line, sizeof(line), "You saved %d of 5", savedCount(c.results));
+			dl->AddText(ImVec2(after, textY), IM_COL32(220, 226, 236, 255), line);
+			ImGui::SetCursorScreenPos(ImVec2(buttonX + fs * 3.f, p.y + fs * 0.45f));
+			if (smallButton("Practice") && cb_.shotBankOnline)
+			{
+				cb_.shotBankOnline("play", c.id);
+				closeRequested_ = true;
+			}
+		}
+		ImGui::SetCursorScreenPos(ImVec2(p.x, p.y + rowH + 6.f));
+		ImGui::PopID();
+	}
+
+	ImGui::Dummy(ImVec2(0.f, 6.f));
+	ImGui::TextColored(pal.accent, "YOUR SHOTS AGAINST FRIENDS");
+	if (s.banks.sent.empty())
+		ImGui::TextDisabled("Fill your rack and send it to a friend to see how they do. Red squares are your shots that beat them.");
+	for (const auto& c : s.banks.sent)
+	{
+		ImGui::PushID(c.id.c_str());
+		const ImVec2 p = ImGui::GetCursorScreenPos();
+		rowBack(p);
+		const float textY = p.y + (rowH - fs) * 0.5f;
+		ImGui::SetCursorScreenPos(ImVec2(p.x + 14.f, textY));
+		ImGui::TextUnformatted(c.to.c_str());
+		if (c.results.empty())
+		{
+			ImGui::SameLine(0.f, 10.f);
+			ImGui::TextDisabled("hasn't played it yet (sent %s)", Friends::ago(c.ageSeconds).c_str());
+			ImGui::SetCursorScreenPos(ImVec2(p.x + width - fs * 6.f, p.y + fs * 0.45f));
+			if (smallButton("Take back") && cb_.shotBankOnline)
+				cb_.shotBankOnline("remove", c.id);
+		}
+		else
+		{
+			const float after = squares(c.results, ImVec2(p.x + width * 0.34f, p.y + (rowH - fs * 1.05f) * 0.5f));
+			char line[64];
+			snprintf(line, sizeof(line), "Saved %d of 5, %s", savedCount(c.results), Friends::ago(c.playedAgo).c_str());
+			dl->AddText(ImVec2(after, textY), IM_COL32(220, 226, 236, 255), line);
+		}
+		ImGui::SetCursorScreenPos(ImVec2(p.x, p.y + rowH + 6.f));
+		ImGui::PopID();
+	}
 }
 
 void Dashboard::renderFreeplayPlus(const DashboardModel& m)
@@ -9400,7 +9705,7 @@ void Dashboard::renderTutorial(const DashboardModel& m, const DashboardStatus& s
 {
 	// Lambourne 2026-10-29: "short tutorial popups with visuals would be PERFECT". The first time a place opens (once
 	// the plugin knows which were shown before), its tips; any time from the ? button.
-	const char* here = hubKey(hubOf(page_));
+	const char* here = page_ == Page::FreeplayPlus && gameMode_ == 1 ? "shot_bank" : hubKey(hubOf(page_));
 	const auto tut = std::find_if(m.tutorials.begin(), m.tutorials.end(), [&](const Tutorial& t) { return t.id == here; });
 	if (s.tutorialsSeen && tut != m.tutorials.end() && !s.tutorialsSeen->count(here) && !tutorialsShown_.count(here)
 		&& !tutorial_.requested && !playSetup_.requested && !raceBoard_.requested && !patchNotesRequested_ && !patchNotesOpen_

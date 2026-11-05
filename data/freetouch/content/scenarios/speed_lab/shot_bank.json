@@ -1,0 +1,18 @@
+{
+  "id": "modes.shot_bank",
+  "name": "Shot Bank",
+  "category": "speed_lab",
+  "description": "Score five shots, any way you like. Then they come back at you in a shuffled order, some mirrored, with a car playing your whole build-up, and you have to save them. Use your ball controls to set each one up.",
+  "tags": ["defense", "shot bank"],
+  "allowMirror": false,
+  "ball": { "location": [0, 0, 93] },
+  "player": {
+    "location": [0, -2000, 17],
+    "rotation": [0, 16384, 0],
+    "boost": 100
+  },
+  "success": { "type": "goal" },
+  "onSuccess": "next",
+  "onFail": "next",
+  "advanceDelaySeconds": 1.5
+}

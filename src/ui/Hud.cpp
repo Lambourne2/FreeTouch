@@ -95,6 +95,39 @@ namespace
 	}
 }
 
+float Hud::drawShotRack(Canvas& c, float y, float k)
+{
+	if (rack_.tiles.empty())
+		return y;
+	const float size = 44.f * k, gap = 8.f * k, defendW = rack_.defendTile ? 118.f * k : 0.f;
+	const float total = rack_.tiles.size() * (size + gap) - gap + (rack_.defendTile ? gap + defendW : 0.f);
+	float x = (c.width() - total) * 0.5f;
+	auto tile = [&](float w, Rgba fill, const std::string& label, Rgba ink, bool picked) {
+		c.fillRect(x, y, w, size, fill);
+		const float t = (picked ? 3.f : 1.f) * k;
+		const Rgba edge = picked ? Rgba{255, 255, 255, 255} : Rgba{200, 205, 215, 90};
+		c.fillRect(x, y, w, t, edge);
+		c.fillRect(x, y + size - t, w, t, edge);
+		c.fillRect(x, y, t, size, edge);
+		c.fillRect(x + w - t, y, t, size, edge);
+		float tw = 0, th = 0;
+		c.textSize(label, 1.1f * k, tw, th);
+		c.text(x + (w - tw) * 0.5f, y + (size - th) * 0.5f, label, 1.1f * k, ink, false);
+		x += w + gap;
+	};
+	for (size_t i = 0; i < rack_.tiles.size(); ++i)
+	{
+		const int m = rack_.tiles[i];
+		const Rgba fill = m == 1 ? accent() : m == 2 ? Rgba{83, 196, 108, 255} : m == 3 ? Rgba{196, 72, 72, 255} : Rgba{12, 15, 21, 190};
+		const Rgba ink = m == 0 ? Rgba{210, 215, 225, 255} : Rgba{12, 15, 21, 255};
+		tile(size, fill, std::to_string(i + 1), ink, static_cast<int>(i) == rack_.selected);
+	}
+	if (rack_.defendTile)
+		tile(defendW, rack_.defendReady ? Rgba{83, 196, 108, 255} : Rgba{12, 15, 21, 120}, "DEFEND",
+			rack_.defendReady ? Rgba{12, 15, 21, 255} : Rgba{150, 155, 165, 200}, rack_.selected == static_cast<int>(rack_.tiles.size()));
+	return y + size + 12.f * k;
+}
+
 void Hud::draw(Canvas& canvas, const ScenarioPlayer::Status& status, const SessionRunner::Status& session)
 {
 	// A real goal's slow motion and replay: nothing on top of it (the next shot's card covered the replay, Lambourne's
@@ -166,6 +199,7 @@ void Hud::draw(Canvas& canvas, const ScenarioPlayer::Status& status, const Sessi
 			lineY = sy + sq + 12.f * k;
 		}
 	}
+	lineY = drawShotRack(canvas, lineY, k);
 	drawObjective(canvas, status, k, lineY);
 	if (status.holding)
 		drawReadCard(canvas, status, k);

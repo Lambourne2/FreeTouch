@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Short tips shown the first time each place in the menu opens (and from its ? button). scene: the drawing above the text (hubs, tabs, controller, difficulty, freeplay, routine, daily, ghost, board, packs, record, net, share, friends, progress, settings).",
+  "about": "Short tips shown the first time each place in the menu opens (and from its ? button). scene: the drawing above the text (hubs, tabs, controller, difficulty, freeplay, routine, daily, ghost, board, packs, record, net, share, rack, replay, swap, friends, progress, settings).",
   "tutorials": [
     {
       "id": "home",
@@ -16,8 +16,17 @@
       "title": "Train",
       "steps": [
         { "scene": "difficulty", "title": "Pick a drill", "text": "Exercises has every drill. Pick Easy, Medium or Hard and press Play; star the ones you like to find them fast." },
-        { "scene": "freeplay", "title": "Freeplay+", "text": "Free play with goals popping up around the field: rings, targets and shots, while you play however you like." },
+        { "scene": "freeplay", "title": "Game Modes", "text": "Freeplay+ pops goals up around the field while you play however you like. Shot Bank has you score five shots, then save them yourself." },
         { "scene": "routine", "title": "Your routine", "text": "Build a warm-up you can play in order every day. Sessions & Labs has timed playlists made for you." }
+      ]
+    },
+    {
+      "id": "shot_bank",
+      "title": "Shot Bank",
+      "steps": [
+        { "scene": "rack", "title": "Fill your rack", "text": "Score five shots any way you like: Select gives you your ball controls to set them up. D-pad left and right pick a slot, and scoring again replaces just that shot." },
+        { "scene": "replay", "title": "Then save them", "text": "A car replays your whole build-up at your net, in a shuffled order and sometimes mirrored. Get there and touch the ball to stop it, even before the shot comes." },
+        { "scene": "swap", "title": "Send it to a friend", "text": "Send your rack from this page and a friend gets one counted try at it. You both see the result: green squares they saved, red ones beat them." }
       ]
     },
     {
@@ -44,7 +53,7 @@
       "title": "Friends",
       "steps": [
         { "scene": "friends", "title": "Add friends by code", "text": "Give your friend code, or type theirs. They accept, and you see each other's training: minutes, streak and last drill." },
-        { "scene": "board", "title": "Play together", "text": "Send each other shots, and see each other on the Daily and race leaderboards." }
+        { "scene": "board", "title": "Play together", "text": "Send each other shots and Shot Banks to defend, and see each other on the Daily and race leaderboards." }
       ]
     },
     {

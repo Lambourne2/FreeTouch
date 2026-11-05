@@ -177,6 +177,7 @@ void ScenarioPlayer::stop()
 	current_.reset();
 	objects_.clear();
 	leadInPhase_ = LeadInPhase::Off;
+	shotReplay_ = false;
 	countdownUntilTick_ = 0;
 	showBall();
 	if (ballExploded_)
@@ -366,6 +367,10 @@ bool ScenarioPlayer::apply(const Entry& entry, const std::string& reason, bool k
 		: leadin::Track{};
 	leadInPhase_ = leadIn_.frames.size() >= 2 ? LeadInPhase::Playing : LeadInPhase::Off;
 	leadInStartTick_ = lastTick_;
+	shotReplay_ = leadInPhase_ == LeadInPhase::Playing && r.resolved.value("shotReplay", false);
+	replayTouched_ = false;
+	if (shotReplay_)
+		leadInStartTick_ = lastTick_ + static_cast<uint64_t>(kShotReplayWaitSeconds * kTicksPerSecond); // a moment to get set
 	// Training packs: frozen on the shot's start until the player's first input (any button or stick).
 	// "readFirst" (HORSE, the combo ladders, every Daily Challenge shot): the same, with the objective left on screen to
 	// read and a fresh press needed (a held throttle does not start it).
@@ -381,7 +386,8 @@ bool ScenarioPlayer::apply(const Entry& entry, const std::string& reason, bool k
 	{
 		const leadin::Frame first = leadIn_.frames.front();
 		game_.setBall(first.ball);
-		game_.poseLocalCar(first.car);
+		if (!shotReplay_)
+			game_.poseLocalCar(first.car);
 	}
 	// A countdown before the play starts (startCountdownSeconds): everything frozen at its start, then released.
 	const double countdown = r.resolved.value("startCountdownSeconds", 0.0);
@@ -619,14 +625,18 @@ void ScenarioPlayer::onTick(const Snapshot& snap)
 		}
 		else if (current_->resolved.value("timeUpWaitsForGround", false) && snap.ball)
 		{
-			// Like the game's training: when time is up the shot plays on until the ball touches the ground (or 4 s).
+			// Like the game's training: when time is up the shot plays on for as long as the ball stays off the ground.
 			if (timeUpTick_ == 0)
 			{
 				timeUpTick_ = snap.tick;
 				log_.write("time_up_waiting", {{"exercise", current_->id}, {"rep", rep_}, {"ballZ", snap.ball->location.z}});
 			}
-			if (snap.ball->location.z < 110.f || snap.tick > timeUpTick_ + static_cast<uint64_t>(4.0 * kTicksPerSecond))
+			if (snap.ball->location.z < 110.f)
+			{
+				log_.write("time_up_ground", {{"exercise", current_->id}, {"rep", rep_}, {"ballZ", snap.ball->location.z},
+					{"secondsAfterZero", (snap.tick - timeUpTick_) / kTicksPerSecond}, {"touches", touches_}});
 				setResult(-1, "TIME", 0.f);
+			}
 		}
 		else
 		{
@@ -1525,8 +1535,40 @@ void ScenarioPlayer::drawGhost(Canvas& canvas) const
 	}
 }
 
+void ScenarioPlayer::tickShotReplay(const Snapshot& snap)
+{
+	if (startGate_ && !startGate_())
+		leadInStartTick_ = std::max(leadInStartTick_, snap.tick + 1); // the recorded car isn't in place yet
+	if (!replayTouched_ && snap.tick < leadInStartTick_)
+	{
+		game_.setBall({leadIn_.frames.front().ball.location, {}, {}});
+		return;
+	}
+	const double t = (snap.tick - std::min(snap.tick, leadInStartTick_)) / kTicksPerSecond;
+	if (!replayTouched_ && t < leadIn_.seconds())
+	{
+		game_.setBall(leadin::sample(leadIn_, t).ball);
+		return;
+	}
+	const bool touched = replayTouched_;
+	if (!touched)
+		game_.setBall(current_->ball);
+	log_.write("shot_replay_free", {{"exercise", current_->id}, {"rep", rep_}, {"touched", touched}, {"seconds", t}});
+	leadInGoLive(snap);
+	if (touched)
+	{
+		touches_ = 1; // stopping the build-up counts: it's judged like any save from here
+		saveWatchFromTick_ = snap.tick + 2;
+	}
+}
+
 void ScenarioPlayer::tickLeadIn(const Snapshot& snap)
 {
+	if (shotReplay_)
+	{
+		tickShotReplay(snap);
+		return;
+	}
 	const bool pressing = snap.localInput && leadin::anyInput(*snap.localInput);
 	if (leadInPhase_ == LeadInPhase::Playing)
 	{
@@ -1559,6 +1601,12 @@ void ScenarioPlayer::tickLeadIn(const Snapshot& snap)
 	// Go: the captured velocities carry on from here, and the rep (its clock, touches, goals) starts now.
 	game_.setBall(current_->ball);
 	game_.poseLocalCar(car);
+	leadInGoLive(snap);
+	log_.write("lead_in_released", {{"exercise", current_->id}, {"rep", rep_}});
+}
+
+void ScenarioPlayer::leadInGoLive(const Snapshot& snap)
+{
 	leadInPhase_ = LeadInPhase::Off;
 	// An undone reset goes back within the live shot, never to the frozen ball from before this: a restart with the
 	// throttle held releases at once, the restart's own game reset lands just after, and undoing it stopped the ball
@@ -1573,7 +1621,6 @@ void ScenarioPlayer::tickLeadIn(const Snapshot& snap)
 	prevBall_.reset();
 	saveWatchFromTick_ = 0;
 	outTicks_ = 0;
-	log_.write("lead_in_released", {{"exercise", current_->id}, {"rep", rep_}});
 }
 
 int ScenarioPlayer::pinsDown() const
@@ -2178,6 +2225,8 @@ void ScenarioPlayer::onTouch(const TouchEvent& touch)
 	}
 	if (current_ && touch.simulated && touch.isLocal)
 	{
+		if (shotReplay_ && leadInPhase_ == LeadInPhase::Playing)
+			replayTouched_ = true;
 		lastPlayerTouchTick_ = touch.tick;
 		if (firstPlayerTouchTick_ == 0 && touch.tick >= repStartTick_)
 			firstPlayerTouchTick_ = touch.tick;
@@ -2362,12 +2411,18 @@ ScenarioPlayer::Status ScenarioPlayer::status() const
 	}
 	else if (leadInPhase_ != LeadInPhase::Off)
 	{
-		s.objective = leadInPhase_ == LeadInPhase::Playing ? "Watch the lead-up" : "Press any button to play";
+		s.objective = shotReplay_ ? "Save your own shot" : leadInPhase_ == LeadInPhase::Playing ? "Watch the lead-up" : "Press any button to play";
 		s.prompt = true;
 		s.objectiveTag.clear();
 		s.objectiveAt.reset();
 		s.objectiveProgress.clear();
 		s.repSeconds = 0.0;
+	}
+	if (!objectiveText_.empty())
+	{
+		s.objective = objectiveText_;
+		s.objectiveTag.clear();
+		s.objectiveAt.reset();
 	}
 	s.goalReplay = realGoalPending_;
 	// Held (waiting for a press, or counting down): the read card's text.

@@ -97,6 +97,7 @@ void FreeTouch::onLoad()
 	player_->setResultListener([this](const ScenarioPlayer::Status& s) {
 		daily_->onResult(s);
 		session_->onResult(s);
+		shotBankResult(s);
 		const auto* item = content_.find(ContentLibrary::Kind::Scenario, s.scenarioId);
 		history_.onResult(today_, s.scenarioId, item ? item->category : "", static_cast<long long>(std::time(nullptr)),
 			s.outcome, s.resultLabel);
@@ -113,6 +114,8 @@ void FreeTouch::onLoad()
 	player_->setAdvanceRequest([this](bool keepCar) {
 		if (daily_->active())
 			return; // the daily moves on to its next shot itself
+		if (shotBankAdvance())
+			return;
 		if (session_->active())
 			session_->continueAfterSuccess(keepCar); // the session may rotate to another exercise instead
 		else
@@ -123,6 +126,7 @@ void FreeTouch::onLoad()
 	player_->setStartGate([this] { return bots_->ready(); });
 	player_->setRepStartListener([this](const ResolvedScenario& rep) {
 		bots_->onRepStart(rep);
+		shotBankRepStart(rep);
 		detector_.reset(); // a teleport: the last play is over
 		history_.onPlayed(rep.id, rep.category, static_cast<long long>(std::time(nullptr)));
 	});
@@ -139,6 +143,8 @@ void FreeTouch::onLoad()
 		touchLogger_.onTouch(e);
 		detector_.onTouch(e);
 		player_->onTouch(e);
+		if (e.simulated && e.isLocal)
+			bankTouchTick_ = e.tick;
 	});
 	game_->addTickListener([this](const Snapshot& s) {
 		if (!firstTickLogged_)
@@ -174,6 +180,9 @@ void FreeTouch::onLoad()
 			onMechanics();
 		}
 		leadInRecorder_.onTick(s);
+		if (bankTurn_ == BankTurn::Shooting)
+			bankRec_.onTick(s);
+		shotBankTick();
 		if (recording_)
 		{
 			recordRec_.onTick(s);
@@ -256,6 +265,8 @@ void FreeTouch::onLoad()
 			eventLog_.write("binds_repaired", {{"count", repaired}});
 	}
 	player_->setActiveListener([this](bool active) {
+		if (!active)
+			shotBankStop();
 		if (!active && ballControls_)
 		{
 			ballControls_ = false; // a new drill starts on its own buttons
@@ -314,6 +325,36 @@ void FreeTouch::onLoad()
 			pendingStart_ = nullptr; // a Free Play load still waiting to start it is called off too
 			player_->stop();
 			publishStatus();
+		});
+	};
+	dash.shotBank = [this](const std::string& action, int slot) {
+		game_->runOnGameThread([this, action, slot] { shotBankAction(action, slot); });
+	};
+	dash.shotBankOnline = [this](const std::string& action, const std::string& id) {
+		game_->runOnGameThread([this, action, id] {
+			const auto now = static_cast<int64_t>(std::time(nullptr));
+			if (action == "play")
+				shotBankPlayChallenge(id);
+			else if (action == "remove")
+				banks_->remove(id, now);
+			else
+				banks_->refresh(now);
+		});
+	};
+	dash.shotBankSend = [this](const std::vector<std::string>& friendIds, const std::string& toNames) {
+		game_->runOnGameThread([this, friendIds, toNames] {
+			shotBankLoad();
+			if (!bankRack_.full())
+				return;
+			const nlohmann::json doc = shotbank::shareDoc(bankRack_);
+			const std::string text = doc.dump();
+			if (text.size() > shotbank::kMaxShareBytes)
+			{
+				eventLog_.write("bank_too_big", {{"bytes", text.size()}});
+				notice("That bank is too big to send: redo your longest shots");
+				return;
+			}
+			banks_->send(shotbank::fingerprint(text), doc, friendIds, toNames, static_cast<int64_t>(std::time(nullptr)));
 		});
 	};
 	dash.reloadContent = [this] { game_->runOnGameThread([this] { reloadContent(); }); };
@@ -803,6 +844,8 @@ void FreeTouch::onLoad()
 		canvas.setOccluders(occluders);
 		player_->drawObjects(canvas, s); // world objects first, so the HUD stays on top
 		drawRecording(canvas);
+		drawShotPath(canvas);
+		hud_.setShotRack(shotRackHud());
 		hud_.draw(canvas, player_->status(), daily_->active() ? daily_->hudStatus() : session_->status());
 		hud_.drawFeed(canvas);
 	});
@@ -911,7 +954,9 @@ void FreeTouch::onLoad()
 			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
-			if (session_->active())
+			if (bankTurn_ != BankTurn::Off)
+				shotBankStep(+1);
+			else if (session_->active())
 				session_->next();
 			else
 				player_->next();
@@ -951,7 +996,10 @@ void FreeTouch::onLoad()
 			return;
 		game_->runOnGameThread([this] {
 			guardBallAction();
-			player_->previous();
+			if (bankTurn_ != BankTurn::Off)
+				shotBankStep(-1);
+			else
+				player_->previous();
 		});
 	}, "Go back to the previous rep (its seed)", PERMISSION_ALL);
 	cvarManager->registerNotifier("ft_stop", [this](std::vector<std::string>) {
@@ -1163,6 +1211,8 @@ void FreeTouch::publishStatus()
 	d.take = recording_ ? nullptr : takeView_;
 	d.inbox = inbox_;
 	d.notice = notice_;
+	shotBankLoad();
+	d.shotRack = bankView_;
 	if (account_)
 	{
 		d.account = account_->view();
@@ -1175,6 +1225,8 @@ void FreeTouch::publishStatus()
 		d.friends = friends_->view();
 	if (shots_)
 		d.shots = shots_->view();
+	if (banks_)
+		d.banks = banks_->view();
 #if FT_SELF_UPDATE
 	if (updater_)
 		d.update = updater_->view();
@@ -1432,6 +1484,7 @@ void FreeTouch::publishDashboardModel(int errors, int warnings)
 
 	// Freeplay+ picker: the objectives (one_of choices with ids) and which are switched on.
 	model->freeplayId = kFreeplayId;
+	model->shotBankId = shotbank::kShootId;
 	model->freeplayEnabled = freeplayEnabled_;
 	model->freeplayUnlimitedBoost = freeplayUnlimited_;
 	model->routineTemplates = routineTemplates_;
@@ -2119,6 +2172,13 @@ void FreeTouch::startAccount()
 	shots_ = std::make_unique<OnlineShots>(*account_,
 		[this](const std::string& event, const nlohmann::json& fields) { eventLog_.write(event, fields); });
 	shots_->setChanged([this] { publishStatus(); });
+	banks_ = std::make_unique<OnlineBanks>(*account_,
+		[this](const std::string& event, const nlohmann::json& fields) { eventLog_.write(event, fields); });
+	banks_->setChanged([this] { publishStatus(); });
+	banks_->setNewChallenge([this](const std::string& from) {
+		notice(from + " sent you a Shot Bank: Train > Game Modes");
+		hud_.showHint(from + " sent you a Shot Bank to defend", 6.f);
+	});
 	boards_ = std::make_unique<Leaderboards>(*account_,
 		[this](const std::string& event, const nlohmann::json& fields) { eventLog_.write(event, fields); });
 	boards_->setChanged([this] { publishStatus(); });
@@ -2174,6 +2234,7 @@ void FreeTouch::tickOnline()
 		{
 			friends_->clear();
 			shots_->clear();
+			banks_->clear();
 			boards_->clear();
 			return;
 		}
@@ -2182,6 +2243,8 @@ void FreeTouch::tickOnline()
 		activityAt_ = 0;
 		friends_->refresh(now);
 		shots_->refreshInbox(now);
+		banks_->refresh(now);
+		banksAt_ = now;
 		boards_->refreshRaceLeaders(now);
 		if (!ghostsUploaded_)
 		{
@@ -2227,6 +2290,11 @@ void FreeTouch::tickOnline()
 		friendsAt_ = now;
 		friends_->refresh(now);
 		shots_->refreshInbox(now); // shots friends sent
+	}
+	if (now >= banksAt_ + 300)
+	{
+		banksAt_ = now;
+		banks_->refresh(now); // banks to defend, and how friends did on yours
 	}
 }
 

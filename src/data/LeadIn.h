@@ -18,6 +18,7 @@ namespace leadin
 	{
 		BallTarget ball;
 		CarTarget car; // no boost
+		bool boost = false; // the car was boosting (Shot Bank, not saved in a scenario's lead-in)
 	};
 
 	struct Track
@@ -150,6 +151,7 @@ namespace leadin
 			f.car.rotation = me->rotation;
 			f.car.velocity = me->velocity;
 			f.car.angularVelocity = me->angularVelocity;
+			f.boost = s.localInput && s.localInput->boost;
 			if (!frames_.empty() && (teleported(frames_.back().ball.location, f.ball.location, f.ball.velocity, every)
 				|| teleported(frames_.back().car.location, f.car.location, f.car.velocity, every)
 				|| s.tick != lastTick_ + every))

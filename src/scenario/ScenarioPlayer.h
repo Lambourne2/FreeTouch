@@ -49,6 +49,10 @@ public:
 	void setGoalReplays(bool on) { goalReplays_ = on; }
 	// Select's ball controls are on: the player's own freeplay controls are live, so a freeplay reset is theirs to keep.
 	void setBallControls(bool on) { ballControls_ = on; }
+	// Replaces the objective line while a rep plays ("" = the scenario's own): Shot Bank's count.
+	void setObjectiveText(const std::string& text) { objectiveText_ = text; }
+	// The line under the rep's result, for whoever hears about it first.
+	void setResultDetail(const std::string& text) { resultDetail_ = text; }
 	// A drill button was pressed on Epic's controls: for the next moment, a ball that jumps (the game's own ball action
 	// on the same button) goes back.
 	void guardBallAction() { ballGuardUntilTick_ = lastTick_ + 12; }
@@ -108,6 +112,9 @@ public:
 	// Seconds into the lead-up while it plays (its end while it waits for the player); -1 when there is none running.
 	double leadInTime() const
 	{
+		// A shot replay's car plays on if the player sets the ball free early.
+		if (shotReplay_)
+			return lastTick_ > leadInStartTick_ ? (lastTick_ - leadInStartTick_) / 120.0 : 0.0;
 		if (leadInPhase_ == LeadInPhase::Off)
 			return -1.0;
 		return leadInPhase_ == LeadInPhase::Waiting ? leadIn_.seconds() : std::min(leadIn_.seconds(), (lastTick_ - leadInStartTick_) / 120.0);
@@ -269,6 +276,11 @@ private:
 	bool waitForInput_ = false; // "waitForInput": this rep started frozen (no lead-in) until the player's first input
 	bool readFirst_ = false;    // "readFirst" (or forced): that wait shows the objective and needs a fresh press
 	bool forceReadFirst_ = false;
+	bool shotReplay_ = false;    // "shotReplay" (Shot Bank): the player is free while the lead-in plays
+	bool replayTouched_ = false; // ...and touched the ball during it, which sets it free
+	std::string objectiveText_;
+	void tickShotReplay(const Snapshot& snap);
+	void leadInGoLive(const Snapshot& snap);
 	uint64_t timeUpTick_ = 0;   // "timeUpWaitsForGround": the clock ran out here; the rep ends when the ball lands
 	void drawTrajectory(Canvas& canvas) const;
 	void tickLeadIn(const Snapshot& snap);
@@ -476,6 +488,7 @@ private:
 	int defendedNet_ = -1;           // -1 blue, +1 orange: the local car's team (kept while it is demolished)
 	int outTicks_ = 0;              // consecutive ticks the ball has not been heading into the defended net
 	static constexpr int kSaveConfirmTicks = 3;
+	static constexpr double kShotReplayWaitSeconds = 1.0; // Shot Bank: held on the first frame this long
 	uint64_t goalCheckFromTick_ = 0; // a rep's first ticks still show the previous ball position
 
 	void setResult(int outcome, const std::string& label, float kmh);

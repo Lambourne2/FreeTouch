@@ -95,6 +95,7 @@
     <ClCompile Include="src\core\Account.cpp" />
     <ClCompile Include="src\core\Friends.cpp" />
     <ClCompile Include="src\core\OnlineShots.cpp" />
+    <ClCompile Include="src\core\OnlineBanks.cpp" />
     <ClCompile Include="src\core\Leaderboards.cpp" />
     <ClCompile Include="src\bots\PuppetKeeper.cpp" />
     <ClCompile Include="src\bots\BotManager.cpp" />
@@ -103,6 +104,7 @@
     <ClCompile Include="src\scenario\ScenarioModes.cpp" />
     <ClCompile Include="src\plugin\FreeTouchProgress.cpp" />
     <ClCompile Include="src\plugin\FreeTouchPacks.cpp" />
+    <ClCompile Include="src\plugin\FreeTouchShotBank.cpp" />
     <ClCompile Include="src\bots\policy\EarlPolicy.cpp" />
     <ClCompile Include="src\plugin\ExerciseControls.cpp" />
     <ClCompile Include="src\data\EventLog.cpp" />

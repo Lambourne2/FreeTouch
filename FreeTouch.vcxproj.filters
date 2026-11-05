@@ -73,6 +73,7 @@
     <ClCompile Include="src\core\Account.cpp"><Filter>core</Filter></ClCompile>
     <ClCompile Include="src\core\Friends.cpp"><Filter>core</Filter></ClCompile>
     <ClCompile Include="src\core\OnlineShots.cpp"><Filter>core</Filter></ClCompile>
+    <ClCompile Include="src\core\OnlineBanks.cpp"><Filter>core</Filter></ClCompile>
     <ClCompile Include="src\core\Leaderboards.cpp"><Filter>core</Filter></ClCompile>
     <ClCompile Include="src\bots\PuppetKeeper.cpp"><Filter>bots</Filter></ClCompile>
     <ClCompile Include="src\bots\BotManager.cpp"><Filter>bots</Filter></ClCompile>
@@ -81,6 +82,7 @@
     <ClCompile Include="src\scenario\ScenarioModes.cpp"><Filter>bots</Filter></ClCompile>
     <ClCompile Include="src\plugin\FreeTouchProgress.cpp"><Filter>bots</Filter></ClCompile>
     <ClCompile Include="src\plugin\FreeTouchPacks.cpp"><Filter>bots</Filter></ClCompile>
+    <ClCompile Include="src\plugin\FreeTouchShotBank.cpp"><Filter>bots</Filter></ClCompile>
     <ClCompile Include="src\bots\policy\EarlPolicy.cpp"><Filter>bots</Filter></ClCompile>
     <ClCompile Include="src\plugin\ExerciseControls.cpp"><Filter>plugin</Filter></ClCompile>
     <ClCompile Include="src\data\EventLog.cpp"><Filter>data</Filter></ClCompile>

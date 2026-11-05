@@ -3,6 +3,18 @@
   "about": "Free Touch's patch notes, newest first (the menu's Patch notes window). Every release gets an entry at the top with a new id; a new id opens the window once for each player. kind is new, changed or fixed.",
   "updates": [
     {
+      "id": "2026-11-04-shot-bank",
+      "date": "2026-11-04",
+      "title": "Shot Bank: score five shots, then save them yourself",
+      "items": [
+        { "kind": "new", "text": "Shot Bank: score five shots any way you like, then a car replays your whole build-up at your net, in a shuffled order and sometimes mirrored, and you have to save them." },
+        { "kind": "new", "text": "Your shots live in five slots. D-pad left and right pick one, you see its path on the field, and scoring again replaces just that shot. They stay until you replace them, even after closing the game." },
+        { "kind": "new", "text": "Send your Shot Bank to friends. They get one counted try, and you both see how it went, shot by shot, on the Shot Bank page." },
+        { "kind": "changed", "text": "Train has a new Game Modes tab for Freeplay+ and Shot Bank." },
+        { "kind": "fixed", "text": "Training packs at zero seconds now play like the game: only the ball touching the floor ends the shot, however long that takes." }
+      ]
+    },
+    {
       "id": "2026-11-04-dpad",
       "date": "2026-11-04",
       "title": "D-pad drill controls are back, and a startup crash is gone",

@@ -44,7 +44,8 @@ void BotManager::onRepStart(const ResolvedScenario& rep)
 					if (!k.brain)
 						log_.write("bot_model_missing", {{"exercise", rep.id}, {"bot", type}, {"fallback", "psyonix"}});
 				}
-				const std::string base = !k.brain ? "FT Defender" : type == "nexto" ? "FT Nexto" : "FT Necto";
+				k.replay = bot.value("replay", false);
+				const std::string base = k.replay ? bot.value("name", std::string("FT Past You")) : !k.brain ? "FT Defender" : type == "nexto" ? "FT Nexto" : "FT Necto";
 				k.name = base + (wanted.empty() ? std::string() : " " + std::to_string(wanted.size() + 1));
 				if (k.brain)
 				{
@@ -73,10 +74,10 @@ void BotManager::onRepStart(const ResolvedScenario& rep)
 					k.trackHz = std::max(1.0, bot["track"].value("hz", 60.0));
 					for (const auto& row : bot["track"]["frames"])
 					{
-						if (!row.is_array() || row.size() != 9)
+						if (!row.is_array() || row.size() < 9 || row.size() > 10)
 							continue;
-						std::array<float, 9> f{};
-						for (int i = 0; i < 9; ++i)
+						std::array<float, 10> f{};
+						for (size_t i = 0; i < row.size(); ++i)
 							f[i] = row[i].get<float>();
 						k.track.push_back(f);
 					}
@@ -230,6 +231,11 @@ void BotManager::onTick(const Snapshot& snap)
 				log_.write("defender_placed", {{"name", k.name}, {"carId", car->id}, {"from", statejson::toJson(car->location)},
 					{"holdSeconds", k.holdSeconds}});
 			}
+			if (k.replay && (leadInT_ < 0.0 || leadInT_ * k.trackHz > static_cast<double>(k.track.size()) - 1.0))
+			{
+				game_.setBotInput(car->id, CarInput{}); // the recording is over: it coasts
+				continue;
+			}
 			if (!k.released)
 			{
 				// Frozen until the player's countdown says go (it waits for this bot to be placed), or through the rep's
@@ -260,7 +266,9 @@ void BotManager::onTick(const Snapshot& snap)
 					pose.velocity = {lerp(6), lerp(7), lerp(8)};
 					pose.boost = k.start.boost ? std::optional<float>(100.f) : std::nullopt;
 					game_.setCarState(car->id, pose);
-					game_.setBotInput(car->id, CarInput{});
+					CarInput input;
+					input.boost = k.replay && a[9] > 0.5f; // the flame; the pose is set every tick, so it doesn't push the car
+					game_.setBotInput(car->id, input);
 					continue;
 				}
 				if (frozen)

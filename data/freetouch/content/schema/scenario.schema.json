@@ -89,7 +89,7 @@
     "showTrajectory": { "type": "boolean", "description": "Draw the ball's path (trajectorySeconds ahead) while the shot waits for input (waitForInput) or during the start countdown." },
     "trajectorySeconds": { "type": "number", "minimum": 0.2, "maximum": 4, "description": "showTrajectory: how far ahead the path goes (1.6 s)." },
     "clockCountsDown": { "type": "boolean", "description": "The HUD shows the time left instead of the time taken." },
-    "timeUpWaitsForGround": { "type": "boolean", "description": "When the time limit runs out, the rep plays on until the ball touches the ground (up to 4 s more), like the game's training." },
+    "timeUpWaitsForGround": { "type": "boolean", "description": "When the time limit runs out, the rep plays on until the ball touches the ground, however long that takes, like the game's training." },
     "recordVersion": { "type": "integer", "minimum": 1, "default": 1, "description": "Bump when a timed drill's layout changes: best times and ghosts from older versions no longer count." },
     "ghost": { "type": "boolean", "description": "Races: record each run; a new best is saved and drawn as a ghost car on later runs (with timed)." },
     "arena": { "type": "string", "description": "The arena the moment came from (replay takeover); informational." },
@@ -150,6 +150,7 @@
       },
       "additionalProperties": false
     },
+    "shotReplay": { "type": "boolean", "description": "Shot Bank: the leadIn moves only the ball, and the player drives from the start; touching the ball sets it free." },
     "leadIn": {
       "type": "object",
       "description": "Saved Shots: the seconds before a capture, replayed before the shot; then it freezes until the player presses something. Written by ft_capture.",
@@ -272,6 +273,8 @@
         "randomSide": { "type": "boolean", "default": false, "description": "Flip this bot to the other side (x, velocity x, yaw) on a random half of reps, independently of the scenario's allowMirror." },
         "recording": { "type": "string", "description": "Playback file for type 'playback'." },
         "label": { "type": "string", "description": "Who it stands in for (replay takeover: the player's name)." },
+        "replay": { "type": "boolean", "description": "Shot Bank: the bot only follows its track, then coasts. Track rows may add a tenth value: 1 while boosting." },
+        "name": { "type": "string", "pattern": "^FT ", "description": "Shot Bank: the name over the recorded car." },
         "keepType": { "type": "boolean", "description": "psyonix stays the game's bot whatever the Opponent setting says (training pack defenders)." },
         "track": { "type": "object", "description": "Its lead-up, played while the scenario's leadIn plays: hz and frames of [x, y, z, pitch, yaw, roll, vx, vy, vz], ending on its start." },
         "params": {

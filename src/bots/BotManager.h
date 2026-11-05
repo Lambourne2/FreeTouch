@@ -60,7 +60,8 @@ private:
 		float skill = 0.5f;
 		int team = 1;              // wanted team (0 = the player's side)
 		bool teamChecked = false;
-		std::vector<std::array<float, 9>> track; // lead-up: x y z pitch yaw roll vx vy vz at trackHz
+		std::vector<std::array<float, 10>> track; // lead-up: x y z pitch yaw roll vx vy vz boosting at trackHz
+		bool replay = false;     // Shot Bank: only ever follows its track, then coasts; it never plays on its own
 		double trackHz = 60.0;
 		CarTarget start;         // where a Psyonix bot is put at the start of each rep
 		bool placed = false;

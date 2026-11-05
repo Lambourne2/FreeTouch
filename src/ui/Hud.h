@@ -3,6 +3,8 @@
 #include <chrono>
 #include <deque>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "core/Canvas.h"
 #include "core/SessionRunner.h"
@@ -11,10 +13,20 @@
 
 // On-screen strip during exercises: exercise, rep number, timer, streak, difficulty, and a big feedback flash
 // (GOAL / CONCEDED / SAVED / TIME) when a rep is judged. Drawn every frame through Canvas (game thread). No SDK.
+// Shot Bank's row of tiles under the strip. tiles: 0 empty or to play, 1 banked, 2 saved, 3 not saved.
+struct ShotRackHud
+{
+	std::vector<int> tiles;
+	int selected = -1;        // a tile, or tiles.size() for the Defend tile
+	bool defendTile = false;
+	bool defendReady = false; // all five are in
+};
+
 class Hud
 {
 public:
 	void draw(Canvas& canvas, const ScenarioPlayer::Status& status, const SessionRunner::Status& session);
+	void setShotRack(ShotRackHud rack) { rack_ = std::move(rack); }
 	// The bar's style (Settings > Drill bar).
 	void setBarOptions(const hudbar::Options& options) { barOptions_ = options; }
 	// The game speed when practice slow motion is on (1 = normal: nothing shown).
@@ -47,6 +59,8 @@ private:
 	void drawHint(Canvas& c);
 	hudbar::Placed drawStrip(Canvas& c, const ScenarioPlayer::Status& s, float k);
 	hudbar::Options barOptions_;
+	ShotRackHud rack_;
+	float drawShotRack(Canvas& c, float y, float k);
 	void drawFlash(Canvas& c, float k);
 	void drawObjective(Canvas& c, const ScenarioPlayer::Status& s, float k, float lineY);
 	void drawReadCard(Canvas& c, const ScenarioPlayer::Status& s, float k);

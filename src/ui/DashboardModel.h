@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <map>
 #include <set>
 #include <string>
@@ -10,6 +11,7 @@
 #include "core/Account.h"
 #include "data/ShotShare.h"
 #include "core/Friends.h"
+#include "core/OnlineBanks.h"
 #include "core/OnlineShots.h"
 #include "core/Leaderboards.h"
 #include "core/PatchNotes.h"
@@ -78,6 +80,20 @@ struct SavedShot
 	std::string sharedBy;   // a friend's shot (imported from a .ftshot file): their name
 };
 
+// Shot Bank's five slots for the menu.
+struct ShotRackView
+{
+	struct Slot
+	{
+		bool filled = false;
+		float kmh = 0.f;
+		float seconds = 0.f;
+		std::vector<std::array<float, 2>> path; // the ball's x, y
+	};
+	std::vector<Slot> slots;
+	bool full = false;
+};
+
 // A shared shot (.ftshot) waiting in Downloads (or freetouch/inbox) to be imported.
 struct SharedShotFile
 {
@@ -127,6 +143,7 @@ struct DashboardModel
 	std::vector<patchnotes::Update> patchNotes; // content/updates/patch_notes.json, newest first
 	std::vector<ReplayMoment> replayMoments;    // newest first
 	std::string freeplayId;                    // the Freeplay+ scenario
+	std::string shotBankId;                    // the Shot Bank scenario
 	std::vector<FreeplayChoice> freeplayChoices;
 	std::vector<std::string> freeplayEnabled;  // ids switched on (empty = all)
 	bool freeplayUnlimitedBoost = true;
@@ -361,11 +378,13 @@ struct DashboardStatus
 	float recordSeconds = 0.f;  // ...for this long
 	float takeSeconds = 0.f;    // a finished recording waiting to be saved (0: none)
 	std::shared_ptr<const RecordTake> take; // ...its path
+	std::shared_ptr<const ShotRackView> shotRack;
 	std::shared_ptr<const std::vector<SharedShotFile>> inbox; // shared shots found in Downloads, newest first
 	std::string notice; // a result from the game thread to show as a toast (sharing, importing)
 	Account::View account; // Free Touch account (Settings > Account)
 	Friends::View friends; // the Friends page
 	OnlineShots::View shots; // shots friends sent, the Shot Board
+	OnlineBanks::View banks; // Shot Banks sent to you and by you
 	Leaderboards::View boards; // the Daily page's leaderboard
 	UpdateView update;         // Settings > Updates
 	std::shared_ptr<const std::set<std::string>> haveKeys; // saved shots' fingerprints: "Added"

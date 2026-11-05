@@ -100,7 +100,7 @@ namespace
 		const theme::Palette& pal = theme::palette();
 		const ImVec2 pa(a.x + 24.f * u, a.y + 18.f * u), pb(b.x - 24.f * u, b.y - 14.f * u);
 		panel(dl, pa, pb);
-		static const char* kTabs[] = {"Exercises", "Sessions", "Freeplay+", "Routine"};
+		static const char* kTabs[] = {"Exercises", "Sessions", "Game Modes", "Routine"};
 		const int cur = static_cast<int>(t / 1.3f) % 4;
 		const float slide = ease(loop(t, 1.3f) * 3.f);
 		float x = pa.x + 18.f * u;
@@ -558,6 +558,90 @@ namespace
 		}
 	}
 
+	// Shot Bank's rack: the tiles fill one by one, then the pick steps back and redoes one, then DEFEND lights up.
+	void rack(ImDrawList* dl, ImVec2 a, ImVec2 b, float t, float u)
+	{
+		const theme::Palette& pal = theme::palette();
+		const float k = loop(t, 7.f) * 7.f; // seconds into the loop
+		const int filled = std::min(5, static_cast<int>(k));
+		const bool back = k >= 5.f && k < 6.f, ready = k >= 6.f;
+		const int pick = ready ? 5 : back ? 2 : std::min(4, filled);
+		const float size = 46.f * u, gap = 9.f * u, defendW = 104.f * u;
+		const float total = 5.f * (size + gap) + defendW;
+		float x = (a.x + b.x - total) * 0.5f;
+		const float y = (a.y + b.y) * 0.5f - size * 0.5f + 8.f * u;
+		textCentered(dl, ImVec2((a.x + b.x) * 0.5f, y - 30.f * u), col(pal.textDim),
+			back ? "Score again to replace shot 3" : ready ? "Defending in 5" : "Score it any way you like");
+		for (int i = 0; i < 6; ++i)
+		{
+			const float w = i == 5 ? defendW : size;
+			const bool on = i < 5 ? i < filled : filled == 5;
+			const ImU32 fill = i == 5 ? (on ? kGreen : IM_COL32(25, 28, 36, 255)) : on ? col(pal.accent) : IM_COL32(25, 28, 36, 255);
+			dl->AddRectFilled(ImVec2(x, y), ImVec2(x + w, y + size), fill, 6.f);
+			dl->AddRect(ImVec2(x, y), ImVec2(x + w, y + size), i == pick ? IM_COL32(255, 255, 255, 255) : IM_COL32(200, 205, 215, 70), 6.f,
+				ImDrawCornerFlags_All, i == pick ? 3.f : 1.f);
+			char label[8];
+			snprintf(label, sizeof(label), "%d", i + 1);
+			textCentered(dl, ImVec2(x + w * 0.5f, y + size * 0.5f), on ? IM_COL32(12, 15, 21, 255) : col(pal.textDim), i == 5 ? "DEFEND" : label);
+			x += w + gap;
+		}
+	}
+
+	// The shot comes back: a car replays its drive at your net, and you get to the ball first.
+	void replay(ImDrawList* dl, ImVec2 a, ImVec2 b, float t, float u)
+	{
+		const theme::Palette& pal = theme::palette();
+		const ImVec2 la(a.x + 40.f * u, a.y + 24.f * u), lb(b.x - 40.f * u, b.y - 24.f * u);
+		dl->AddRectFilled(la, lb, IM_COL32(40, 44, 54, 255), 10.f);
+		const float midX = (la.x + lb.x) * 0.5f, goalW = 90.f * u;
+		dl->AddLine(ImVec2(midX - goalW, lb.y), ImVec2(midX + goalW, lb.y), IM_COL32(90, 150, 255, 255), 4.f);
+		const float k = loop(t, 4.f);
+		const auto path = [&](float s) {
+			return ImVec2(midX - 120.f * u + 150.f * u * s + std::sin(s * 5.f) * 26.f * u, la.y + 16.f * u + (lb.y - la.y - 30.f * u) * s);
+		};
+		const float hit = 0.74f, ballS = std::min(k * 1.25f, hit + 0.02f);
+		for (int i = 1; i < 24; ++i)
+			dl->AddLine(path((i - 1) / 24.f), path(i / 24.f), col(pal.accent, 0.3f), 2.f);
+		const float carS = std::max(0.f, ballS - 0.14f);
+		const ImVec2 cp = path(carS), cn = path(carS + 0.02f);
+		car(dl, cp, 15.f * u, std::atan2(cn.y - cp.y, cn.x - cp.x), IM_COL32(255, 150, 60, 255), kGhost);
+		textCentered(dl, ImVec2(cp.x, cp.y - 22.f * u), kGhost, "PAST YOU", 0.8f);
+		const bool saved = k * 1.25f >= hit;
+		const float out = saved ? (k * 1.25f - hit) * 2.f : 0.f;
+		const ImVec2 at = path(ballS);
+		ball(dl, ImVec2(at.x - out * 170.f * u, at.y - out * 60.f * u), 9.f * u);
+		const ImVec2 you(midX - 50.f * u + 80.f * u * ease(k * 1.5f), lb.y - 42.f * u);
+		car(dl, you, 15.f * u, -kPi * 0.5f, IM_COL32(70, 130, 230, 255), IM_COL32(170, 205, 255, 255));
+		if (saved)
+			textCentered(dl, ImVec2(midX, (la.y + lb.y) * 0.5f), kGreen, "SAVED", 1.3f);
+	}
+
+	// A bank goes to a friend, and their result comes back as five squares.
+	void swap(ImDrawList* dl, ImVec2 a, ImVec2 b, float t, float u)
+	{
+		const theme::Palette& pal = theme::palette();
+		const float y = (a.y + b.y) * 0.5f - 14.f * u;
+		const ImVec2 l(a.x + (b.x - a.x) * 0.2f, y), r(a.x + (b.x - a.x) * 0.8f, y);
+		const float k = loop(t, 5.f);
+		dl->AddLine(l, r, col(pal.textDim, 0.25f), 2.f);
+		dl->AddCircleFilled(l, 26.f * u, IM_COL32(70, 130, 230, 255), 24);
+		dl->AddCircleFilled(r, 26.f * u, IM_COL32(255, 150, 60, 255), 24);
+		textCentered(dl, ImVec2(l.x, l.y + 42.f * u), col(pal.text), "You");
+		textCentered(dl, ImVec2(r.x, r.y + 42.f * u), col(pal.text), "Friend");
+		const float sq = 15.f * u, gap = 3.f * u;
+		static const bool kSaved[] = {true, false, false, true, false};
+		const bool back = k > 0.5f;
+		const float move = back ? ease((k - 0.5f) * 3.f) : ease(k * 3.f);
+		const ImVec2 c = back ? lerp(r, l, move) : lerp(l, r, move);
+		for (int i = 0; i < 5; ++i)
+		{
+			const ImVec2 p(c.x + (i - 2.5f) * (sq + gap), c.y - 44.f * u);
+			const ImU32 fill = !back ? col(pal.accent) : kSaved[i] ? kGreen : IM_COL32(196, 72, 72, 255);
+			dl->AddRectFilled(p, ImVec2(p.x + sq, p.y + sq), fill, 3.f);
+		}
+		textCentered(dl, ImVec2((a.x + b.x) * 0.5f, y + 42.f * u), col(pal.textDim), back ? "Saved 2 of 5" : "They defend your shots");
+	}
+
 	// Two players: a friend code travels across, then they're linked.
 	void friends(ImDrawList* dl, ImVec2 a, ImVec2 b, float t, float u)
 	{
@@ -661,6 +745,9 @@ void tutorial::drawScene(ImDrawList* dl, const std::string& scene, ImVec2 a, ImV
 	else if (scene == "record") record(dl, a, b, t, u);
 	else if (scene == "net") net(dl, a, b, t, u);
 	else if (scene == "share") share(dl, a, b, t, u);
+	else if (scene == "rack") rack(dl, a, b, t, u);
+	else if (scene == "replay") replay(dl, a, b, t, u);
+	else if (scene == "swap") swap(dl, a, b, t, u);
 	else if (scene == "friends") friends(dl, a, b, t, u);
 	else if (scene == "progress") progress(dl, a, b, t, u);
 	else if (scene == "settings") settings(dl, a, b, t, u);

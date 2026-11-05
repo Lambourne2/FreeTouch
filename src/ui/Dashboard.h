@@ -23,6 +23,9 @@ public:
 	{
 		std::function<void(const std::string& exerciseId, const std::string& difficulty)> play;
 		std::function<void()> stop;
+		std::function<void(const std::string& action, int slot)> shotBank; // start, defend, clear (slot -1: the next one, or all)
+		std::function<void(const std::string& action, const std::string& id)> shotBankOnline; // play, remove (a challenge), refresh
+		std::function<void(const std::vector<std::string>& friendIds, const std::string& toNames)> shotBankSend;
 		std::function<void()> reloadContent;
 		std::function<void(const ImVec4& accent)> accentChanged;
 		std::function<void(bool on)> goalExplosionChanged;
@@ -191,6 +194,7 @@ private:
 	std::map<int, Page> hubLast_;
 	bool dailyWaiting_ = false; // today's daily not played yet (a dot on Compete)
 	int sharedWaiting_ = 0;     // shots shared with you not added yet (a count on Create)
+	int banksWaiting_ = 0;      // Shot Banks to defend (a count on Train)
 	// Progress page (tabs) and the Replays page (replay takeover).
 	void renderProgress(const DashboardModel& m, const DashboardStatus& s);
 	void renderProgressHero(const ProgressView& p);
@@ -244,6 +248,11 @@ private:
 	void renderWarmup(const DashboardModel& m, const DashboardStatus& s);
 	void renderRoutineTemplates(const DashboardModel& m, bool replacing);
 	void renderFreeplayPlus(const DashboardModel& m);
+	void renderGameModes(const DashboardModel& m, const DashboardStatus& s);
+	void renderShotBank(const DashboardModel& m, const DashboardStatus& s);
+	int gameMode_ = 0; // 0 Freeplay+, 1 Shot Bank
+	bool shotBankShown_ = false; // its page was on screen last frame: results are fetched on arriving
+	void renderBankChallenges(const DashboardStatus& s, float width);
 	// Settings page (polish pass): section cards and rows of a name, one help line and the control on the right. A card's
 	// background is drawn from its height last frame (the controls table inside uses columns, which rule out layering).
 	void settingsCardBegin(const char* id, const char* title);

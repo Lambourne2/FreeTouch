@@ -15,6 +15,7 @@
 #include "data/ReplayTakeover.h"
 #include "data/PackRecorder.h"
 #include "data/LeadIn.h"
+#include "data/ShotBank.h"
 #include "data/TrainingHistory.h"
 #include "audio/SoundPlayer.h"
 #include <atomic>
@@ -217,6 +218,8 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	std::unique_ptr<Account> account_;
 	std::unique_ptr<Friends> friends_;
 	std::unique_ptr<OnlineShots> shots_;
+	std::unique_ptr<OnlineBanks> banks_;
+	int64_t banksAt_ = 0;
 	std::unique_ptr<Leaderboards> boards_;
 	bool ghostsUploaded_ = false; // the race bests from before Phase 8, sent once a session
 	void postDailyScore(const daily::Attempt& a); // a finished daily, if signed in
@@ -337,6 +340,42 @@ class FreeTouch : public BakkesMod::Plugin::BakkesModPlugin, public SettingsWind
 	void takeoverNow(uint64_t playerId, int others, bool leadIn);
 	void deleteReplayMoment(const std::string& id);
 	void drawReplayHint(Canvas& canvas, const Snapshot& s);
+
+	// ---- Shot Bank (FreeTouchShotBank.cpp): five shots scored, then saved ----
+	enum class BankTurn { Off, Shooting, Defending };
+	BankTurn bankTurn_ = BankTurn::Off;
+	leadin::Recorder bankRec_{shotbank::kKeepSeconds};
+	uint64_t bankTouchTick_ = 0;
+	shotbank::Rack bankRack_;
+	shotbank::Rack bankGuest_;         // a friend's bank being defended
+	std::string bankChallenge_, bankFrom_; // which one, and who sent it ("" = your own)
+	bool bankCounted_ = false;         // the first try: its result goes to the service
+	std::vector<int> bankOrder_;       // the slot each shot came from, in the order they play
+	bool bankLoaded_ = false;
+	int bankStartSlot_ = -1;           // the menu asked to redo this slot
+	uint64_t bankDefendTick_ = 0;      // on the Defend tile: the defence starts on this tick
+	std::shared_ptr<const ShotRackView> bankView_; // the rack for the menu
+	std::vector<std::string> bankIds_; // the scenarios made from the shots, in the order they play
+	std::vector<int> bankSaved_;       // 1 saved, -1 not, 0 to play
+	size_t bankIndex_ = 0;
+	int bankScenarios_ = 0;            // ids stay unique until the content reloads
+	void shotBankRepStart(const ResolvedScenario& rep);
+	void shotBankResult(const ScenarioPlayer::Status& s);
+	bool shotBankAdvance();            // true when it took care of what comes next
+	bool shotBankDefend();
+	void shotBankStop();               // the turn ends; the rack stays
+	void shotBankTick();
+	void shotBankStep(int delta);      // D-pad left / right: another slot, or another shot while defending
+	void shotBankAction(const std::string& action, int slot); // from the menu: start, defend, clear
+	void shotBankPlayChallenge(const std::string& challenge);
+	void shotBankFinishChallenge();
+	void shotBankObjective();
+	void shotBankLoad();
+	void shotBankSave();
+	void shotBankPublish();
+	std::filesystem::path shotRackFile();
+	ShotRackHud shotRackHud() const;
+	void drawShotPath(Canvas& canvas);
 
 	// ---- Training packs (FreeTouchPacks.cpp): shots recorded while a pack is played in custom training ----
 	packs::Recorder packRecorder_;
